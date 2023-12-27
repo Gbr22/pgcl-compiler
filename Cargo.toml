@@ -9,3 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wasm-bindgen = "0.2.74"
+regex = "1.10.2"
+enum_all_variants = "0.1.0"
+serde = "^1.0.101"
+serde_derive = "^1.0.101"
