@@ -172,14 +172,8 @@ fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
     }
 }
 
-fn flush_tokens(current_tokens: &mut Vec<Token>, tokens: &mut Vec<Token>) -> Option<Token> {
-    let old_tokens = current_tokens.clone();
-    current_tokens.clear();
-    let valid_tokens: Vec<&Token> = old_tokens
-        .iter()
-        .take_while(|token| token.is_valid()).collect();
-    
-    let max = valid_tokens.iter()
+fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
+    let max = tokens.iter()
         .max_by(|a, b| 
             a.string
                 .chars()
@@ -188,22 +182,64 @@ fn flush_tokens(current_tokens: &mut Vec<Token>, tokens: &mut Vec<Token>) -> Opt
                     &b.string.chars().count()
                 )
         );
-        
-
     if let Some(max) = max {
-        tokens.push(max.to_owned().clone());
-
         Some(max.to_owned().clone())
     } else {
+        None
+    }
+}
+
+fn flush_tokens(current_tokens: &mut Vec<Token>, tokens: &mut Vec<Token>, failed_tokens: &mut Vec<Token>) -> Option<Token> {
+    let old_tokens = current_tokens.clone();
+    current_tokens.clear();
+    let valid_tokens: Vec<&Token> = old_tokens
+        .iter()
+        .take_while(|token| token.is_valid()).collect();
+    
+    let max_valid = max_token(&valid_tokens);
+        
+
+    if let Some(max) = max_valid {
+        tokens.push(max.clone());
+
+        Some(max)
+    } else {
+        let invalid_tokens: Vec<&Token> = old_tokens
+            .iter()
+            .skip_while(|token| token.is_valid())
+            .collect();
+        let max_invalid = max_token(&invalid_tokens);
+        if let Some(max) = max_invalid {
+            failed_tokens.push(max);
+        }
+
         None
     }
 
 }
 
 #[wasm_bindgen]
-pub fn tokenize(input: String) -> Vec<Token> {
+pub struct TokenizeResult {
+    tokens: Vec<Token>,
+    failed_tokens: Vec<Token>
+}
+#[wasm_bindgen]
+impl TokenizeResult {
+    #[wasm_bindgen(getter = tokens)]
+    pub fn js_get_tokens(&self) -> Vec<Token> {
+        self.tokens.to_owned()
+    }
+    #[wasm_bindgen(getter = failedTokens)]
+    pub fn js_get_failed_tokens(&self) -> Vec<Token> {
+        self.failed_tokens.to_owned()
+    }
+}
+
+#[wasm_bindgen]
+pub fn tokenize(input: String) -> TokenizeResult {
     let mut tokens: Vec<Token> = vec![];
     let mut current_tokens: Vec<Token> = vec![];
+    let mut failed_tokens: Vec<Token> = vec![];
 
     log(&format!("Tokenizing string: {}",input));
 
@@ -223,7 +259,7 @@ pub fn tokenize(input: String) -> Vec<Token> {
             if current_tokens.len() == 0 {
                 break;
             }
-            let token = flush_tokens(&mut current_tokens, &mut tokens);
+            let token = flush_tokens(&mut current_tokens, &mut tokens, &mut failed_tokens);
             if let Some(token) = token {
                 index = token.end_index;
             }
@@ -283,12 +319,15 @@ pub fn tokenize(input: String) -> Vec<Token> {
             continue;
         }
 
-        let token = flush_tokens(&mut current_tokens, &mut tokens);
+        let token = flush_tokens(&mut current_tokens, &mut tokens, &mut failed_tokens);
         if let Some(token) = token {
             index = token.end_index;
             continue;
         }
     }
 
-    return tokens;
+    TokenizeResult {
+        tokens,
+        failed_tokens
+    }
 }
