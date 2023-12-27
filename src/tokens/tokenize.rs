@@ -241,7 +241,6 @@ pub fn tokenize(input: String) -> TokenizeResult {
     let mut current_tokens: Vec<Token> = vec![];
     let mut failed_tokens: Vec<Token> = vec![];
 
-    log(&format!("Tokenizing string: {}",input));
 
     current_tokens.push(Token {
         string: "".to_owned(),
@@ -254,7 +253,6 @@ pub fn tokenize(input: String) -> TokenizeResult {
     let mut index: usize = 0;
 
     loop {
-        log(&format!("Index: {}",index));
         if index >= input_chars.len() {
             if current_tokens.len() == 0 {
                 break;
@@ -266,17 +264,13 @@ pub fn tokenize(input: String) -> TokenizeResult {
             continue;
         }
         let char = input_chars[index];
-        log(&format!("Char: {}",char));
         if current_tokens.len() == 0 {
-            log(&format!("No tokens, checking definitions"));
             for typ in get_definitions() {
                 let def = get_definition(typ);
 
                 if !def.check_character("",char) {
-                    log(&format!("Check failed for {:?}",typ));
                     continue;
                 }
-                log(&format!("Check success for {:?}",typ));
 
                 let token = Token {
                     typ: typ.to_owned(),
@@ -291,13 +285,11 @@ pub fn tokenize(input: String) -> TokenizeResult {
             continue;
         }
 
-        log(&format!("Has tokens, trying to extend"));
 
         let mut did_extend = false;
         current_tokens = current_tokens.iter().map(|token| {
             let def = token.def();
             let can_extend = def.check_character(&token.string,char);
-            log(&format!("Token({:?}) s:{}, e:{}",token.typ,token.string,can_extend));
             if can_extend {
                 did_extend = true;
 
@@ -311,8 +303,6 @@ pub fn tokenize(input: String) -> TokenizeResult {
                 token.clone()
             }
         }).collect();
-
-        log(&format!("Did extend? {}",did_extend));
 
         if did_extend {
             index = index + 1;
