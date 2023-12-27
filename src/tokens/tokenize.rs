@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use serde_derive::Serialize;
 use wasm_bindgen::prelude::*;
 
@@ -26,7 +28,11 @@ impl Token {
     pub fn is_valid(&self) -> bool {
         let def = get_definition(&self.typ);
 
-        def.is_valid(self.string.to_owned())
+        def.is_valid(&self.string)
+    }
+
+    fn def(&self) -> Box<dyn TokenDef> {
+        get_definition(&self.typ)
     }
 
     #[wasm_bindgen(getter = string)]
@@ -36,21 +42,22 @@ impl Token {
 }
 
 pub trait TokenDef {
-    fn check_character(&self, index: usize, char: u8, string: String) -> bool;
-    fn is_valid(&self, r#final: String) -> bool;
+    fn check_character(&self, current: &str, char: char) -> bool;
+    fn is_valid(&self, r#final: &str) -> bool;
 }
 
 #[derive(Clone)]
 pub struct IdentifierDef {}
 impl TokenDef for IdentifierDef {
-    fn check_character(&self, _: usize, char: u8, _: String) -> bool {
-        let re = Regex::new(r"[\w_]").expect("Regex should be valid!");
-        
-        re.is_match(&char.to_string())
+    fn check_character(&self, current: &str, char: char) -> bool {
+        let new = format!("{}{}",current,char);
+
+        Self::is_valid(&self, &new)
     }
 
-    fn is_valid(&self, r#final: String) -> bool {
-        let re = Regex::new(r"[\w_]+").expect("Regex should be valid!");
+    fn is_valid(&self, r#final: &str) -> bool {
+        let re = Regex::new(r"^([A-z]|_)([A-z]|[0-9]|_)*$")
+            .expect("Regex should be valid!");
         
         re.is_match(&r#final)
     }
@@ -58,18 +65,18 @@ impl TokenDef for IdentifierDef {
 
 #[derive(Clone)]
 pub struct MatchAnyDef {
-    bytes: Vec<u8>
+    chars: Vec<char>
 }
 impl TokenDef for MatchAnyDef {
-    fn check_character(&self, index: usize, char: u8, _string: String) -> bool {
-        index == 0 && self.bytes.contains(&char)
+    fn check_character(&self, _current: &str, char: char) -> bool {
+        self.chars.contains(&char)
     }
 
-    fn is_valid(&self, r#final: String) -> bool {
+    fn is_valid(&self, r#final: &str) -> bool {
         r#final
-            .as_bytes()
-            .iter()
-            .all(|b| self.bytes.contains(b))
+            .chars()
+            .into_iter()
+            .all(|char| self.chars.contains(&char))
     }
     
 }
@@ -77,17 +84,30 @@ impl TokenDef for MatchAnyDef {
 #[derive(Clone)]
 pub struct NumberDef {}
 impl TokenDef for NumberDef {
-    fn check_character(&self, index: usize, char: u8, _string: String) -> bool {
-        let re = Regex::new(r"\d").expect("Regex should be valid!");
-        if index == 0 {
-            return re.is_match(&char.to_string());
+    fn check_character(&self, current: &str, char: char) -> bool {
+        let allowed_chars: Vec<char> = "0123456789.".chars().collect();
+        if !allowed_chars.contains(&char) {
+            return false;
         }
-        else {
-            return re.is_match(&char.to_string()) || char == b'.';
+
+        let new = format!("{}{}",current,char);
+        let dot_count = new.chars()
+            .take_while(|c|*c=='.')
+            .count();
+
+        if dot_count > 1 {
+            return false;
         }
+
+        if new.chars().collect::<Vec<char>>()[0] == '.' {
+            return false;
+        }
+
+        true        
     }
-    fn is_valid(&self, r#final: String) -> bool {
-        let re = Regex::new(r"\d+").expect("Regex should be valid!");
+    fn is_valid(&self, r#final: &str) -> bool {
+        let re = Regex::new(r"^[0-9]+(.[0-9]+)?$").expect("Regex should be valid!");
+        
         re.is_match(&r#final)
     }
 }
@@ -97,19 +117,25 @@ pub struct ExactMatchDef {
     string: String
 }
 impl TokenDef for ExactMatchDef {
-    fn check_character(&self, index: usize, char: u8, _string: String) -> bool {
-        let bytes = self.string.as_bytes();
+    fn check_character(&self, current: &str, char: char) -> bool {
+        let new = format!("{}{}",current,char);
+        let new_chars: Vec<char> = new.chars().collect();
+        let self_chars: Vec<char> = self.string.chars().collect();
 
-        if index >= bytes.len() {
+        if new.chars().count() > self.string.chars().count() {
             return false;
         }
 
-        let at_index: u8 = bytes[index];
-        
-        at_index == char
+        for (index, char) in new_chars.iter().enumerate() {
+            if self_chars[index] != *char {
+                return false;
+            }
+        };
+
+        true
     }
 
-    fn is_valid(&self, r#final: String) -> bool {
+    fn is_valid(&self, r#final: &str) -> bool {
         r#final == self.string
     }
 }
@@ -127,6 +153,7 @@ pub enum TokenType {
     StartOfInput,
     Identifier,
     Whitespace,
+    Newline,
     Number,
 }
 
@@ -139,9 +166,38 @@ fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
     match typ {
         T::StartOfInput=>ExactMatchDef { string: "".to_owned() }.into(),
         T::Identifier=>IdentifierDef {}.into(),
-        T::Whitespace=>MatchAnyDef { bytes: " \n\t\r".to_owned().into_bytes() }.into(),
+        T::Whitespace=>MatchAnyDef { chars: " \t\r".chars().collect() }.into(),
+        T::Newline=>ExactMatchDef { string: "\n".to_owned() }.into(),
         T::Number=>NumberDef {}.into()
     }
+}
+
+fn flush_tokens(current_tokens: &mut Vec<Token>, tokens: &mut Vec<Token>) -> Option<Token> {
+    let old_tokens = current_tokens.clone();
+    current_tokens.clear();
+    let valid_tokens: Vec<&Token> = old_tokens
+        .iter()
+        .take_while(|token| token.is_valid()).collect();
+    
+    let max = valid_tokens.iter()
+        .max_by(|a, b| 
+            a.string
+                .chars()
+                .count()
+                .cmp(
+                    &b.string.chars().count()
+                )
+        );
+        
+
+    if let Some(max) = max {
+        tokens.push(max.to_owned().clone());
+
+        Some(max.to_owned().clone())
+    } else {
+        None
+    }
+
 }
 
 #[wasm_bindgen]
@@ -149,69 +205,88 @@ pub fn tokenize(input: String) -> Vec<Token> {
     let mut tokens: Vec<Token> = vec![];
     let mut current_tokens: Vec<Token> = vec![];
 
+    log(&format!("Tokenizing string: {}",input));
+
     current_tokens.push(Token {
         string: "".to_owned(),
         typ: TokenType::StartOfInput,
         start_index: 0,
         end_index: 0
     });
+    
+    let input_chars: Vec<char> = input.chars().collect();
+    let mut index: usize = 0;
 
-    for (i, char) in input.as_bytes().iter().enumerate() {
-        let mut has_match = false;
-        let mut remove_list: Vec<Token> = vec![];
+    loop {
+        log(&format!("Index: {}",index));
+        if index >= input_chars.len() {
+            if current_tokens.len() == 0 {
+                break;
+            }
+            let token = flush_tokens(&mut current_tokens, &mut tokens);
+            if let Some(token) = token {
+                index = token.end_index;
+            }
+            continue;
+        }
+        let char = input_chars[index];
+        log(&format!("Char: {}",char));
+        if current_tokens.len() == 0 {
+            log(&format!("No tokens, checking definitions"));
+            for typ in get_definitions() {
+                let def = get_definition(typ);
 
-        log(&format!("Char: {} {}",i,char));
+                if !def.check_character("",char) {
+                    log(&format!("Check failed for {:?}",typ));
+                    continue;
+                }
+                log(&format!("Check success for {:?}",typ));
 
-        let mut j = 0;
-        while j < current_tokens.len() {
-            let current_def = get_definition(&current_tokens[j].typ);
+                let token = Token {
+                    typ: typ.to_owned(),
+                    string: format!("{}",char),
+                    start_index: index,
+                    end_index: index + 1
+                };
 
-            if current_def.check_character(
-                current_tokens[j].string.len(),
-                *char,
-                current_tokens[j].string.to_owned()
-            ) {
-                current_tokens[j].string = format!("{}{}",current_tokens[j].string,String::from_utf8(vec![*char]).unwrap_or("e".to_owned()));
-                has_match = true;
-                log(&format!("Current: {}",current_tokens[j].string));
+                current_tokens.push(token);
+            }
+            index = index + 1;
+            continue;
+        }
+
+        log(&format!("Has tokens, trying to extend"));
+
+        let mut did_extend = false;
+        current_tokens = current_tokens.iter().map(|token| {
+            let def = token.def();
+            let can_extend = def.check_character(&token.string,char);
+            log(&format!("Token({:?}) s:{}, e:{}",token.typ,token.string,can_extend));
+            if can_extend {
+                did_extend = true;
+
+                Token {
+                    typ: token.typ,
+                    string: format!("{}{}",token.string.to_owned(),char),
+                    start_index: token.start_index,
+                    end_index: index + 1
+                }
             } else {
-                current_tokens[j].end_index = i;
-                let clone = current_tokens[j].clone();
-                remove_list.push(clone);
+                token.clone()
             }
+        }).collect();
 
-            j=j+1;
+        log(&format!("Did extend? {}",did_extend));
+
+        if did_extend {
+            index = index + 1;
+            continue;
         }
 
-        if current_tokens.len() == remove_list.len() {
-            log(&format!("Len matches {}",current_tokens.len()));
-            if remove_list.iter().any(|t| t.is_valid()) {
-                let mut iter = remove_list.iter().take_while(|t| t.is_valid());
-                if let Some(first) = iter.next() {
-                    tokens.push(first.clone());
-                }
-            }
-        }
-
-        current_tokens = current_tokens
-            .iter()
-            .skip_while(|t| remove_list.contains(t))
-            .map(|t|t.to_owned())
-            .collect();
-
-        if !has_match {
-            for token_type in get_definitions().iter() {
-                let def = get_definition(token_type);
-                if def.check_character(0, *char, "".to_owned()) {
-                    log(&format!("Potential token: {:?} c:{} i:{}",token_type, char, i));
-                    current_tokens.push(Token {
-                        typ: token_type.to_owned(),
-                        string: String::from_utf8(vec![*char]).unwrap_or("e".to_string()),
-                        start_index: i,
-                        end_index: i+1, 
-                    })
-                }
-            }
+        let token = flush_tokens(&mut current_tokens, &mut tokens);
+        if let Some(token) = token {
+            index = token.end_index;
+            continue;
         }
     }
 
