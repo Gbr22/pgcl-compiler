@@ -44,11 +44,13 @@ impl Token {
 pub trait TokenDef {
     fn check_character(&self, current: &str, char: char) -> bool;
     fn is_valid(&self, r#final: &str) -> bool;
+    fn get_priority(&self) -> i32;
 }
 
 #[derive(Clone)]
 pub struct IdentifierDef {}
 impl TokenDef for IdentifierDef {
+    fn get_priority(&self) -> i32 { 0 }
     fn check_character(&self, current: &str, char: char) -> bool {
         let new = format!("{}{}",current,char);
 
@@ -91,6 +93,7 @@ pub struct MatchAnyDef {
     chars: Vec<char>
 }
 impl TokenDef for MatchAnyDef {
+    fn get_priority(&self) -> i32 { 0 }
     fn check_character(&self, _current: &str, char: char) -> bool {
         self.chars.contains(&char)
     }
@@ -107,6 +110,7 @@ impl TokenDef for MatchAnyDef {
 #[derive(Clone)]
 pub struct NumberDef {}
 impl TokenDef for NumberDef {
+    fn get_priority(&self) -> i32 { 0 }
     fn check_character(&self, current: &str, char: char) -> bool {
         let allowed_chars: Vec<char> = "0123456789.".chars().collect();
         if !allowed_chars.contains(&char) {
@@ -140,6 +144,7 @@ pub struct ExactMatchDef {
     string: String
 }
 impl TokenDef for ExactMatchDef {
+    fn get_priority(&self) -> i32 { 0 }
     fn check_character(&self, current: &str, char: char) -> bool {
         let new = format!("{}{}",current,char);
         let new_chars: Vec<char> = new.chars().collect();
@@ -166,6 +171,7 @@ impl TokenDef for ExactMatchDef {
 #[derive(Clone)]
 pub struct CatchAllDef {}
 impl TokenDef for CatchAllDef {
+    fn get_priority(&self) -> i32 { -1 }
     fn check_character(&self, _current: &str, _char: char) -> bool {
         true
     }
@@ -176,8 +182,22 @@ impl TokenDef for CatchAllDef {
 }
 
 #[derive(Clone)]
+pub struct InvalidCharDef {}
+impl TokenDef for InvalidCharDef {
+    fn get_priority(&self) -> i32 { -1 }
+    fn check_character(&self, current: &str, _char: char) -> bool {
+        current.chars().count() == 0
+    }
+
+    fn is_valid(&self, r#_final: &str) -> bool {
+        false
+    }
+}
+
+#[derive(Clone)]
 pub struct CatchAllUntilWhitespaceDef {}
 impl TokenDef for CatchAllUntilWhitespaceDef {
+    fn get_priority(&self) -> i32 { -1 }
     fn check_character(&self, _current: &str, char: char) -> bool {
         let whitespace: Vec<char> = "\t \r\n".chars().collect();
         
@@ -203,7 +223,7 @@ pub enum TokenType {
     Whitespace,
     Newline,
     Number,
-    CatchAllUntilWhitespace
+    InvalidChar
 }
 
 fn get_definitions() -> &'static [TokenType] {
@@ -218,12 +238,16 @@ fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
         T::Whitespace=>MatchAnyDef { chars: " \t\r".chars().collect() }.into(),
         T::Newline=>ExactMatchDef { string: "\n".to_owned() }.into(),
         T::Number=>NumberDef {}.into(),
-        T::CatchAllUntilWhitespace=>CatchAllUntilWhitespaceDef {}.into()
+        T::InvalidChar=>InvalidCharDef {}.into()
     }
 }
 
 fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
-    let max = tokens.iter()
+    let mut sorted = tokens.clone();
+    sorted.sort_by(|a, b| {
+        a.def().get_priority().cmp(&b.def().get_priority())
+    });
+    let max = sorted.iter()
         .max_by(|a, b| 
             a.string
                 .chars()
