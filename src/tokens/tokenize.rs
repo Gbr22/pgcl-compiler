@@ -14,7 +14,7 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, PartialEq, Serialize)]
+#[derive(Clone, PartialEq, Serialize, Debug)]
 pub struct Token {
     string: String,
     pub typ: TokenType,
@@ -56,10 +56,33 @@ impl TokenDef for IdentifierDef {
     }
 
     fn is_valid(&self, r#final: &str) -> bool {
-        let re = Regex::new(r"^([A-z]|_)([A-z]|[0-9]|_)*$")
-            .expect("Regex should be valid!");
+        let english_letters = "abcdefghijklmnopqrstuvwxyz";
+        let allowed_alpha: Vec<char> = format!("{}{}",english_letters,english_letters
+            .to_ascii_uppercase())
+            .chars().collect();
+        let allowed_sym: Vec<char> = "_$".chars().collect();
+        let allowed_numbers: Vec<char> = "0123456789".chars().collect();
         
-        re.is_match(&r#final)
+        for (index, char) in r#final.chars().enumerate() {
+            let is_valid = if index == 0 {
+                vec![
+                    allowed_alpha.contains(&char),
+                    allowed_sym.contains(&char)
+                ].into_iter().any(|b|b)
+            } else {
+                vec![
+                    allowed_alpha.contains(&char),
+                    allowed_sym.contains(&char),
+                    allowed_numbers.contains(&char),
+                ].into_iter().any(|b|b)
+            };
+
+            if !is_valid {
+                return false;
+            }
+        }
+        
+        true
     }
 }
 
@@ -140,6 +163,31 @@ impl TokenDef for ExactMatchDef {
     }
 }
 
+#[derive(Clone)]
+pub struct CatchAllDef {}
+impl TokenDef for CatchAllDef {
+    fn check_character(&self, _current: &str, _char: char) -> bool {
+        true
+    }
+
+    fn is_valid(&self, r#_final: &str) -> bool {
+        false
+    }
+}
+
+#[derive(Clone)]
+pub struct CatchAllUntilWhitespaceDef {}
+impl TokenDef for CatchAllUntilWhitespaceDef {
+    fn check_character(&self, _current: &str, char: char) -> bool {
+        let whitespace: Vec<char> = "\t \r\n".chars().collect();
+        
+        !whitespace.contains(&char)
+    }
+
+    fn is_valid(&self, r#_final: &str) -> bool {
+        false
+    }
+}
 
 impl<T: TokenDef + Clone + 'static> From<T> for Box<dyn TokenDef> {
     fn from(value: T) -> Self {
@@ -155,6 +203,7 @@ pub enum TokenType {
     Whitespace,
     Newline,
     Number,
+    CatchAllUntilWhitespace
 }
 
 fn get_definitions() -> &'static [TokenType] {
@@ -168,7 +217,8 @@ fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
         T::Identifier=>IdentifierDef {}.into(),
         T::Whitespace=>MatchAnyDef { chars: " \t\r".chars().collect() }.into(),
         T::Newline=>ExactMatchDef { string: "\n".to_owned() }.into(),
-        T::Number=>NumberDef {}.into()
+        T::Number=>NumberDef {}.into(),
+        T::CatchAllUntilWhitespace=>CatchAllUntilWhitespaceDef {}.into()
     }
 }
 
@@ -189,16 +239,17 @@ fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
     }
 }
 
-fn flush_tokens(current_tokens: &mut Vec<Token>, tokens: &mut Vec<Token>, failed_tokens: &mut Vec<Token>) -> Option<Token> {
+fn flush_tokens(current_tokens: &mut Vec<TokenState>, tokens: &mut Vec<Token>, failed_tokens: &mut Vec<Token>) -> Option<Token> {
     let old_tokens = current_tokens.clone();
     current_tokens.clear();
     let valid_tokens: Vec<&Token> = old_tokens
         .iter()
+        .map(|state|&state.token)
         .take_while(|token| token.is_valid()).collect();
     
     let max_valid = max_token(&valid_tokens);
-        
 
+    
     if let Some(max) = max_valid {
         tokens.push(max.clone());
 
@@ -206,6 +257,7 @@ fn flush_tokens(current_tokens: &mut Vec<Token>, tokens: &mut Vec<Token>, failed
     } else {
         let invalid_tokens: Vec<&Token> = old_tokens
             .iter()
+            .map(|state|&state.token)
             .skip_while(|token| token.is_valid())
             .collect();
         let max_invalid = max_token(&invalid_tokens);
@@ -235,19 +287,29 @@ impl TokenizeResult {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct TokenState {
+    token: Token,
+    is_finished: bool
+}
+impl TokenState {
+    fn into_token(self) -> Token {
+        self.token
+    }
+}
+
 #[wasm_bindgen]
 pub fn tokenize(input: String) -> TokenizeResult {
     let mut tokens: Vec<Token> = vec![];
-    let mut current_tokens: Vec<Token> = vec![];
+    let mut current_tokens: Vec<TokenState> = vec![];
     let mut failed_tokens: Vec<Token> = vec![];
 
-
-    current_tokens.push(Token {
+    current_tokens.push(TokenState { token: Token {
         string: "".to_owned(),
         typ: TokenType::StartOfInput,
         start_index: 0,
         end_index: 0
-    });
+    }, is_finished: true });
     
     let input_chars: Vec<char> = input.chars().collect();
     let mut index: usize = 0;
@@ -279,7 +341,7 @@ pub fn tokenize(input: String) -> TokenizeResult {
                     end_index: index + 1
                 };
 
-                current_tokens.push(token);
+                current_tokens.push(TokenState { token, is_finished: false });
             }
             index = index + 1;
             continue;
@@ -287,20 +349,28 @@ pub fn tokenize(input: String) -> TokenizeResult {
 
 
         let mut did_extend = false;
-        current_tokens = current_tokens.iter().map(|token| {
+        current_tokens = current_tokens.iter().map(|state: &TokenState| {
+            let token = &state.token;
+            let is_finished = state.is_finished;
             let def = token.def();
             let can_extend = def.check_character(&token.string,char);
-            if can_extend {
+            if can_extend && !is_finished {
                 did_extend = true;
 
-                Token {
-                    typ: token.typ,
-                    string: format!("{}{}",token.string.to_owned(),char),
-                    start_index: token.start_index,
-                    end_index: index + 1
+                TokenState {
+                    token: Token {
+                        typ: token.typ,
+                        string: format!("{}{}",token.string.to_owned(),char),
+                        start_index: token.start_index,
+                        end_index: index + 1
+                    },
+                    is_finished
                 }
             } else {
-                token.clone()
+                TokenState {
+                    token: token.clone(),
+                    is_finished: true
+                }
             }
         }).collect();
 
