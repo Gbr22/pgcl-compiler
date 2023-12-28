@@ -12,7 +12,7 @@ pub fn analize(input: &str) -> AnalizeResult {
     let token_errors = tokenize_result.failed_tokens
         .iter()
         .map(|token|{
-            let text = format!("Invalid token {:?}",token);
+            let text = token.get_error_message();
             crate::error::Error {
                 text: text,
                 start_pos: get_position(&input, token.start_index),

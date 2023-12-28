@@ -39,12 +39,29 @@ impl Token {
     pub fn get_string(&self) -> String {
         self.string.to_owned()
     }
+
+    pub fn get_error_message(&self) -> String {
+        let def = self.def();
+        let is_valid = def.is_valid(&self.string);
+        if is_valid {
+            return format!("Token is valid. You should not see this.");
+        }
+        let msg = def.get_error_message(&self.string);
+        let Some(msg) = msg else {
+            return format!("Token ({:?}): {:?} is invalid.",self.typ,self.string);
+        };
+        
+        msg
+    }
 }
 
 pub trait TokenDef {
     fn check_character(&self, current: &str, char: char) -> bool;
     fn is_valid(&self, r#final: &str) -> bool;
     fn get_priority(&self) -> i32;
+    fn get_error_message(&self, _str: &str) -> Option<String> {
+        None
+    }
 }
 
 #[derive(Clone)]
@@ -104,7 +121,6 @@ impl TokenDef for MatchAnyDef {
             .into_iter()
             .all(|char| self.chars.contains(&char))
     }
-    
 }
 
 #[derive(Clone)]
@@ -118,11 +134,13 @@ impl TokenDef for NumberDef {
         }
 
         let new = format!("{}{}",current,char);
-        let dot_count = new.chars()
-            .take_while(|c|*c=='.')
-            .count();
-
-        if dot_count > 1 {
+        let mut dot_count = 0;
+        for c in current.chars() {
+            if c == '.' {
+                dot_count = dot_count + 1;
+            }
+        }
+        if dot_count >= 1 && char == '.' {
             return false;
         }
 
@@ -133,9 +151,31 @@ impl TokenDef for NumberDef {
         true        
     }
     fn is_valid(&self, r#final: &str) -> bool {
-        let re = Regex::new(r"^[0-9]+(.[0-9]+)?$").expect("Regex should be valid!");
-        
-        re.is_match(&r#final)
+        self.get_error_message(r#final).is_none()
+    }
+    fn get_error_message(&self, str: &str) -> Option<String> {
+        let allowed_chars: Vec<char> = "0123456789.".chars().collect();
+        let mut dot_count = 0;
+        for char in str.chars() {
+            if !allowed_chars.contains(&char) {
+                return Some(format!("Number literal {:?} may only contain digits [0..9] and optionally a dot.",&str));
+            }
+            if char == '.' {
+                dot_count = dot_count + 1;
+            }
+        };
+        if dot_count > 1 {
+            return Some(format!("Number literal {:?} may contain at most 1 dot.",&str));
+        };
+        let chars: Vec<char> = str.chars().collect();
+        if chars.first() == Some(&'.') {
+            return Some(format!("Number literal {:?} must not start with a dot.",&str));
+        };
+        if chars.last() == Some(&'.') {
+            return Some(format!("Number literal {:?} must not end with a dot.",&str));
+        };
+
+        None
     }
 }
 
@@ -187,6 +227,9 @@ impl TokenDef for InvalidCharDef {
     fn is_valid(&self, r#_final: &str) -> bool {
         false
     }
+    fn get_error_message(&self, str: &str) -> Option<String> {
+        Some(format!("Invalid character {:?}",str))
+    }
 }
 
 #[derive(Clone)]
@@ -220,7 +263,29 @@ pub enum TokenType {
     Number,
     InvalidChar,
     Semicolon,
+    Colon,
+    Comma,
+    Dot,
+    ForwardSlash,
+    DoubleForwardSlash,
+    Star,
+    Dash,
+    Plus,
+    Bang,
+    Equals,
+    DoubleEquals,
+    BangEquals,
+    LtEquals,
+    GtEquals,
+    Lt,
+    Gt,
     ArrowRight,
+    OpeningBracketRound,
+    ClosingBracketRound,
+    OpeningBracketSquare,
+    ClosingBracketSquare,
+    OpeningBracketCurly,
+    ClosingBracketCurly,
 }
 
 pub fn get_definitions() -> &'static [TokenType] {
@@ -238,17 +303,102 @@ pub fn get_keywords() -> Vec<&'static str> {
     ]
 }
 
+pub fn get_brackets() -> Vec<TokenType> {
+    use TokenType as T;
+    vec![
+        T::OpeningBracketRound,
+        T::ClosingBracketRound,
+        T::OpeningBracketSquare,
+        T::ClosingBracketSquare,
+        T::OpeningBracketCurly,
+        T::ClosingBracketCurly,
+    ]
+}
+
+pub fn get_operators() -> Vec<TokenType> {
+    use TokenType as T;
+    vec![
+        // number operators
+        T::ForwardSlash,
+        T::DoubleForwardSlash,
+        T::Star,
+        T::Dash,
+        T::Plus,
+
+        // logical operators
+        T::Bang,
+
+        // comparison operators
+        T::DoubleEquals,
+        T::BangEquals,
+        T::LtEquals,
+        T::GtEquals,
+        T::Lt,
+        T::Gt,
+
+        // punctuation
+        T::Colon,
+        T::Comma,
+        T::Dot,
+
+        // other
+        T::ArrowRight,
+        T::Equals,
+    ]
+}
+
 fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
     use TokenType as T;
     match typ {
+        // special
         T::StartOfInput=>ExactMatchDef { string: "".to_owned() }.into(),
-        T::Identifier=>IdentifierDef {}.into(),
+        T::InvalidChar=>InvalidCharDef {}.into(),
+        
+        // whitespace
         T::Whitespace=>MatchAnyDef { chars: " \t\r".chars().collect() }.into(),
         T::Newline=>ExactMatchDef { string: "\n".to_owned() }.into(),
-        T::Number=>NumberDef {}.into(),
-        T::InvalidChar=>InvalidCharDef {}.into(),
+        
+        // number operators
+        T::ForwardSlash=>ExactMatchDef { string: "/".into() }.into(),
+        T::DoubleForwardSlash=>ExactMatchDef { string: "//".into() }.into(),
+        T::Star=>ExactMatchDef { string: "*".into() }.into(),
+        T::Dash=>ExactMatchDef { string: "-".into() }.into(),
+        T::Plus=>ExactMatchDef { string: "+".into() }.into(),
+
+        // logical operators
+        T::Bang=>ExactMatchDef { string: "!".into() }.into(),
+
+        // comparison operators
+        T::DoubleEquals=>ExactMatchDef { string: "==".into() }.into(),
+        T::BangEquals=>ExactMatchDef { string: "!=".into() }.into(),
+        T::LtEquals=>ExactMatchDef { string: "<=".into() }.into(),
+        T::GtEquals=>ExactMatchDef { string: ">=".into() }.into(),
+        T::Lt=>ExactMatchDef { string: "<".into() }.into(),
+        T::Gt=>ExactMatchDef { string: ">".into() }.into(),
+
+        // brackets
+        T::OpeningBracketRound=>ExactMatchDef { string: "(".into() }.into(),
+        T::ClosingBracketRound=>ExactMatchDef { string: ")".into() }.into(),
+        T::OpeningBracketSquare=>ExactMatchDef { string: "[".into() }.into(),
+        T::ClosingBracketSquare=>ExactMatchDef { string: "]".into() }.into(),
+        T::OpeningBracketCurly=>ExactMatchDef { string: "{".into() }.into(),
+        T::ClosingBracketCurly=>ExactMatchDef { string: "}".into() }.into(),
+
+        // punctuation
         T::Semicolon=>ExactMatchDef { string: ";".into() }.into(),
+        T::Colon=>ExactMatchDef { string: ":".into() }.into(),
+        T::Comma=>ExactMatchDef { string: ",".into() }.into(),
+        T::Dot=>ExactMatchDef { string: ".".into() }.into(),
+        
+        // other
+        T::Identifier=>IdentifierDef {}.into(),
+        
+        // values
+        T::Number=>NumberDef {}.into(),
+        
+        // symbols
         T::ArrowRight=>ExactMatchDef { string: "->".into() }.into(),
+        T::Equals=>ExactMatchDef { string: "=".into() }.into(),
     }
 }
 
