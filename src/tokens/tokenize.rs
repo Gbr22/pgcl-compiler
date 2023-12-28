@@ -62,6 +62,19 @@ pub trait TokenDef {
     fn get_error_message(&self, _str: &str) -> Option<String> {
         None
     }
+    fn largest_valid_subtoken(&self, token: &Token) -> Option<Token> {
+        let mut clone: Token = token.clone();
+        loop {
+            if clone.is_valid() {
+                return Some(clone);
+            }
+            if clone.string.chars().count() == 0 {
+                return None;
+            }
+            clone.string.pop();
+            clone.end_index = clone.end_index - 1;
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -521,6 +534,18 @@ pub fn tokenize(input: &str) -> TokenizeResult {
             let token = flush_tokens(&mut current_tokens, &mut tokens, &mut failed_tokens);
             if let Some(token) = token {
                 index = token.end_index;
+            } else {
+                let failed_token = failed_tokens.last().unwrap().to_owned();
+                let sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
+                if let Some(sub_token) = sub_token {
+                    // unroll
+                    index = sub_token.end_index;
+                    failed_tokens.pop();
+                    current_tokens.push(TokenState {
+                        token: sub_token,
+                        is_finished: true
+                    });
+                }
             }
             continue;
         }
@@ -581,7 +606,18 @@ pub fn tokenize(input: &str) -> TokenizeResult {
         let token = flush_tokens(&mut current_tokens, &mut tokens, &mut failed_tokens);
         if let Some(token) = token {
             index = token.end_index;
-            continue;
+        } else {
+            let failed_token = failed_tokens.last().unwrap().to_owned();
+            let sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
+            if let Some(sub_token) = sub_token {
+                // unroll
+                index = sub_token.end_index;
+                failed_tokens.pop();
+                current_tokens.push(TokenState {
+                    token: sub_token,
+                    is_finished: true
+                });
+            }
         }
     }
 
