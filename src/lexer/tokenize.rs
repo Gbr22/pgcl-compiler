@@ -34,9 +34,9 @@ fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
     }
 }
 
-fn flush_tokens(current_tokens: &mut Vec<TokenState>, tokens: &mut Vec<Token>, failed_tokens: &mut Vec<Token>) -> Option<Token> {
-    let old_tokens = current_tokens.clone();
-    current_tokens.clear();
+fn flush_tokens(state: &mut LexerState) -> Option<Token> {
+    let old_tokens = state.current_tokens.clone();
+    state.current_tokens.clear();
     
     let mut valid_tokens: Vec<&Token> = Vec::new();
     let mut invalid_tokens: Vec<&Token> = Vec::new();
@@ -52,13 +52,13 @@ fn flush_tokens(current_tokens: &mut Vec<TokenState>, tokens: &mut Vec<Token>, f
     let max_valid = max_token(&valid_tokens);
 
     if let Some(max) = max_valid {
-        tokens.push(max.clone());
+        state.tokens.push(max.clone());
 
         Some(max)
     } else {
         let max_invalid = max_token(&invalid_tokens);
         if let Some(max) = max_invalid {
-            failed_tokens.push(max);
+            state.failed_tokens.push(max);
         }
 
         None
@@ -121,12 +121,22 @@ pub fn tokenize_js(input: &str) -> TokenizeResultJs {
     }
 }
 
-pub fn tokenize(input: &str) -> TokenizeResult {
-    let mut tokens: Vec<Token> = vec![];
-    let mut current_tokens: Vec<TokenState> = vec![];
-    let mut failed_tokens: Vec<Token> = vec![];
+struct LexerState {
+    pub tokens: Vec<Token>,
+    pub failed_tokens: Vec<Token>,
+    pub current_tokens: Vec<TokenState>,
+    pub index: usize
+}
 
-    current_tokens.push(TokenState { token: Token {
+pub fn tokenize(input: &str) -> TokenizeResult {
+    let mut state = LexerState {
+        tokens: vec![],
+        failed_tokens: vec![],
+        current_tokens: vec![],
+        index: 0
+    };
+
+    state.current_tokens.push(TokenState { token: Token {
         string: "".to_owned(),
         typ: TokenType::StartOfInput,
         start_index: 0,
@@ -134,24 +144,23 @@ pub fn tokenize(input: &str) -> TokenizeResult {
     }, is_finished: true });
     
     let input_chars: Vec<char> = input.chars().collect();
-    let mut index: usize = 0;
 
     loop {
-        if index >= input_chars.len() {
-            if current_tokens.len() == 0 {
+        if state.index >= input_chars.len() {
+            if state.current_tokens.len() == 0 {
                 break;
             }
-            let token = flush_tokens(&mut current_tokens, &mut tokens, &mut failed_tokens);
+            let token = flush_tokens(&mut state);
             if let Some(token) = token {
-                index = token.end_index;
+                state.index = token.end_index;
             } else {
-                let failed_token = failed_tokens.last().unwrap().to_owned();
+                let failed_token = state.failed_tokens.last().unwrap().to_owned();
                 let sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
                 if let Some(sub_token) = sub_token {
                     // unroll
-                    index = sub_token.end_index;
-                    failed_tokens.pop();
-                    current_tokens.push(TokenState {
+                    state.index = sub_token.end_index;
+                    state.failed_tokens.pop();
+                    state.current_tokens.push(TokenState {
                         token: sub_token,
                         is_finished: true
                     });
@@ -159,8 +168,8 @@ pub fn tokenize(input: &str) -> TokenizeResult {
             }
             continue;
         }
-        let char = input_chars[index];
-        if current_tokens.len() == 0 {
+        let char = input_chars[state.index];
+        if state.current_tokens.len() == 0 {
             for typ in get_definitions() {
                 let def = get_definition(typ);
 
@@ -171,21 +180,21 @@ pub fn tokenize(input: &str) -> TokenizeResult {
                 let token = Token {
                     typ: typ.to_owned(),
                     string: format!("{}",char),
-                    start_index: index,
-                    end_index: index + 1
+                    start_index: state.index,
+                    end_index: state.index + 1
                 };
 
-                current_tokens.push(TokenState { token, is_finished: false });
+                state.current_tokens.push(TokenState { token, is_finished: false });
             }
-            index = index + 1;
+            state.index = state.index + 1;
             continue;
         }
 
 
         let mut did_extend = false;
-        current_tokens = current_tokens.iter().map(|state: &TokenState| {
-            let token = &state.token;
-            let is_finished = state.is_finished;
+        state.current_tokens = state.current_tokens.iter().map(|token_state: &TokenState| {
+            let token = &token_state.token;
+            let is_finished = token_state.is_finished;
             let def = token.def();
             let can_extend = def.check_character(&token.string,char);
             if can_extend && !is_finished {
@@ -196,7 +205,7 @@ pub fn tokenize(input: &str) -> TokenizeResult {
                         typ: token.typ,
                         string: format!("{}{}",token.string.to_owned(),char),
                         start_index: token.start_index,
-                        end_index: index + 1
+                        end_index: state.index + 1
                     },
                     is_finished
                 }
@@ -209,21 +218,21 @@ pub fn tokenize(input: &str) -> TokenizeResult {
         }).collect();
 
         if did_extend {
-            index = index + 1;
+            state.index = state.index + 1;
             continue;
         }
 
-        let token = flush_tokens(&mut current_tokens, &mut tokens, &mut failed_tokens);
+        let token = flush_tokens(&mut state);
         if let Some(token) = token {
-            index = token.end_index;
+            state.index = token.end_index;
         } else {
-            let failed_token = failed_tokens.last().unwrap().to_owned();
+            let failed_token = state.failed_tokens.last().unwrap().to_owned();
             let sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
             if let Some(sub_token) = sub_token {
                 // unroll
-                index = sub_token.end_index;
-                failed_tokens.pop();
-                current_tokens.push(TokenState {
+                state.index = sub_token.end_index;
+                state.failed_tokens.pop();
+                state.current_tokens.push(TokenState {
                     token: sub_token,
                     is_finished: true
                 });
@@ -232,7 +241,7 @@ pub fn tokenize(input: &str) -> TokenizeResult {
     }
 
     TokenizeResult {
-        tokens,
-        failed_tokens
+        tokens: state.tokens,
+        failed_tokens: state.failed_tokens
     }
 }
