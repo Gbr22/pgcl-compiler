@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 
-use crate::tokens::tokenize::TokenType;
+
+use crate::lexer::types::token_type::TokenType;
 
 use super::{tree::{TreeNodeLike, TreeNode, Error}, grammar::GrammarLike};
 
@@ -28,7 +29,7 @@ impl UniformDeclaration {
         let Some(TreeNode::Token(first)) = queue.pop_front() else {
             return error_start_with_keyword.into();
         };
-        if first.typ != TokenType::Identifier || first.get_string() != UNIFORM_KEYWORD {
+        if first.typ != TokenType::Identifier || &first.string != UNIFORM_KEYWORD {
             return error_start_with_keyword.into();
         }
 
@@ -42,7 +43,7 @@ impl UniformDeclaration {
 
         let start_index = name.start_index;
         let end_index = last.end_index;
-        let name = name.get_string();
+        let name = name.string.to_owned();
 
         TreeNode::UniformDeclaration(UniformDeclaration {
             name,
@@ -71,7 +72,7 @@ impl GrammarLike for UniformGrammar {
             let TreeNode::Token(token) = node else {
                 continue
             };
-            if token.get_string() != UNIFORM_KEYWORD {
+            if &token.string != UNIFORM_KEYWORD {
                 continue;
             }
             return Some(index);

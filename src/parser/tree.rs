@@ -1,6 +1,6 @@
-use crate::tokens::tokenize::Token;
 use crate::parser::document::Document;
 use crate::parser::uniform::UniformDeclaration;
+use crate::lexer::token::Token;
 
 trait_enum!{
     #[derive(Debug, Clone)]

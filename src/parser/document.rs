@@ -1,4 +1,3 @@
-use crate::tokens::tokenize::{Token, TokenType};
 
 use super::tree::{TreeNodeLike, TreeNode};
 
@@ -8,7 +7,6 @@ pub struct Document {
     end_index: usize,
     children: Vec<TreeNode>
 }
-
 
 impl Document {
     pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
@@ -21,8 +19,6 @@ impl Document {
             .map(|node|node.get_end_index())
             .unwrap_or_default();
         
-        // TODO: parse children
-        
         let document = Document {
             children: nodes,
             start_index,
@@ -31,46 +27,6 @@ impl Document {
 
         TreeNode::Document(document)
     }
-   /*  fn parse_uniforms(mut self) -> Self {
-        loop {
-            let mut uniform_index: Option<usize> = None;
-            for (index, item) in self.children.iter().enumerate() {
-                let TreeNode::Token(token) = item else {
-                    continue
-                };
-                if token.get_string() != UNIFORM_KEYWORD {
-                    continue;
-                }
-                uniform_index = Some(index);
-                break;
-            }
-            let Some(start_index) = uniform_index else {
-                break;
-            };
-
-            let mut end_index: Option<usize> = None;
-            for (index, item) in self.children.iter().enumerate() {
-                let TreeNode::Token(token) = item else {
-                    continue;
-                };
-                if token.typ != TokenType::Semicolon {
-                    continue;
-                }
-                end_index = Some(index);
-            }
-            let Some(end_index) = end_index else {
-                break;
-            };
-            let range: Vec<TreeNode> = self.children
-                .splice(start_index..(end_index+1), vec![])
-                .collect();
-
-            /* let element = 
-            self.children.insert(start_index, element) */
-        }
-        
-        self
-    } */
 }
 
 impl TreeNodeLike for Document {

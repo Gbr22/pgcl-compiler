@@ -1,4 +1,4 @@
-use crate::{tokens::tokenize::{tokenize, Token}, parser::{parse::parse, document::Document, tree::{TreeNode}}, position::get_position};
+use crate::{lexer::{tokenize::tokenize, token::Token}, parser::{parse::parse, tree::TreeNode}, position::get_position};
 
 pub struct AnalizeResult {
     pub tokens: Vec<Token>,
