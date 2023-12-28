@@ -1,4 +1,4 @@
-use std::fmt::format;
+
 
 use serde_derive::Serialize;
 use wasm_bindgen::prelude::*;
@@ -36,7 +36,7 @@ impl Token {
     }
 
     #[wasm_bindgen(getter = string)]
-    pub fn js_get_string(&self) -> String {
+    pub fn get_string(&self) -> String {
         self.string.to_owned()
     }
 }
@@ -223,11 +223,23 @@ pub enum TokenType {
     Whitespace,
     Newline,
     Number,
-    InvalidChar
+    InvalidChar,
+    Semicolon
 }
 
-fn get_definitions() -> &'static [TokenType] {
+pub fn get_definitions() -> &'static [TokenType] {
     TokenType::all_variants()
+}
+
+pub fn get_keywords() -> Vec<&'static str> {
+    vec![
+        "let",
+        "mut",
+        "struct",
+        "fn",
+        "uniform",
+        "return"
+    ]
 }
 
 fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
@@ -238,7 +250,8 @@ fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
         T::Whitespace=>MatchAnyDef { chars: " \t\r".chars().collect() }.into(),
         T::Newline=>ExactMatchDef { string: "\n".to_owned() }.into(),
         T::Number=>NumberDef {}.into(),
-        T::InvalidChar=>InvalidCharDef {}.into()
+        T::InvalidChar=>InvalidCharDef {}.into(),
+        T::Semicolon=>ExactMatchDef { string: ";".into() }.into()
     }
 }
 

@@ -1,13 +1,11 @@
-
 use wasm_bindgen::prelude::*;
-mod tokens;
+pub mod tokens;
+pub mod parser;
+
+#[macro_use]
+extern crate trait_enum;
 
 #[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
-}
-
-#[wasm_bindgen]
-pub fn greet(name: &str) {
-    alert(&format!("Hello, {}!", name));
+pub fn hello_world(string: String) -> String {
+    return format!("Hello {}!",string);
 }
