@@ -1,6 +1,6 @@
 
 
-use serde_derive::Serialize;
+use serde_derive::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 
 use enum_all_variants::AllVariants;
@@ -147,24 +147,19 @@ impl TokenDef for ExactMatchDef {
     fn get_priority(&self) -> i32 { 0 }
     fn check_character(&self, current: &str, char: char) -> bool {
         let new = format!("{}{}",current,char);
-        let new_chars: Vec<char> = new.chars().collect();
-        let self_chars: Vec<char> = self.string.chars().collect();
+        let new_char_count = new.chars().count();
 
-        if new.chars().count() > self.string.chars().count() {
+        if new_char_count > self.string.chars().count() {
             return false;
         }
 
-        for (index, char) in new_chars.iter().enumerate() {
-            if self_chars[index] != *char {
-                return false;
-            }
-        };
+        let partial: String = self.string.chars().take(new_char_count).collect();
 
-        true
+        partial.eq(&new)
     }
 
     fn is_valid(&self, r#final: &str) -> bool {
-        r#final == self.string
+        r#final.eq(&self.string)
     }
 }
 
@@ -224,7 +219,8 @@ pub enum TokenType {
     Newline,
     Number,
     InvalidChar,
-    Semicolon
+    Semicolon,
+    ArrowRight,
 }
 
 pub fn get_definitions() -> &'static [TokenType] {
@@ -251,7 +247,8 @@ fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
         T::Newline=>ExactMatchDef { string: "\n".to_owned() }.into(),
         T::Number=>NumberDef {}.into(),
         T::InvalidChar=>InvalidCharDef {}.into(),
-        T::Semicolon=>ExactMatchDef { string: ";".into() }.into()
+        T::Semicolon=>ExactMatchDef { string: ";".into() }.into(),
+        T::ArrowRight=>ExactMatchDef { string: "->".into() }.into(),
     }
 }
 
@@ -279,24 +276,25 @@ fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
 fn flush_tokens(current_tokens: &mut Vec<TokenState>, tokens: &mut Vec<Token>, failed_tokens: &mut Vec<Token>) -> Option<Token> {
     let old_tokens = current_tokens.clone();
     current_tokens.clear();
-    let valid_tokens: Vec<&Token> = old_tokens
-        .iter()
-        .map(|state|&state.token)
-        .take_while(|token| token.is_valid()).collect();
+    
+    let mut valid_tokens: Vec<&Token> = Vec::new();
+    let mut invalid_tokens: Vec<&Token> = Vec::new();
+
+    for token_state in &old_tokens {
+        if token_state.token.is_valid() {
+            valid_tokens.push(&token_state.token);
+        } else {
+            invalid_tokens.push(&token_state.token);
+        }
+    }
     
     let max_valid = max_token(&valid_tokens);
 
-    
     if let Some(max) = max_valid {
         tokens.push(max.clone());
 
         Some(max)
     } else {
-        let invalid_tokens: Vec<&Token> = old_tokens
-            .iter()
-            .map(|state|&state.token)
-            .skip_while(|token| token.is_valid())
-            .collect();
         let max_invalid = max_token(&invalid_tokens);
         if let Some(max) = max_invalid {
             failed_tokens.push(max);
@@ -307,19 +305,25 @@ fn flush_tokens(current_tokens: &mut Vec<TokenState>, tokens: &mut Vec<Token>, f
 
 }
 
-#[wasm_bindgen]
-pub struct TokenizeResult {
+#[wasm_bindgen()]
+pub struct TokenizeResultJs {
     tokens: Vec<Token>,
     failed_tokens: Vec<Token>
 }
-#[wasm_bindgen]
-impl TokenizeResult {
+
+#[derive(Debug, Serialize)]
+pub struct TokenizeResult {
+    pub tokens: Vec<Token>,
+    pub failed_tokens: Vec<Token>
+}
+#[wasm_bindgen(js_name = TokenizeResult)]
+impl TokenizeResultJs {
     #[wasm_bindgen(getter = tokens)]
-    pub fn js_get_tokens(&self) -> Vec<Token> {
+    pub fn get_tokens(&self) -> Vec<Token> {
         self.tokens.to_owned()
     }
     #[wasm_bindgen(getter = failedTokens)]
-    pub fn js_get_failed_tokens(&self) -> Vec<Token> {
+    pub fn get_failed_tokens(&self) -> Vec<Token> {
         self.failed_tokens.to_owned()
     }
 }
@@ -335,8 +339,16 @@ impl TokenState {
     }
 }
 
-#[wasm_bindgen]
-pub fn tokenize(input: String) -> TokenizeResult {
+#[wasm_bindgen(js_name = tokenize)]
+pub fn tokenize_js(input: &str) -> TokenizeResultJs {
+    let result = tokenize(input);
+    TokenizeResultJs {
+        tokens: result.tokens,
+        failed_tokens: result.failed_tokens
+    }
+}
+
+pub fn tokenize(input: &str) -> TokenizeResult {
     let mut tokens: Vec<Token> = vec![];
     let mut current_tokens: Vec<TokenState> = vec![];
     let mut failed_tokens: Vec<Token> = vec![];
