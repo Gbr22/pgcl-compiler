@@ -55,7 +55,6 @@ fn clear_and_take_best_token(state: &mut LexerState) -> ClearTokensResult {
     }
     
     let max_valid = max_token(&valid_tokens);
-
     if let Some(max) = max_valid {
         return ClearTokensResult::ValidToken(max)
     }
@@ -71,22 +70,33 @@ fn clear_and_take_best_token(state: &mut LexerState) -> ClearTokensResult {
 
 pub fn flush_tokens(state: &mut LexerState) {
     let result = clear_and_take_best_token(state);
-    if let ClearTokensResult::ValidToken(valid_token) = result {
-        state.tokens.push(valid_token.clone());
-        state.index = valid_token.end_index;
-    } else if let ClearTokensResult::InvalidToken(failed_token) = result {
-        let valid_sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
-        if let Some(valid_sub_token) = valid_sub_token {
+
+    match result {
+        ClearTokensResult::None => {
+            return;
+        }
+        ClearTokensResult::ValidToken(valid_token)=>{
+            state.tokens.push(valid_token.clone());
+            state.index = valid_token.end_index;
+            return;
+        }
+        ClearTokensResult::InvalidToken(failed_token)=>{
+            let valid_sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
+            let Some(valid_sub_token) = valid_sub_token else {
+                // could not recover failed token
+                state.failed_tokens.push(failed_token);
+                return;
+            };
+
             // roll back
             state.index = valid_sub_token.end_index;
             state.current_tokens.push(TokenState {
                 token: valid_sub_token,
                 is_finished: true
             });
-        } else {
-            state.failed_tokens.push(failed_token);
+            return;
         }
-    }
+    };
 }
 
 #[wasm_bindgen()]
