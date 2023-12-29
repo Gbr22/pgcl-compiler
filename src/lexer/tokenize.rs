@@ -39,7 +39,7 @@ pub enum ClearTokensResult {
     None
 }
 
-fn clear_tokens(state: &mut LexerState) -> Option<Token> {
+fn clear_and_take_best_token(state: &mut LexerState) -> ClearTokensResult {
     let old_tokens = state.current_tokens.clone();
     state.current_tokens.clear();
     
@@ -57,35 +57,34 @@ fn clear_tokens(state: &mut LexerState) -> Option<Token> {
     let max_valid = max_token(&valid_tokens);
 
     if let Some(max) = max_valid {
-        state.tokens.push(max.clone());
-
-        Some(max)
-    } else {
-        let max_invalid = max_token(&invalid_tokens);
-        if let Some(max) = max_invalid {
-            state.failed_tokens.push(max);
-        }
-
-        None
+        return ClearTokensResult::ValidToken(max)
     }
+
+    let max_invalid = max_token(&invalid_tokens);
+    if let Some(max) = max_invalid {
+        return ClearTokensResult::InvalidToken(max);
+    }
+
+    ClearTokensResult::None
 
 }
 
-pub fn flush_tokens_outer(state: &mut LexerState) {
-    let token = clear_tokens(state);
-    if let Some(token) = token {
-        state.index = token.end_index;
-    } else {
-        let failed_token = state.failed_tokens.last().unwrap().to_owned();
-        let sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
-        if let Some(sub_token) = sub_token {
-            // unroll
-            state.index = sub_token.end_index;
-            state.failed_tokens.pop();
+pub fn flush_tokens(state: &mut LexerState) {
+    let result = clear_and_take_best_token(state);
+    if let ClearTokensResult::ValidToken(valid_token) = result {
+        state.tokens.push(valid_token.clone());
+        state.index = valid_token.end_index;
+    } else if let ClearTokensResult::InvalidToken(failed_token) = result {
+        let valid_sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
+        if let Some(valid_sub_token) = valid_sub_token {
+            // roll back
+            state.index = valid_sub_token.end_index;
             state.current_tokens.push(TokenState {
-                token: sub_token,
+                token: valid_sub_token,
                 is_finished: true
             });
+        } else {
+            state.failed_tokens.push(failed_token);
         }
     }
 }
@@ -239,7 +238,7 @@ pub fn check_is_finished(state: &mut LexerState) -> LexerControlFlow {
         return LexerControlFlow::Break;
     }
     
-    flush_tokens_outer(state);
+    flush_tokens(state);
     
     LexerControlFlow::Continue
 }
@@ -280,7 +279,7 @@ pub fn tokenize(input: &str) -> TokenizeResult {
             continue;
         }
 
-        flush_tokens_outer(&mut state);
+        flush_tokens(&mut state);
         continue;
     }
 
