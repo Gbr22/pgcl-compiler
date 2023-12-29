@@ -1,16 +1,6 @@
+use serde_derive::Serialize;
 
-
-use serde_derive::{Serialize, Deserialize};
-use wasm_bindgen::prelude::*;
-
-use super::{token::{Token, TokenJs}, types::{definitions::{get_definitions, get_definition}, token_type::TokenType}};
-
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
+use super::{token::Token, types::{definitions::{get_definitions, get_definition}, token_type::TokenType}};
 
 fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
     let mut sorted = tokens.clone();
@@ -90,39 +80,11 @@ pub fn flush_tokens(state: &mut LexerState) {
     return;
 }
 
-#[wasm_bindgen()]
-pub struct TokenizeResultJs {
-    tokens: Vec<Token>,
-    failed_tokens: Vec<Token>
-}
 
 #[derive(Debug, Serialize)]
 pub struct TokenizeResult {
     pub tokens: Vec<Token>,
     pub failed_tokens: Vec<Token>
-}
-#[wasm_bindgen(js_name = TokenizeResult)]
-impl TokenizeResultJs {
-    #[wasm_bindgen(getter = tokens)]
-    pub fn get_tokens(&self) -> Vec<TokenJs> {
-        let tokens: Vec<TokenJs> = self.tokens.iter().map(|token|{
-            let token_js: TokenJs = token.to_owned().into();
-            
-            token_js
-        }).collect();
-        
-        tokens
-    }
-    #[wasm_bindgen(getter = failedTokens)]
-    pub fn get_failed_tokens(&self) -> Vec<TokenJs> {
-        let tokens: Vec<TokenJs> = self.failed_tokens.iter().map(|token|{
-            let token_js: TokenJs = token.to_owned().into();
-            
-            token_js
-        }).collect();
-        
-        tokens
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -133,15 +95,6 @@ pub struct TokenState {
 impl TokenState {
     fn into_token(self) -> Token {
         self.token
-    }
-}
-
-#[wasm_bindgen(js_name = tokenize)]
-pub fn tokenize_js(input: &str) -> TokenizeResultJs {
-    let result = tokenize(input);
-    TokenizeResultJs {
-        tokens: result.tokens,
-        failed_tokens: result.failed_tokens
     }
 }
 

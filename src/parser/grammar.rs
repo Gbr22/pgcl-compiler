@@ -1,11 +1,13 @@
 use super::tree::TreeNode;
 use super::grammars::document::DocumentGrammar;
 use super::grammars::uniform_declaration::UniformDeclarationGrammar;
+use super::grammars::function_declaration::FunctionDeclarationGrammar;
 
 trait_enum!{
     pub enum Grammar: GrammarLike {
         DocumentGrammar,
-        UniformDeclarationGrammar
+        UniformDeclarationGrammar,
+        FunctionDeclarationGrammar,
     }
 }
 

@@ -1,6 +1,4 @@
-
-use crate::{lexer::types::ignored::is_ignored_token_type, parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammar::GrammarLike, grammars::uniform_declaration::UniformDeclarationGrammar}};
-
+use crate::{lexer::types::ignored::is_ignored_token_type, parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::FunctionDeclarationGrammar}}, interop::javascript::log::console_log};
 
 #[derive(Debug, Clone)]
 pub struct Document {
@@ -38,8 +36,11 @@ impl Document {
 
         let nodes = remove_whitespace(nodes);
         let uniform_grammar = UniformDeclarationGrammar {};
-        let nodes = uniform_grammar.process_all(nodes);
-        
+        let function_grammar = FunctionDeclarationGrammar {};
+        /* let nodes = uniform_grammar.process_all(nodes); */
+        console_log("Processed unifrom");
+        let nodes = function_grammar.process_all(nodes);
+        console_log("Processed function");
         let document = Document {
             children: nodes,
             start_index,

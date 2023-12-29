@@ -3,6 +3,7 @@ use crate::lexer::token::Token;
 use crate::parser::nodes::document::Document;
 use crate::parser::nodes::uniform_declaration::UniformDeclaration;
 use crate::parser::nodes::typ::Type;
+use crate::parser::nodes::function_declaration::FunctionDeclaration;
 
 trait_enum!{
     #[derive(Debug, Clone)]
@@ -12,7 +13,8 @@ trait_enum!{
         Document,
         UniformDeclaration,
         ParseError,
-        Type
+        Type,
+        FunctionDeclaration
     }
 }
 
@@ -132,4 +134,11 @@ impl TreeNodeLike for ParseError {
     fn get_errors(&self) -> Vec<ParseError> {
         vec![self.to_owned()]
     }
+}
+
+pub fn get_start_index(nodes: &[TreeNode]) -> Option<usize> {
+    nodes.first().map(|f|f.get_start_index())
+}
+pub fn get_end_index(nodes: &[TreeNode]) -> Option<usize> {
+    nodes.last().map(|f|f.get_end_index())
 }

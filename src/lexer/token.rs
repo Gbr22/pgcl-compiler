@@ -15,40 +15,6 @@ pub struct Token {
     pub end_index: usize
 }
 
-#[wasm_bindgen(js_name = "Token")]
-#[derive(Clone, Debug)]
-pub struct TokenJs {
-    token: Token
-}
-#[wasm_bindgen]
-impl TokenJs {
-    #[wasm_bindgen]
-    pub fn is_valid(&self) -> bool {
-        self.token.is_valid()
-    }
-    #[wasm_bindgen(getter = string)]
-    pub fn get_string(&self) -> String {
-        self.token.string.to_owned()
-    }
-    #[wasm_bindgen(getter = r#typ)]
-    pub fn get_type(&self) -> TokenType {
-        self.token.typ
-    }
-    #[wasm_bindgen(getter = r#startIndex)]
-    pub fn get_start_index(&self) -> usize {
-        self.token.start_index
-    }
-    #[wasm_bindgen(getter = r#endIndex)]
-    pub fn get_end_index(&self) -> usize {
-        self.token.end_index
-    }
-}
-
-impl Into<TokenJs> for Token {
-    fn into(self) -> TokenJs {
-        TokenJs { token: self }
-    }
-}
 
 impl Token {
     pub fn is_valid(&self) -> bool {
