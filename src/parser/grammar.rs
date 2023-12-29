@@ -15,7 +15,7 @@ pub trait GrammarLike {
         self.next_match_at(nodes).is_some()
     }
     fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode;
-    fn take_next(&self, mut nodes: Vec<TreeNode>) -> (Option<TreeNode>, Vec<TreeNode>) {
+    fn process_next(&self, mut nodes: Vec<TreeNode>) -> (Option<TreeNode>, Vec<TreeNode>) {
         let start_index = self.next_match_at(&nodes);
         let Some(start_index) = start_index else {
             return (None, nodes);
@@ -31,7 +31,22 @@ pub trait GrammarLike {
 
         let new_node = self.construct(inner_nodes);
 
-        (Some(new_node),nodes)
+        nodes.insert(start_index,new_node.clone());
+
+        (Some(new_node), nodes)
+    }
+    fn process_all(&self, nodes: Vec<TreeNode>) -> Vec<TreeNode> {
+        let mut processed_nodes = nodes;
+        
+        while self.has_match(&processed_nodes) {
+            let (new_node, new_nodes) = self.process_next(processed_nodes);
+            processed_nodes = new_nodes;
+            if let None = new_node {
+                break;
+            }
+        };
+
+        processed_nodes
     }
 }
 

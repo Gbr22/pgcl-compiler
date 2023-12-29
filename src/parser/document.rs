@@ -1,11 +1,38 @@
 
-use super::tree::{TreeNodeLike, TreeNode};
+use std::clone;
+
+use crate::lexer::types::token_type::TokenType;
+
+use super::{tree::{TreeNodeLike, TreeNode, ParseError}, uniform::UniformGrammar, grammar::GrammarLike};
 
 #[derive(Debug, Clone)]
 pub struct Document {
     start_index: usize,
     end_index: usize,
     children: Vec<TreeNode>
+}
+
+fn remove_whitespace(nodes: Vec<TreeNode>) -> Vec<TreeNode> {
+    let nodes: Vec<TreeNode> = nodes.into_iter().filter(|node|{
+        let TreeNode::Token(token) = node else {
+            return true;
+        };
+
+        let filtered_types: Vec<TokenType> = vec![
+            TokenType::Whitespace,
+            TokenType::Newline,
+            TokenType::InvalidChar,
+            TokenType::StartOfInput
+        ];
+
+        if filtered_types.contains(&token.typ) {
+            return false;
+        }
+
+        true
+    }).collect();
+
+    nodes
 }
 
 impl Document {
@@ -18,6 +45,10 @@ impl Document {
             .first()
             .map(|node|node.get_end_index())
             .unwrap_or_default();
+
+        let nodes = remove_whitespace(nodes);
+        let uniform_grammar = UniformGrammar {};
+        let nodes = uniform_grammar.process_all(nodes);
         
         let document = Document {
             children: nodes,
@@ -35,5 +66,16 @@ impl TreeNodeLike for Document {
     }
     fn get_end_index(&self) -> usize {
         self.end_index
+    }
+    fn get_errors(&self) -> Vec<ParseError> {
+        let errors: Vec<ParseError> = self.children.iter().filter_map(|node|{
+            if let TreeNode::ParseError(error) = node {
+                return Some(error.to_owned());
+            }
+
+            None
+        }).collect();
+
+        errors
     }
 }

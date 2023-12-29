@@ -1,3 +1,4 @@
+use crate::lexer::types::token_type::TokenType;
 use crate::parser::document::Document;
 use crate::parser::uniform::UniformDeclaration;
 use crate::lexer::token::Token;
@@ -9,13 +10,33 @@ trait_enum!{
         Unit,
         Document,
         UniformDeclaration,
-        Error
+        ParseError
+    }
+}
+
+impl TreeNode {
+    pub fn is_token_type(&self, typ: TokenType) -> bool {
+        let TreeNode::Token(token) = self else {
+            return false;
+        };
+
+        token.typ == typ
+    }
+    pub fn is_keyword(&self, str: &str) -> bool {
+        let TreeNode::Token(token) = self else {
+            return false;
+        };
+
+        token.typ == TokenType::Identifier && token.string == str
     }
 }
 
 pub trait TreeNodeLike {
     fn get_start_index(&self) -> usize;
     fn get_end_index(&self) -> usize;
+    fn get_errors(&self) -> Vec<ParseError> {
+        return vec![];
+    }
 }
 
 impl TreeNodeLike for Token {
@@ -48,17 +69,24 @@ impl TreeNodeLike for Unit {
 }
 
 #[derive(Debug, Clone)]
-pub struct Error {
+pub struct ParseError {
     pub text: String,
     start_index: usize,
     end_index: usize
 }
 
-impl Error {
-    pub fn new(text: impl Into<String>) -> Error {
-        Error { text: text.into(), start_index: 0, end_index: 0 }
+impl ParseError {
+    pub fn new(text: impl Into<String>) -> ParseError {
+        ParseError { text: text.into(), start_index: 0, end_index: 0 }
     }
-    pub fn from_nodes(nodes: &[TreeNode], text: impl Into<String>) -> Error {
+    pub fn at(start_index: usize, end_index: usize, text: impl Into<String>) -> ParseError {
+        ParseError {
+            start_index,
+            end_index,
+            text: text.into()
+        }
+    }
+    pub fn from_nodes(nodes: &[TreeNode], text: impl Into<String>) -> ParseError {
         let text = text.into();
         let start_index = nodes
             .first()
@@ -69,7 +97,7 @@ impl Error {
             .map(|node|node.get_end_index())
             .unwrap_or_default();
 
-        Error {
+        ParseError {
             text,
             start_index,
             end_index
@@ -77,18 +105,22 @@ impl Error {
     }
 }
 
-impl Into<TreeNode> for Error {
+impl Into<TreeNode> for ParseError {
     fn into(self) -> TreeNode {
-        TreeNode::Error(self)
+        TreeNode::ParseError(self)
     }
 }
 
-impl TreeNodeLike for Error {
+impl TreeNodeLike for ParseError {
     fn get_start_index(&self) -> usize {
         self.start_index
     }
 
     fn get_end_index(&self) -> usize {
         self.end_index
+    }
+
+    fn get_errors(&self) -> Vec<ParseError> {
+        vec![self.to_owned()]
     }
 }
