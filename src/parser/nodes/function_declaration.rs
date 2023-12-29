@@ -72,7 +72,9 @@ impl FunctionDeclaration {
         if after_body.len() > 1 {
             return ParseError::from_nodes(&original_nodes, format!("Unexpected items after function body.")).into();
         }
-        let body_nodes: Vec<TreeNode> = nodes.splice(body_start_index..body_end_index, vec![]).collect();
+        let body_nodes: Vec<TreeNode> = nodes.splice(body_start_index..body_end_index, vec![])
+            .skip(1) // skip opening curly `{`
+            .collect();
         let body_block = Block::parse(body_nodes);
 
         let type_nodes = nodes;
@@ -98,6 +100,7 @@ impl TreeNodeLike for FunctionDeclaration {
     fn get_errors(&self) -> Vec<ParseError> {
         let mut errors: Vec<ParseError> = vec![];
         errors.extend(self.return_type.get_errors());
+        errors.extend(self.body.get_errors());
 
         errors
     }

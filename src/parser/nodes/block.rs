@@ -1,4 +1,4 @@
-use crate::{lexer::types::ignored::is_ignored_token_type, parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}, statements::simple_statement::SimpleStatementGrammar}}};
+use crate::parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::GrammarLike, grammars::{statements::simple_statement::SimpleStatementGrammar}};
 
 #[derive(Debug, Clone)]
 pub struct Block {

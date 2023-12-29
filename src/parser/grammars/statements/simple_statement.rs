@@ -5,10 +5,16 @@ pub struct SimpleStatementGrammar {}
 impl GrammarLike for SimpleStatementGrammar {
     fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
         if nodes.len() == 0 {
-            None
-        } else {
-            Some(0) // match at first node
+            return None
         }
+        for (index, node) in nodes.iter().enumerate() {
+            if let TreeNode::SimpleStatement(simple_statement) = node {
+                continue;
+            }
+            return Some(index);
+        }
+
+        None
     }
     fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
