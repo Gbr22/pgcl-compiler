@@ -4,7 +4,6 @@ use serde_derive::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 
 use super::{token::{Token, TokenJs}, types::{definitions::{get_definitions, get_definition}, token_type::TokenType}};
-use super::definitions::token_def::TokenDef;
 
 
 #[wasm_bindgen]
@@ -34,7 +33,13 @@ fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
     }
 }
 
-fn flush_tokens(state: &mut LexerState) -> Option<Token> {
+pub enum ClearTokensResult {
+    ValidToken(Token),
+    InvalidToken(Token),
+    None
+}
+
+fn clear_tokens(state: &mut LexerState) -> Option<Token> {
     let old_tokens = state.current_tokens.clone();
     state.current_tokens.clear();
     
@@ -64,6 +69,25 @@ fn flush_tokens(state: &mut LexerState) -> Option<Token> {
         None
     }
 
+}
+
+pub fn flush_tokens_outer(state: &mut LexerState) {
+    let token = clear_tokens(state);
+    if let Some(token) = token {
+        state.index = token.end_index;
+    } else {
+        let failed_token = state.failed_tokens.last().unwrap().to_owned();
+        let sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
+        if let Some(sub_token) = sub_token {
+            // unroll
+            state.index = sub_token.end_index;
+            state.failed_tokens.pop();
+            state.current_tokens.push(TokenState {
+                token: sub_token,
+                is_finished: true
+            });
+        }
+    }
 }
 
 #[wasm_bindgen()]
@@ -121,11 +145,103 @@ pub fn tokenize_js(input: &str) -> TokenizeResultJs {
     }
 }
 
-struct LexerState {
+pub struct LexerState {
+    pub input_string: String,
+    pub input_chars: Vec<char>,
     pub tokens: Vec<Token>,
     pub failed_tokens: Vec<Token>,
     pub current_tokens: Vec<TokenState>,
     pub index: usize
+}
+
+impl LexerState {
+    pub fn get_char(&self) -> char {
+        self.input_chars[self.index]
+    }
+}
+
+pub fn try_extend_tokens(state: &mut LexerState) -> bool {
+    let char: char = *(&state.get_char());
+    let mut did_extend = false;
+    state.current_tokens = state.current_tokens.iter().map(|token_state: &TokenState| {
+        let token = &token_state.token;
+        let is_finished = token_state.is_finished;
+        let def = token.def();
+        let can_extend = def.check_character(&token.string,char);
+        if can_extend && !is_finished {
+            did_extend = true;
+
+            TokenState {
+                token: Token {
+                    typ: token.typ,
+                    string: format!("{}{}",token.string.to_owned(),char),
+                    start_index: token.start_index,
+                    end_index: state.index + 1
+                },
+                is_finished
+            }
+        } else {
+            TokenState {
+                token: token.clone(),
+                is_finished: true
+            }
+        }
+    }).collect();
+
+    if did_extend {
+        state.index = state.index + 1;
+    }
+
+    did_extend
+}
+
+pub fn try_create_tokens(state: &mut LexerState) -> bool {
+    if state.current_tokens.len() != 0 {
+        return false;
+    }
+    let char = state.get_char();
+    let mut did_create = false;
+    for typ in get_definitions() {
+        let def = get_definition(typ);
+
+        if !def.check_character("",char) {
+            continue;
+        }
+
+        let token = Token {
+            typ: typ.to_owned(),
+            string: format!("{}",char),
+            start_index: state.index,
+            end_index: state.index + 1
+        };
+
+        state.current_tokens.push(TokenState { token, is_finished: false });
+        did_create = true;
+    }
+    if did_create {
+        state.index = state.index + 1;
+    };
+
+    did_create
+}
+
+pub enum LexerControlFlow {
+    Continue,
+    Break,
+    FallThrough
+}
+
+pub fn check_is_finished(state: &mut LexerState) -> LexerControlFlow {
+    if state.index < state.input_chars.len() {
+        return LexerControlFlow::FallThrough;
+    }
+    if state.current_tokens.len() == 0 {
+        return LexerControlFlow::Break;
+    }
+    
+    flush_tokens_outer(state);
+    
+    LexerControlFlow::Continue
 }
 
 pub fn tokenize(input: &str) -> TokenizeResult {
@@ -133,7 +249,9 @@ pub fn tokenize(input: &str) -> TokenizeResult {
         tokens: vec![],
         failed_tokens: vec![],
         current_tokens: vec![],
-        index: 0
+        index: 0,
+        input_string: input.to_owned(),
+        input_chars: input.chars().collect()
     };
 
     state.current_tokens.push(TokenState { token: Token {
@@ -143,101 +261,27 @@ pub fn tokenize(input: &str) -> TokenizeResult {
         end_index: 0
     }, is_finished: true });
     
-    let input_chars: Vec<char> = input.chars().collect();
-
     loop {
-        if state.index >= input_chars.len() {
-            if state.current_tokens.len() == 0 {
-                break;
-            }
-            let token = flush_tokens(&mut state);
-            if let Some(token) = token {
-                state.index = token.end_index;
-            } else {
-                let failed_token = state.failed_tokens.last().unwrap().to_owned();
-                let sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
-                if let Some(sub_token) = sub_token {
-                    // unroll
-                    state.index = sub_token.end_index;
-                    state.failed_tokens.pop();
-                    state.current_tokens.push(TokenState {
-                        token: sub_token,
-                        is_finished: true
-                    });
-                }
-            }
+        let flow = check_is_finished(&mut state);
+        if let LexerControlFlow::Continue = flow {
             continue;
         }
-        let char = input_chars[state.index];
-        if state.current_tokens.len() == 0 {
-            for typ in get_definitions() {
-                let def = get_definition(typ);
+        if let LexerControlFlow::Break = flow {
+            break;
+        }
 
-                if !def.check_character("",char) {
-                    continue;
-                }
-
-                let token = Token {
-                    typ: typ.to_owned(),
-                    string: format!("{}",char),
-                    start_index: state.index,
-                    end_index: state.index + 1
-                };
-
-                state.current_tokens.push(TokenState { token, is_finished: false });
-            }
-            state.index = state.index + 1;
+        let did_create = try_create_tokens(&mut state);
+        if did_create {
             continue;
         }
 
-
-        let mut did_extend = false;
-        state.current_tokens = state.current_tokens.iter().map(|token_state: &TokenState| {
-            let token = &token_state.token;
-            let is_finished = token_state.is_finished;
-            let def = token.def();
-            let can_extend = def.check_character(&token.string,char);
-            if can_extend && !is_finished {
-                did_extend = true;
-
-                TokenState {
-                    token: Token {
-                        typ: token.typ,
-                        string: format!("{}{}",token.string.to_owned(),char),
-                        start_index: token.start_index,
-                        end_index: state.index + 1
-                    },
-                    is_finished
-                }
-            } else {
-                TokenState {
-                    token: token.clone(),
-                    is_finished: true
-                }
-            }
-        }).collect();
-
+        let did_extend = try_extend_tokens(&mut state);
         if did_extend {
-            state.index = state.index + 1;
             continue;
         }
 
-        let token = flush_tokens(&mut state);
-        if let Some(token) = token {
-            state.index = token.end_index;
-        } else {
-            let failed_token = state.failed_tokens.last().unwrap().to_owned();
-            let sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
-            if let Some(sub_token) = sub_token {
-                // unroll
-                state.index = sub_token.end_index;
-                state.failed_tokens.pop();
-                state.current_tokens.push(TokenState {
-                    token: sub_token,
-                    is_finished: true
-                });
-            }
-        }
+        flush_tokens_outer(&mut state);
+        continue;
     }
 
     TokenizeResult {
