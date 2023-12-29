@@ -3,14 +3,15 @@ use std::collections::VecDeque;
 
 use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}}};
 
-use super::typ::Type;
+use super::{typ::Type, block::Block};
 
 #[derive(Debug, Clone)]
 pub struct FunctionDeclaration {
     name: String,
     start_index: usize,
     end_index: usize,
-    return_type: Box<TreeNode>
+    return_type: Box<TreeNode>,
+    body: Box<TreeNode>
 }
 
 impl FunctionDeclaration {
@@ -72,7 +73,7 @@ impl FunctionDeclaration {
             return ParseError::from_nodes(&original_nodes, format!("Unexpected items after function body.")).into();
         }
         let body_nodes: Vec<TreeNode> = nodes.splice(body_start_index..body_end_index, vec![]).collect();
-        // TODO parse body
+        let body_block = Block::parse(body_nodes);
 
         let type_nodes = nodes;
         let typ = Type::parse(type_nodes);
@@ -81,7 +82,8 @@ impl FunctionDeclaration {
             start_index,
             end_index,
             name,
-            return_type: Box::new(typ)
+            return_type: Box::new(typ),
+            body: Box::new(body_block)
         })
     }
 }
