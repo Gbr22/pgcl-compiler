@@ -1,9 +1,6 @@
 
-use std::clone;
+use crate::{lexer::types::ignored::is_ignored_token_type, parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammar::GrammarLike, grammars::uniform_declaration::UniformDeclarationGrammar}};
 
-use crate::lexer::types::{token_type::TokenType, whitespace::is_whitespace};
-
-use super::{tree::{TreeNodeLike, TreeNode, ParseError}, uniform::UniformGrammar, grammar::GrammarLike};
 
 #[derive(Debug, Clone)]
 pub struct Document {
@@ -18,7 +15,7 @@ fn remove_whitespace(nodes: Vec<TreeNode>) -> Vec<TreeNode> {
             return true;
         };
 
-        if is_whitespace(&token.typ) {
+        if is_ignored_token_type(&token.typ) {
             return false;
         }
 
@@ -40,7 +37,7 @@ impl Document {
             .unwrap_or_default();
 
         let nodes = remove_whitespace(nodes);
-        let uniform_grammar = UniformGrammar {};
+        let uniform_grammar = UniformDeclarationGrammar {};
         let nodes = uniform_grammar.process_all(nodes);
         
         let document = Document {
@@ -61,13 +58,10 @@ impl TreeNodeLike for Document {
         self.end_index
     }
     fn get_errors(&self) -> Vec<ParseError> {
-        let errors: Vec<ParseError> = self.children.iter().filter_map(|node|{
-            if let TreeNode::ParseError(error) = node {
-                return Some(error.to_owned());
-            }
-
-            None
-        }).collect();
+        let mut errors: Vec<ParseError> = vec![];
+        for child in &self.children {
+            errors.extend(child.get_errors());
+        }
 
         errors
     }

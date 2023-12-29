@@ -1,15 +1,18 @@
-use super::{tree::TreeNode, document::Document, uniform::UniformGrammar};
+use super::tree::TreeNode;
+use super::grammars::document::DocumentGrammar;
+use super::grammars::uniform_declaration::UniformDeclarationGrammar;
 
 trait_enum!{
     pub enum Grammar: GrammarLike {
         DocumentGrammar,
-        UniformGrammar
+        UniformDeclarationGrammar
     }
 }
 
-
 pub trait GrammarLike {
     fn next_match_at(&self, _nodes: &[TreeNode]) -> Option<usize>;
+    
+    // range inclusive
     fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize>;
     fn has_match(&self, nodes: &[TreeNode]) -> bool {
         self.next_match_at(nodes).is_some()
@@ -47,25 +50,5 @@ pub trait GrammarLike {
         };
 
         processed_nodes
-    }
-}
-
-pub struct DocumentGrammar {}
-
-impl GrammarLike for DocumentGrammar {
-    fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
-        if nodes.len() == 0 {
-            None
-        } else {
-            Some(0) // match at first node
-        }
-    }
-    fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
-        Some(nodes.len()-1)
-    }
-    fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode {
-        let document = Document::parse(nodes);
-
-        document
     }
 }

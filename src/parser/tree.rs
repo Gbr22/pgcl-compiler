@@ -1,7 +1,8 @@
 use crate::lexer::types::token_type::TokenType;
-use crate::parser::document::Document;
-use crate::parser::uniform::UniformDeclaration;
 use crate::lexer::token::Token;
+use crate::parser::nodes::document::Document;
+use crate::parser::nodes::uniform_declaration::UniformDeclaration;
+use crate::parser::nodes::typ::Type;
 
 trait_enum!{
     #[derive(Debug, Clone)]
@@ -10,7 +11,8 @@ trait_enum!{
         Unit,
         Document,
         UniformDeclaration,
-        ParseError
+        ParseError,
+        Type
     }
 }
 
@@ -28,6 +30,13 @@ impl TreeNode {
         };
 
         token.typ == TokenType::Identifier && token.string == str
+    }
+    pub fn is_error(&self) -> bool {
+        if let TreeNode::ParseError(_) = self {
+            true
+        } else {
+            false
+        }
     }
 }
 

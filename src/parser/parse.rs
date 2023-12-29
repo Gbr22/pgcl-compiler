@@ -1,7 +1,7 @@
 
 use crate::lexer::token::Token;
 
-use super::{document::Document, tree::{TreeNode, ParseError}, grammar::{DocumentGrammar, GrammarLike}};
+use super::{tree::{TreeNode, ParseError}, grammars::document::DocumentGrammar, grammar::GrammarLike, nodes::document::Document};
 
 pub fn parse(tokens: &[Token]) -> TreeNode {
     let nodes: Vec<TreeNode> = tokens.iter().map(|token| TreeNode::Token(token.clone())).collect();

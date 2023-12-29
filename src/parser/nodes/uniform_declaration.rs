@@ -1,15 +1,17 @@
 use std::collections::VecDeque;
 
 
-use crate::lexer::types::{token_type::TokenType, keywords::{get_keywords, is_keyword}};
+use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM}}, parser::tree::{TreeNode, ParseError, TreeNodeLike}};
 
-use super::{tree::{TreeNodeLike, TreeNode, ParseError}, grammar::GrammarLike};
+use super::typ::Type;
+
 
 #[derive(Debug, Clone)]
 pub struct UniformDeclaration {
     pub name: String,
     start_index: usize,
     end_index: usize,
+    pub typ: Box<TreeNode>
 }
 
 impl UniformDeclaration {
@@ -33,7 +35,7 @@ impl UniformDeclaration {
         let Some(TreeNode::Token(first)) = queue.pop_front() else {
             return error_start_with_keyword.into();
         };
-        if first.typ != TokenType::Identifier || &first.string != UNIFORM_KEYWORD {
+        if first.typ != TokenType::Identifier || &first.string != UNIFORM {
             return error_start_with_keyword.into();
         }
 
@@ -76,6 +78,8 @@ impl UniformDeclaration {
             ).into();
         }
 
+        let typ = Type::parse(type_nodes);
+
         let start_index = colon_token.start_index;
         let end_index = last.end_index;
         let name = colon_token.string.to_owned();
@@ -84,6 +88,7 @@ impl UniformDeclaration {
             name,
             start_index,
             end_index,
+            typ: Box::new(typ)
         })
     }
 }
@@ -95,61 +100,12 @@ impl TreeNodeLike for UniformDeclaration {
     fn get_end_index(&self) -> usize {
         self.end_index
     }
-}
+    fn get_errors(&self) -> Vec<ParseError> {
+        let typ: TreeNode = *self.typ.clone();
+        let TreeNode::ParseError(error) = typ else {
+            return vec![];
+        };
 
-pub struct UniformGrammar {}
-
-static UNIFORM_KEYWORD: &'static str = "uniform";
-
-fn can_end_uniform_search(node: &TreeNode) -> bool {
-    if node.is_token_type(TokenType::Semicolon) {
-        return true;
-    };
-    if node.is_keyword("fn") {
-        return true;
-    }
-    if node.is_keyword("uniform") {
-        return true;
-    }
-    if let TreeNode::Token(token) = node {
-        if token.typ == TokenType::LineComment {
-            return true;
-        }
-    }
-
-    false
-}
-
-impl GrammarLike for UniformGrammar {
-    fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
-        for (index, node) in nodes.iter().enumerate() {
-            let TreeNode::Token(token) = node else {
-                continue
-            };
-            if &token.string != UNIFORM_KEYWORD {
-                continue;
-            }
-            return Some(index);
-        }
-
-        None
-    }
-
-    fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
-        for (index, item) in nodes.iter().enumerate() {
-            if index <= start_index {
-                continue;
-            }
-
-            if can_end_uniform_search(&item) {
-                return Some(index)
-            }
-        }
-
-        None
-    }
-
-    fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode {
-        UniformDeclaration::parse(nodes)
+        return vec![error];
     }
 }
