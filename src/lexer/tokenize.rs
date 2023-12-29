@@ -33,13 +33,7 @@ fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
     }
 }
 
-pub enum ClearTokensResult {
-    ValidToken(Token),
-    InvalidToken(Token),
-    None
-}
-
-fn clear_and_take_best_token(state: &mut LexerState) -> ClearTokensResult {
+fn clear_and_take_best_token(state: &mut LexerState) -> Option<Token> {
     let old_tokens = state.current_tokens.clone();
     state.current_tokens.clear();
     
@@ -56,47 +50,44 @@ fn clear_and_take_best_token(state: &mut LexerState) -> ClearTokensResult {
     
     let max_valid = max_token(&valid_tokens);
     if let Some(max) = max_valid {
-        return ClearTokensResult::ValidToken(max)
+        return Some(max)
     }
 
     let max_invalid = max_token(&invalid_tokens);
     if let Some(max) = max_invalid {
-        return ClearTokensResult::InvalidToken(max);
+        return Some(max);
     }
 
-    ClearTokensResult::None
+    None
 
 }
 
 pub fn flush_tokens(state: &mut LexerState) {
-    let result = clear_and_take_best_token(state);
-
-    match result {
-        ClearTokensResult::None => {
-            return;
-        }
-        ClearTokensResult::ValidToken(valid_token)=>{
-            state.tokens.push(valid_token.clone());
-            state.index = valid_token.end_index;
-            return;
-        }
-        ClearTokensResult::InvalidToken(failed_token)=>{
-            let valid_sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
-            let Some(valid_sub_token) = valid_sub_token else {
-                // could not recover failed token
-                state.failed_tokens.push(failed_token);
-                return;
-            };
-
-            // roll back
-            state.index = valid_sub_token.end_index;
-            state.current_tokens.push(TokenState {
-                token: valid_sub_token,
-                is_finished: true
-            });
-            return;
-        }
+    let maybe_token = clear_and_take_best_token(state);
+    let Some(token) = maybe_token else {
+        // nothing to flush
+        return;
     };
+    if token.is_valid() {
+        let valid_token = token;
+        state.index = valid_token.end_index;
+        state.tokens.push(valid_token);
+        return;
+    }
+
+    // attempt to recover failed token
+    let failed_token = token;
+    let valid_sub_token = failed_token.def().largest_valid_subtoken(&failed_token);
+    let Some(valid_sub_token) = valid_sub_token else {
+        // could not recover failed token
+        state.failed_tokens.push(failed_token);
+        return;
+    };
+
+    // successfully recovered a valid token
+    state.index = valid_sub_token.end_index;
+    state.tokens.push(valid_sub_token);
+    return;
 }
 
 #[wasm_bindgen()]
