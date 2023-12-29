@@ -10,6 +10,7 @@ pub fn find_bracket_end<
     nodes: &[TreeNode]
 ) -> Option<usize> {
     let mut opening_count = 1;
+    let mut closing_count = 0;
     for (index, node) in nodes.iter().enumerate() {
         if index <= opening_index {
             continue;
@@ -17,10 +18,10 @@ pub fn find_bracket_end<
         if is_opening_bracket(node) {
             opening_count = opening_count + 1;
         } else if is_closing_bracket(node) {
-            opening_count = opening_count - 1;
+            closing_count = closing_count + 1;
         }
 
-        if opening_count == 0 {
+        if opening_count == closing_count {
             return Some(index);
         }
     }

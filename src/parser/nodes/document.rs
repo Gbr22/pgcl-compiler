@@ -1,4 +1,4 @@
-use crate::{lexer::types::ignored::is_ignored_token_type, parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::FunctionDeclarationGrammar}}, interop::javascript::log::console_log};
+use crate::{lexer::types::ignored::is_ignored_token_type, parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}}}};
 
 #[derive(Debug, Clone)]
 pub struct Document {
@@ -25,22 +25,16 @@ fn remove_whitespace(nodes: Vec<TreeNode>) -> Vec<TreeNode> {
 
 impl Document {
     pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let start_index = nodes
-            .first()
-            .map(|node|node.get_start_index())
+        let start_index = get_start_index(&nodes)
             .unwrap_or_default();
-        let end_index = nodes
-            .first()
-            .map(|node|node.get_end_index())
+        let end_index = get_end_index(&nodes)
             .unwrap_or_default();
 
-        let nodes = remove_whitespace(nodes);
         let uniform_grammar = UniformDeclarationGrammar {};
         let function_grammar = FunctionDeclarationGrammar {};
-        /* let nodes = uniform_grammar.process_all(nodes); */
-        console_log("Processed unifrom");
+        let nodes = remove_whitespace(nodes);
+        let nodes = uniform_grammar.process_all(nodes);
         let nodes = function_grammar.process_all(nodes);
-        console_log("Processed function");
         let document = Document {
             children: nodes,
             start_index,
