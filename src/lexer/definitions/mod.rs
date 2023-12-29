@@ -6,3 +6,5 @@ pub mod catch_all;
 pub mod invalid_char;
 pub mod catch_all_until_whitespace;
 pub mod number;
+pub mod line_comment;
+pub mod block_comment;

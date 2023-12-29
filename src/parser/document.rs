@@ -1,7 +1,7 @@
 
 use std::clone;
 
-use crate::lexer::types::token_type::TokenType;
+use crate::lexer::types::{token_type::TokenType, whitespace::is_whitespace};
 
 use super::{tree::{TreeNodeLike, TreeNode, ParseError}, uniform::UniformGrammar, grammar::GrammarLike};
 
@@ -18,14 +18,7 @@ fn remove_whitespace(nodes: Vec<TreeNode>) -> Vec<TreeNode> {
             return true;
         };
 
-        let filtered_types: Vec<TokenType> = vec![
-            TokenType::Whitespace,
-            TokenType::Newline,
-            TokenType::InvalidChar,
-            TokenType::StartOfInput
-        ];
-
-        if filtered_types.contains(&token.typ) {
+        if is_whitespace(&token.typ) {
             return false;
         }
 

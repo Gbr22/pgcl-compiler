@@ -111,6 +111,11 @@ fn can_end_uniform_search(node: &TreeNode) -> bool {
     if node.is_keyword("uniform") {
         return true;
     }
+    if let TreeNode::Token(token) = node {
+        if token.typ == TokenType::LineComment {
+            return true;
+        }
+    }
 
     false
 }

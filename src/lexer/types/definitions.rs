@@ -5,7 +5,7 @@ use crate::lexer::definitions::{
     invalid_char::InvalidCharDef,
     match_any::MatchAnyDef,
     identifier::IdentifierDef,
-    number::NumberDef
+    number::NumberDef, line_comment::LineCommentDef, block_comment::BlockCommentDef
 };
 
 use super::token_type::TokenType;
@@ -66,5 +66,9 @@ pub fn get_definition(typ: &TokenType) -> Box<dyn TokenDef> {
         // symbols
         T::ArrowRight=>ExactMatchDef { string: "->".into() }.into(),
         T::Equals=>ExactMatchDef { string: "=".into() }.into(),
+
+        // comments
+        T::LineComment=>LineCommentDef {}.into(),
+        T::BlockComment=>BlockCommentDef {}.into()
     }
 }

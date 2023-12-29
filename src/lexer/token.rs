@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use serde_derive::Serialize;
 use wasm_bindgen::prelude::wasm_bindgen;
 
@@ -71,5 +73,32 @@ impl Token {
         };
         
         msg
+    }
+
+    pub fn split_by_line(mut self) -> Vec<Token> {
+        let mut tokens: Vec<Token> = vec![];
+        let mut parts: VecDeque<&str> = self.string.split('\n').collect();
+
+        loop {
+            let Some(str) = parts.pop_front() else {
+                break;
+            };
+
+            let string = str.to_owned();
+            let start_index = self.start_index;
+            let end_index = start_index + string.chars().count();
+            let typ = self.typ;
+
+            tokens.push(Token {
+                string,
+                typ,
+                start_index,
+                end_index
+            });
+
+            self.start_index = end_index + 1;
+        }
+
+        tokens
     }
 }
