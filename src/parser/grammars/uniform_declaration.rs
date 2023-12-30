@@ -23,7 +23,7 @@ fn can_end_uniform_search(node: &TreeNode) -> bool {
 }
 
 impl GrammarLike for UniformDeclarationGrammar {
-    fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             let TreeNode::Token(token) = node else {
                 continue
@@ -37,7 +37,7 @@ impl GrammarLike for UniformDeclarationGrammar {
         None
     }
 
-    fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
         for (index, item) in nodes.iter().enumerate() {
             if index <= start_index {
                 continue;

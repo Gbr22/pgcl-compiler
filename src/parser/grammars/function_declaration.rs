@@ -46,7 +46,7 @@ pub fn find_body_end(body_start_index: usize, nodes: &[TreeNode]) -> Option<usiz
 }
 
 impl GrammarLike for FunctionDeclarationGrammar {
-    fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             if node.is_keyword(FN) {
                 return Some(index);
@@ -56,7 +56,7 @@ impl GrammarLike for FunctionDeclarationGrammar {
         None
     }
 
-    fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
         let args_start = find_args_start(start_index, &nodes)?;
         let args_end = find_args_end(args_start, &nodes)?;
         let body_start = find_body_start(args_end, &nodes)?;

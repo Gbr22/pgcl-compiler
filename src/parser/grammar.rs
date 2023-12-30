@@ -5,20 +5,20 @@ pub struct Grammar<'a> {
 }
 
 pub trait GrammarLike {
-    fn next_match_at(&self, _nodes: &[TreeNode]) -> Option<usize>;
+    fn next_match_start(&self, _nodes: &[TreeNode]) -> Option<usize>;
     
     // range inclusive
-    fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize>;
+    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize>;
     fn has_match(&self, nodes: &[TreeNode]) -> bool {
-        self.next_match_at(nodes).is_some()
+        self.next_match_start(nodes).is_some()
     }
     fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode;
     fn process_next(&self, mut nodes: Vec<TreeNode>) -> (Option<TreeNode>, Vec<TreeNode>) {
-        let start_index = self.next_match_at(&nodes);
+        let start_index = self.next_match_start(&nodes);
         let Some(start_index) = start_index else {
             return (None, nodes);
         };
-        let end_index = self.find_match_end(&nodes, start_index);
+        let end_index = self.next_match_end(&nodes, start_index);
         let Some(end_index) = end_index else {
             return (None, nodes);
         };

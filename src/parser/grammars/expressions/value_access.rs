@@ -3,7 +3,7 @@ use crate::{parser::{grammar::GrammarLike, tree::{TreeNode, ParseError}, nodes::
 pub struct ValueAccessGrammar {}
 
 impl GrammarLike for ValueAccessGrammar {
-    fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             let TreeNode::Token(token) = node else {
                 continue;
@@ -16,7 +16,7 @@ impl GrammarLike for ValueAccessGrammar {
 
         None
     }
-    fn find_match_end(&self, _nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, _nodes: &[TreeNode], start_index: usize) -> Option<usize> {
         Some(start_index)   
     }
     fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode {

@@ -17,7 +17,7 @@ fn is_function_name(node: &TreeNode) -> bool {
 }
 
 impl GrammarLike for FunctionCallGrammar {
-    fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
         let mut is_last_node_function_name = false;
         for (index, node) in nodes.iter().enumerate() {
             if node.is_token_type(TokenType::OpeningBracketRound) && is_last_node_function_name {
@@ -29,7 +29,7 @@ impl GrammarLike for FunctionCallGrammar {
 
         None
     }
-    fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
         find_bracket_end(
             round_bracket(),
             start_index+1, // start_index is the index of the identifier

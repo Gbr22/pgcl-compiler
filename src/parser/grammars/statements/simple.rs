@@ -3,7 +3,7 @@ use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Doc
 pub struct SimpleStatementGrammar {}
 
 impl GrammarLike for SimpleStatementGrammar {
-    fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
         if nodes.len() == 0 {
             return None
         }
@@ -16,7 +16,7 @@ impl GrammarLike for SimpleStatementGrammar {
 
         None
     }
-    fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             if index < start_index {
                 continue;

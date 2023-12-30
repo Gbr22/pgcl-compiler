@@ -8,7 +8,7 @@ use crate::{parser::{tree::TreeNode, grammar::GrammarLike}, lexer::types::{token
 pub struct FunctionCallArgGrammar {}
 
 impl GrammarLike for FunctionCallArgGrammar {
-    fn next_match_at(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
         if nodes.len() == 0 {
             return None
         }
@@ -24,7 +24,7 @@ impl GrammarLike for FunctionCallArgGrammar {
         None
     }
 
-    fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
         let index = find_next_comma_outside_brackets(start_index, nodes);
         
         match index {
