@@ -1,4 +1,4 @@
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::{GrammarLike}, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}}}, process_grammars, common::range::Range};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::{GrammarLike}, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}}, tree_nodes::TreeNodes}, process_grammars, common::range::Range};
 
 #[derive(Debug, Clone)]
 pub struct Document {
@@ -7,12 +7,8 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let range = get_range(&nodes).unwrap_or(Range::null());
-        let start_index = get_start_index(&nodes)
-            .unwrap_or_default();
-        let end_index = get_end_index(&nodes)
-            .unwrap_or_default();
+    pub fn parse(nodes: TreeNodes) -> TreeNode {
+        let range = nodes.range;
 
         let nodes = process_grammars! { nodes [
             UniformDeclarationGrammar,
@@ -21,7 +17,7 @@ impl Document {
         
         let document = Document {
             range,
-            children: nodes,
+            children: nodes.vec,
         };
 
         TreeNode::Document(document)

@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::{parser::{tree::{TreeNodeLike, TreeNode, ParseError, get_start_index, get_end_index, get_range}, nodes::function_call_args::FunctionCallArgs}, lexer::types::{token_type::TokenType, keywords::is_keyword}, common::range::Range};
+use crate::{parser::{tree::{TreeNodeLike, TreeNode, ParseError, get_start_index, get_end_index, get_range}, nodes::function_call_args::FunctionCallArgs, tree_nodes::TreeNodes}, lexer::types::{token_type::TokenType, keywords::is_keyword}, common::range::Range};
 
 use super::expr::{ExpressionLike, Expression};
 
@@ -12,12 +12,9 @@ pub struct FunctionCall {
 }
 
 impl FunctionCall {
-    pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let range = get_range(&nodes).unwrap_or(Range::null());
-        let start_index = get_start_index(&nodes).unwrap_or_default();
-        let end_index = get_end_index(&nodes).unwrap_or_default();
-        
-        let mut queue: VecDeque<TreeNode> = nodes.into();
+    pub fn parse(nodes: TreeNodes) -> TreeNode {
+        let range = nodes.range;
+        let mut queue: VecDeque<TreeNode> = nodes.vec.into();
         let name_node = queue.pop_front();
         let name_error = ParseError::at(range,format!("Expected identifier at function call."));
         let Some(TreeNode::Token(name_token)) = name_node else {
@@ -45,6 +42,7 @@ impl FunctionCall {
         }
 
         let arg_nodes: Vec<TreeNode> = queue.into();
+        let arg_nodes: TreeNodes = TreeNodes::new(range, arg_nodes);
         let args = FunctionCallArgs::parse(arg_nodes);
         
         let call = FunctionCall {

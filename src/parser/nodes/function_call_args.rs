@@ -1,6 +1,6 @@
 
 
-use crate::{parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_call_arg::FunctionCallArgGrammar}, process_grammars, common::range::Range};
+use crate::{parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_call_arg::FunctionCallArgGrammar, tree_nodes::TreeNodes}, process_grammars, common::range::Range};
 
 
 
@@ -11,8 +11,8 @@ pub struct FunctionCallArgs {
 }
 
 impl FunctionCallArgs {
-    pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let range = get_range(&nodes).unwrap_or(Range::null());
+    pub fn parse(nodes: TreeNodes) -> TreeNode {
+        let range = nodes.range;
 
         let nodes = process_grammars! { nodes [
             FunctionCallArgGrammar
@@ -21,7 +21,7 @@ impl FunctionCallArgs {
         // TODO: assert that the only children are FunctionCallArg structs
 
         let fn_call_args = FunctionCallArgs {
-            args: nodes,
+            args: nodes.vec,
             range,
         };
         TreeNode::FunctionCallArgs(fn_call_args)

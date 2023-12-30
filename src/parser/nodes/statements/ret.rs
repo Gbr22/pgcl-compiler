@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression}, lexer::types::{keywords::RETURN, token_type::TokenType}, common::range::Range};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression, tree_nodes::TreeNodes}, lexer::types::{keywords::RETURN, token_type::TokenType}, common::range::Range};
 
 use super::statement::{StatementLike, Statement};
 
@@ -11,7 +11,8 @@ pub struct ReturnStatement {
 }
 
 impl ReturnStatement {
-    pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
+    pub fn parse(nodes: TreeNodes) -> TreeNode {
+        let nodes = nodes.vec;
         let range = get_range(&nodes).unwrap_or(Range::null());
 
         let mut queue: VecDeque<TreeNode> = nodes.into();
@@ -33,6 +34,7 @@ impl ReturnStatement {
         }
 
         let nodes: Vec<TreeNode> = queue.into();
+        let nodes = TreeNodes::new(range, nodes);
         let expr = Expression::parse(nodes);
 
         let statement = ReturnStatement {

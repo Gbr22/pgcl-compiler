@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression}, lexer::types::token_type::TokenType, common::range::Range};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression, tree_nodes::TreeNodes}, lexer::types::token_type::TokenType, common::range::Range};
 
 use super::statement::{Statement, StatementLike};
 
@@ -12,14 +12,10 @@ pub struct SimpleStatement {
 }
 
 impl SimpleStatement {
-    pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let range = get_range(&nodes).unwrap_or(Range::null());
-        let start_index = get_start_index(&nodes)
-            .unwrap_or_default();
-        let end_index = get_end_index(&nodes)
-            .unwrap_or_default();
+    pub fn parse(nodes: TreeNodes) -> TreeNode {
+        let range = nodes.range;
 
-        let mut queue: VecDeque<TreeNode> = nodes.into();
+        let mut queue: VecDeque<TreeNode> = nodes.vec.into();
         let semi_error = ParseError::at(range, format!("Semicolon expected at end of statement."));
         let semi_colon = queue.pop_back();
         let Some(semi_colon) = semi_colon else {
@@ -29,6 +25,7 @@ impl SimpleStatement {
             return semi_error.into();
         }
         let nodes: Vec<TreeNode> = queue.into();
+        let nodes = TreeNodes::new(range, nodes);
 
         let expr = Expression::parse(nodes);
 

@@ -1,4 +1,5 @@
 use crate::parser::nodes::uniform_declaration::UniformDeclaration;
+use crate::parser::tree_nodes::TreeNodes;
 use crate::{parser::{tree::TreeNode, grammar::GrammarLike}, lexer::types::{token_type::TokenType, keywords::UNIFORM}};
 
 pub struct UniformDeclarationGrammar {}
@@ -23,7 +24,7 @@ fn can_end_uniform_search(node: &TreeNode) -> bool {
 }
 
 impl GrammarLike for UniformDeclarationGrammar {
-    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             let TreeNode::Token(token) = node else {
                 continue
@@ -37,7 +38,7 @@ impl GrammarLike for UniformDeclarationGrammar {
         None
     }
 
-    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
         for (index, item) in nodes.iter().enumerate() {
             if index <= start_index {
                 continue;
@@ -51,7 +52,7 @@ impl GrammarLike for UniformDeclarationGrammar {
         None
     }
 
-    fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode {
+    fn construct(&self, nodes: TreeNodes) -> TreeNode {
         UniformDeclaration::parse(nodes)
     }
 }

@@ -1,19 +1,19 @@
-use super::tree::TreeNode;
+use super::{tree::TreeNode, tree_nodes::TreeNodes};
 
 pub struct Grammar<'a> {
     inner: Box<dyn GrammarLike + 'a>
 }
 
 pub trait GrammarLike {
-    fn next_match_start(&self, _nodes: &[TreeNode]) -> Option<usize>;
+    fn next_match_start(&self, _nodes: &TreeNodes) -> Option<usize>;
     
     // range inclusive
-    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize>;
-    fn has_match(&self, nodes: &[TreeNode]) -> bool {
+    fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize>;
+    fn has_match(&self, nodes: &TreeNodes) -> bool {
         self.next_match_start(nodes).is_some()
     }
-    fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode;
-    fn process_next(&self, mut nodes: Vec<TreeNode>) -> (Option<TreeNode>, Vec<TreeNode>) {
+    fn construct(&self, nodes: TreeNodes) -> TreeNode;
+    fn process_next(&self, mut nodes: TreeNodes) -> (Option<TreeNode>, TreeNodes) {
         let start_index = self.next_match_start(&nodes);
         let Some(start_index) = start_index else {
             return (None, nodes);
@@ -24,8 +24,7 @@ pub trait GrammarLike {
         };
 
         let inner_nodes = nodes
-            .splice(start_index..(end_index+1),vec![])
-            .collect();
+            .slice(start_index,end_index+1);
 
         let new_node = self.construct(inner_nodes);
 
@@ -33,7 +32,7 @@ pub trait GrammarLike {
 
         (Some(new_node), nodes)
     }
-    fn process_all(&self, nodes: Vec<TreeNode>) -> Vec<TreeNode> {
+    fn process_all(&self, nodes: TreeNodes) -> TreeNodes {
         let mut processed_nodes = nodes;
         
         while self.has_match(&processed_nodes) {
@@ -55,7 +54,7 @@ impl<'a, T> From<T> for Grammar<'a> where T: GrammarLike + 'a {
     }
 }
 
-pub fn process_grammars(grammars: Vec<Grammar>, nodes: Vec<TreeNode>) -> Vec<TreeNode> {
+pub fn process_grammars(grammars: Vec<Grammar>, nodes: TreeNodes) -> TreeNodes {
     let mut nodes = nodes;
 
     for grammar in &grammars {

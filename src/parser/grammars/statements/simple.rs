@@ -1,9 +1,9 @@
-use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Document, statements::simple_statement::SimpleStatement}}, lexer::types::token_type::TokenType};
+use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Document, statements::simple_statement::SimpleStatement}, tree_nodes::TreeNodes}, lexer::types::token_type::TokenType};
 
 pub struct SimpleStatementGrammar {}
 
 impl GrammarLike for SimpleStatementGrammar {
-    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         if nodes.len() == 0 {
             return None
         }
@@ -16,7 +16,7 @@ impl GrammarLike for SimpleStatementGrammar {
 
         None
     }
-    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             if index < start_index {
                 continue;
@@ -28,7 +28,7 @@ impl GrammarLike for SimpleStatementGrammar {
 
         None
     }
-    fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode {
+    fn construct(&self, nodes: TreeNodes) -> TreeNode {
         let statement = SimpleStatement::parse(nodes);
 
         statement

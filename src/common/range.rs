@@ -26,6 +26,22 @@ impl Range {
         let end_index = b.start_index;
         Range::new(start_index, end_index)
     }
+    pub fn set_length(&mut self, len: usize) {
+        self.end_index = self.start_index + len;
+    }
+    pub fn with_length(self, len: usize) -> Self {
+        let mut s = self;
+        s.set_length(len);
+        s
+    }
+    pub fn with_start(self, start: usize) -> Self {
+        let mut s = self;
+        s.start_index = start;
+        if s.start_index > s.end_index {
+            s.end_index = s.start_index
+        }
+        s
+    }
 }
 
 pub struct Len(pub usize);

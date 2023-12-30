@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}}, common::range::Range};
+use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}, tree_nodes::TreeNodes}, common::range::Range};
 
 use super::{block::Block, types::typ::Type};
 
@@ -15,7 +15,8 @@ pub struct FunctionDeclaration {
 }
 
 impl FunctionDeclaration {
-    pub fn parse(original_nodes: Vec<TreeNode>) -> TreeNode {
+    pub fn parse(original_nodes: TreeNodes) -> TreeNode {
+        let original_nodes = original_nodes.vec;
         let range = get_range(&original_nodes).unwrap_or(Range::null());
         let start_index = get_start_index(&original_nodes).unwrap_or_default();
         let end_index = get_end_index(&original_nodes).unwrap_or_default();
@@ -76,9 +77,12 @@ impl FunctionDeclaration {
         let body_nodes: Vec<TreeNode> = nodes.splice(body_start_index..body_end_index, vec![])
             .skip(1) // skip opening curly `{`
             .collect();
+
+        let body_nodes = TreeNodes::new(range, body_nodes);
         let body_block = Block::parse(body_nodes);
 
         let type_nodes = nodes;
+        let type_nodes = TreeNodes::new(range, type_nodes);
         let typ = Type::parse(type_nodes);
 
         TreeNode::FunctionDeclaration(FunctionDeclaration {

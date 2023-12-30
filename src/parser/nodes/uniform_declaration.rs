@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM}}, parser::tree::{TreeNode, ParseError, TreeNodeLike, get_range}, common::range::{Range, Len}};
+use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_range}, tree_nodes::TreeNodes}, common::range::{Range, Len}};
 
 use super::types::typ::Type;
 
@@ -13,8 +13,9 @@ pub struct UniformDeclaration {
 }
 
 impl UniformDeclaration {
-    pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let range = get_range(&nodes).unwrap_or(Range::null());
+    pub fn parse(nodes: TreeNodes) -> TreeNode {
+        let range = nodes.range;
+        let nodes = nodes.vec;
         let copy = nodes.to_vec();
         let mut queue: VecDeque<TreeNode> = copy.into();
 
@@ -75,6 +76,7 @@ impl UniformDeclaration {
             ).into();
         }
 
+        let type_nodes = TreeNodes::new(range, type_nodes);
         let typ = Type::parse(type_nodes);
 
         let name = colon_token.string.to_owned();

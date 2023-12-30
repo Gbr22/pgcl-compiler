@@ -1,9 +1,9 @@
-use crate::{parser::{grammar::GrammarLike, tree::{TreeNode, ParseError}, nodes::{document::Document, types::simple::SimpleType}}, lexer::types::{token_type::TokenType, keywords::is_keyword}};
+use crate::{parser::{grammar::GrammarLike, tree::{TreeNode, ParseError}, nodes::{document::Document, types::simple::SimpleType}, tree_nodes::TreeNodes}, lexer::types::{token_type::TokenType, keywords::is_keyword}};
 
 pub struct SimpleTypeGrammar {}
 
 impl GrammarLike for SimpleTypeGrammar {
-    fn next_match_start(&self, nodes: &[TreeNode]) -> Option<usize> {
+    fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             let TreeNode::Token(token) = node else {
                 continue;
@@ -17,16 +17,16 @@ impl GrammarLike for SimpleTypeGrammar {
 
         None
     }
-    fn next_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
         Some(start_index)
     }
-    fn construct(&self, nodes: Vec<TreeNode>) -> TreeNode {
+    fn construct(&self, nodes: TreeNodes) -> TreeNode {
         if nodes.len() > 1 {
-            return ParseError::from_nodes(&nodes, format!("Multiple types detected where only one is expected.")).into();
+            return ParseError::from_nodes(&nodes.vec, format!("Multiple types detected where only one is expected.")).into();
         }
         if nodes.len() == 0 {
-            return ParseError::from_nodes(&nodes, format!("Type expected.")).into();
+            return ParseError::from_nodes(&nodes.vec, format!("Type expected.")).into();
         }
-        SimpleType::parse(nodes[0].clone())
+        SimpleType::parse(nodes.vec[0].clone())
     }
 }

@@ -1,4 +1,4 @@
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammars::statements::{simple::SimpleStatementGrammar, ret::ReturnStatementGrammar}}, process_grammars, common::range::Range};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammars::statements::{simple::SimpleStatementGrammar, ret::ReturnStatementGrammar}, tree_nodes::TreeNodes}, process_grammars, common::range::Range};
 
 #[derive(Debug, Clone)]
 pub struct Block {
@@ -7,8 +7,8 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let range = get_range(&nodes).unwrap_or(Range::null());
+    pub fn parse(nodes: TreeNodes) -> TreeNode {
+        let range = nodes.range;
 
         let nodes = process_grammars! { nodes [
             ReturnStatementGrammar,
@@ -16,7 +16,7 @@ impl Block {
         ] };
         
         let block = Block {
-            children: nodes,
+            children: nodes.vec,
             range,
         };
 

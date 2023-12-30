@@ -3,6 +3,7 @@ use crate::common::range::Range;
 use crate::lexer::types::keywords::is_keyword;
 use crate::lexer::types::token_type::TokenType;
 use crate::parser::tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range};
+use crate::parser::tree_nodes::TreeNodes;
 use super::expressions::expr::Expression;
 
 #[derive(Debug, Clone)]
@@ -12,9 +13,9 @@ pub struct FunctionCallArg {
 }
 
 impl FunctionCallArg {
-    pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let range = get_range(&nodes).unwrap_or(Range::null());
-        let mut nodes = nodes;
+    pub fn parse(nodes: TreeNodes) -> TreeNode {
+        let range = nodes.range;
+        let mut nodes = nodes.vec;
 
         let has_comma = match nodes.last() {
             None => false,
@@ -25,6 +26,7 @@ impl FunctionCallArg {
             nodes.pop();
         }
 
+        let nodes = TreeNodes::new(range, nodes);
         let expr = Expression::parse(nodes);
 
         let arg = FunctionCallArg {
