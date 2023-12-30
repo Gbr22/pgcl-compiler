@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::{parser::tree::{TreeNodeLike, TreeNode, ParseError, get_start_index, get_end_index}, lexer::types::{token_type::TokenType, keywords::is_keyword}};
+use crate::{parser::{tree::{TreeNodeLike, TreeNode, ParseError, get_start_index, get_end_index}, nodes::function_call_args::FunctionCallArgs}, lexer::types::{token_type::TokenType, keywords::is_keyword}};
 
 use super::expr::{ExpressionLike, Expression};
 
@@ -8,7 +8,8 @@ use super::expr::{ExpressionLike, Expression};
 pub struct FunctionCall {
     name: String,
     start_index: usize,
-    end_index: usize
+    end_index: usize,
+    args: Box<TreeNode>
 }
 
 impl FunctionCall {
@@ -44,12 +45,13 @@ impl FunctionCall {
         }
 
         let arg_nodes: Vec<TreeNode> = queue.into();
-        // TODO parse args
+        let args = FunctionCallArgs::parse(arg_nodes);
         
         let call = FunctionCall {
             name: name,
             start_index,
-            end_index
+            end_index,
+            args: Box::new(args)
         };
 
         TreeNode::Expression(Expression::FunctionCall(call))
@@ -63,6 +65,10 @@ impl TreeNodeLike for FunctionCall {
 
     fn get_end_index(&self) -> usize {
         self.end_index
+    }
+
+    fn get_errors(&self) -> Vec<ParseError> {
+        self.args.get_errors()
     }
 }
 

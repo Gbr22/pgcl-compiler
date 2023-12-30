@@ -11,19 +11,3 @@ pub fn get_brackets() -> Vec<TokenType> {
         T::ClosingBracketCurly,
     ]
 }
-
-// (Round)
-pub fn is_opening_bracket_round(node: &TreeNode) -> bool {
-    node.is_token_type(TokenType::OpeningBracketRound)
-}
-pub fn is_closing_bracket_round(node: &TreeNode) -> bool {
-    node.is_token_type(TokenType::ClosingBracketRound)
-}
-
-// {Curly}
-pub fn is_opening_bracket_curly(node: &TreeNode) -> bool {
-    node.is_token_type(TokenType::OpeningBracketCurly)
-}
-pub fn is_closing_bracket_curly(node: &TreeNode) -> bool {
-    node.is_token_type(TokenType::ClosingBracketCurly)
-}

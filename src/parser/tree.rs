@@ -7,6 +7,7 @@ use crate::parser::nodes::block::Block;
 use crate::parser::nodes::statements::statement::Statement;
 use crate::parser::nodes::types::typ::Type;
 use crate::parser::nodes::expressions::expr::Expression;
+use crate::parser::nodes::function_call_args::FunctionCallArgs;
 
 trait_enum!{
     #[derive(Debug, Clone)]
@@ -20,7 +21,8 @@ trait_enum!{
         FunctionDeclaration,
         Block,
         Statement,
-        Expression
+        Expression,
+        FunctionCallArgs
     }
 }
 

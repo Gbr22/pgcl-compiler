@@ -1,4 +1,4 @@
-use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Document, statements::{simple_statement::SimpleStatement, return_statement::ReturnStatement}, expressions::function_call::FunctionCall}, match_brackets::find_bracket_end}, lexer::types::{token_type::TokenType, keywords::{RETURN, is_keyword}, brackets::{is_opening_bracket_round, is_closing_bracket_round}}};
+use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Document, statements::{simple_statement::SimpleStatement, return_statement::ReturnStatement}, expressions::function_call::FunctionCall}, match_brackets::find_bracket_end, brackets::round_bracket}, lexer::types::{token_type::TokenType, keywords::{RETURN, is_keyword}}};
 
 pub struct FunctionCallGrammar {}
 
@@ -31,8 +31,7 @@ impl GrammarLike for FunctionCallGrammar {
     }
     fn find_match_end(&self, nodes: &[TreeNode], start_index: usize) -> Option<usize> {
         find_bracket_end(
-            is_opening_bracket_round,
-            is_closing_bracket_round,
+            round_bracket(),
             start_index+1, // start_index is the index of the identifier
             nodes
         )

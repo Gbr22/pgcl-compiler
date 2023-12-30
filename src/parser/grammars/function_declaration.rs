@@ -1,5 +1,5 @@
-use crate::lexer::types::brackets::{is_closing_bracket_round, is_opening_bracket_round, is_opening_bracket_curly, is_closing_bracket_curly};
 use crate::lexer::types::keywords::FN;
+use crate::parser::brackets::{round_bracket, curly_bracket};
 use crate::parser::match_brackets::find_bracket_end;
 use crate::parser::nodes::function_declaration::FunctionDeclaration;
 use crate::{parser::{tree::TreeNode, grammar::GrammarLike}, lexer::types::{token_type::TokenType, keywords::UNIFORM}};
@@ -20,8 +20,7 @@ pub fn find_args_start(fn_index: usize, nodes: &[TreeNode]) -> Option<usize> {
 }
 pub fn find_args_end(args_start_index: usize, nodes: &[TreeNode]) -> Option<usize> {
     find_bracket_end(
-        is_opening_bracket_round,
-        is_closing_bracket_round,
+        round_bracket(),
         args_start_index,
         nodes
     )
@@ -40,8 +39,7 @@ pub fn find_body_start(args_end_index: usize, nodes: &[TreeNode]) -> Option<usiz
 }
 pub fn find_body_end(body_start_index: usize, nodes: &[TreeNode]) -> Option<usize> {
     find_bracket_end(
-        is_opening_bracket_curly,
-        is_closing_bracket_curly,
+        curly_bracket(),
         body_start_index,
         nodes
     )
