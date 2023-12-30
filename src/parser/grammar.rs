@@ -1,14 +1,8 @@
+use std::sync::Arc;
 use super::tree::TreeNode;
-use super::grammars::document::DocumentGrammar;
-use super::grammars::uniform_declaration::UniformDeclarationGrammar;
-use super::grammars::function_declaration::FunctionDeclarationGrammar;
 
-trait_enum!{
-    pub enum Grammar: GrammarLike {
-        DocumentGrammar,
-        UniformDeclarationGrammar,
-        FunctionDeclarationGrammar,
-    }
+pub struct Grammar<'a> {
+    inner: Arc<dyn GrammarLike + 'a>
 }
 
 pub trait GrammarLike {
@@ -53,4 +47,21 @@ pub trait GrammarLike {
 
         processed_nodes
     }
+}
+
+impl<'a, T> From<T> for Grammar<'a> where T: GrammarLike + Clone + 'a {
+    fn from(value: T) -> Self {
+        let b = Arc::new(value.clone());
+        Grammar { inner: b }
+    }
+}
+
+pub fn process_grammars(grammars: Vec<Grammar>, nodes: Vec<TreeNode>) -> Vec<TreeNode> {
+    let mut nodes = nodes;
+
+    for grammar in &grammars {
+        nodes = grammar.inner.process_all(nodes);
+    }
+
+    nodes
 }

@@ -1,5 +1,6 @@
-use crate::parser::grammar::GrammarLike;
+use crate::parser::grammar::{GrammarLike, process_grammars};
 use crate::parser::grammars::expressions::function_call::FunctionCallGrammar;
+use crate::parser::grammars::expressions::value_access::ValueAccessGrammar;
 use crate::parser::tree::{TreeNodeLike, TreeNode, ParseError, get_start_index, get_end_index};
 use super::value_access::ValueAccess;
 use super::function_call::FunctionCall;
@@ -32,8 +33,11 @@ impl Expression {
     pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
         let start_index = get_start_index(&nodes).unwrap_or_default();
         let end_index = get_end_index(&nodes).unwrap_or_default();
-        let function_call_grammar = FunctionCallGrammar {};
-        let nodes = function_call_grammar.process_all(nodes);
+        
+        let nodes = process_grammars(vec![
+            FunctionCallGrammar {}.into(),
+            ValueAccessGrammar {}.into()
+        ], nodes);
 
         if nodes.len() == 0 {
             return ParseError::at(start_index,end_index,format!("Expected expression")).into();    
