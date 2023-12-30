@@ -143,9 +143,15 @@ impl TreeNodes {
             (true, false)=>self.slice_left(range_length),
             (false, true)=>self.slice_right(range_length),
             (false, false)=>{
-                // The vector looks like this:
-                // [...start_inclusive...end_exclusive...]
-                // [ A         |       B      |        C ]
+                /*
+                The vector looks like this:
+
+          start_inclusive-|         |-end_exclusive
+              0-|         |         |         |-self.vec.len()
+                [        ][        ][        ]|
+                   left     middle     right
+                
+                */
                 
                 let right = self.slice_right(self.vec.len() - end_exclusive);
                 let left = self.slice_left(0 + start_inclusive);
