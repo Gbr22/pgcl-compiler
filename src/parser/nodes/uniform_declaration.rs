@@ -3,8 +3,7 @@ use std::collections::VecDeque;
 
 use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM}}, parser::tree::{TreeNode, ParseError, TreeNodeLike}};
 
-use super::typ::Type;
-
+use super::types::typ::Type;
 
 #[derive(Debug, Clone)]
 pub struct UniformDeclaration {

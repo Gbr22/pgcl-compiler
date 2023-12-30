@@ -2,10 +2,10 @@ use crate::lexer::types::token_type::TokenType;
 use crate::lexer::token::Token;
 use crate::parser::nodes::document::Document;
 use crate::parser::nodes::uniform_declaration::UniformDeclaration;
-use crate::parser::nodes::typ::Type;
 use crate::parser::nodes::function_declaration::FunctionDeclaration;
 use crate::parser::nodes::block::Block;
 use crate::parser::nodes::statements::statement::Statement;
+use crate::parser::nodes::types::typ::Type;
 
 trait_enum!{
     #[derive(Debug, Clone)]

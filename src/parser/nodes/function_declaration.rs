@@ -3,7 +3,8 @@ use std::collections::VecDeque;
 
 use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}}};
 
-use super::{typ::Type, block::Block};
+use super::{block::Block, types::typ::Type};
+
 
 #[derive(Debug, Clone)]
 pub struct FunctionDeclaration {

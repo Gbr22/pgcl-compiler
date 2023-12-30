@@ -1,8 +1,8 @@
 
 use crate::lexer::types::keywords::is_keyword;
 use crate::lexer::types::token_type::TokenType;
-use crate::parser::nodes::typ::Type;
 use crate::parser::tree::{TreeNode, TreeNodeLike, ParseError};
+use super::typ::{Type, TypeLike};
 
 #[derive(Debug, Clone)]
 pub struct SimpleType {
@@ -37,11 +37,18 @@ impl SimpleType {
     }
 }
 
+
 impl TreeNodeLike for SimpleType {
     fn get_start_index(&self) -> usize {
         self.start_index
     }
     fn get_end_index(&self) -> usize {
         self.end_index
+    }
+}
+
+impl TypeLike for SimpleType {
+    fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
+        Box::new(self)
     }
 }

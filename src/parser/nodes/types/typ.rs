@@ -1,11 +1,12 @@
 
 use crate::parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammars::types::simple_type::SimpleTypeGrammar, grammar::GrammarLike};
+use super::simple_type::SimpleType;
 
-use super::types::simple_type::SimpleType;
-
-#[derive(Debug, Clone)]
-pub enum Type {
-    SimpleType(SimpleType)
+trait_enum! {
+    #[derive(Debug, Clone)]
+    pub enum Type: TypeLike {
+        SimpleType
+    }
 }
 
 impl Type {
@@ -25,15 +26,15 @@ impl Type {
     }
 }
 
+pub trait TypeLike {
+    fn to_node_like(&self) -> Box<&dyn TreeNodeLike>;
+}
+
 impl TreeNodeLike for Type {
     fn get_start_index(&self) -> usize {
-        match self {
-            Type::SimpleType(simple_type)=>simple_type.get_start_index()
-        }
+        self.to_node_like().get_start_index()
     }
     fn get_end_index(&self) -> usize {
-        match self {
-            Type::SimpleType(simple_type)=>simple_type.get_end_index()
-        }
+        self.to_node_like().get_end_index()
     }
 }
