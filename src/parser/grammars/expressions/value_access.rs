@@ -1,6 +1,5 @@
 use crate::{parser::{grammar::GrammarLike, tree::{TreeNode, ParseError}, nodes::{document::Document, statements::{simple_statement::SimpleStatement, ret::ReturnStatement}, expressions::{function_call::FunctionCall, value_access::ValueAccess}}, match_brackets::find_bracket_end, brackets::round_bracket}, lexer::types::{token_type::TokenType, keywords::{RETURN, is_keyword}}};
 
-#[derive(Clone)]
 pub struct ValueAccessGrammar {}
 
 impl GrammarLike for ValueAccessGrammar {

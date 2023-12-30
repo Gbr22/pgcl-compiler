@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index}, grammars::{function_declaration::{find_args_end, find_body_start, find_body_end}, function_call_arg::FunctionCallArgGrammar}, grammar::GrammarLike}};
+use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index}, grammars::{function_declaration::{find_args_end, find_body_start, find_body_end}, function_call_arg::FunctionCallArgGrammar}, grammar::{GrammarLike, process_grammars}}};
 
 use super::{block::Block, types::typ::Type};
 
@@ -18,20 +18,11 @@ impl FunctionCallArgs {
         let start_index = get_start_index(&nodes).unwrap_or_default();
         let end_index = get_end_index(&nodes).unwrap_or_default();
 
-        let function_call_arg_grammar = FunctionCallArgGrammar {};
-        let nodes = function_call_arg_grammar.process_all(nodes);
+        let nodes = process_grammars(vec![
+            FunctionCallArgGrammar {}.into()
+        ], nodes);
 
-        let nodes: Vec<TreeNode> = nodes.into_iter().map(|node|{
-            /* if let TreeNode::ParseError(error) = node {
-                return TreeNode::ParseError(error);
-            }
-            if let TreeNode::Expression(expr) = node {
-                return TreeNode::Expression(expr);
-            } */
-            
-            return node;
-            //return ParseError::from_nodes(&vec![node], format!("Function calls may only contain expressions.")).into();
-        }).collect();
+        // TODO: asstert that the only children are FunctionCallArg structs
 
         let fn_call_args = FunctionCallArgs {
             start_index,

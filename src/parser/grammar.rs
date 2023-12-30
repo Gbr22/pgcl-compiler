@@ -49,9 +49,9 @@ pub trait GrammarLike {
     }
 }
 
-impl<'a, T> From<T> for Grammar<'a> where T: GrammarLike + Clone + 'a {
+impl<'a, T> From<T> for Grammar<'a> where T: GrammarLike + 'a {
     fn from(value: T) -> Self {
-        let b = Arc::new(value.clone());
+        let b = Arc::new(value);
         Grammar { inner: b }
     }
 }

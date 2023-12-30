@@ -1,6 +1,5 @@
 use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Document, statements::{simple_statement::SimpleStatement, ret::ReturnStatement}, expressions::function_call::FunctionCall}, match_brackets::find_bracket_end, brackets::round_bracket}, lexer::types::{token_type::TokenType, keywords::{RETURN, is_keyword}}};
 
-#[derive(Debug, Clone)]
 pub struct FunctionCallGrammar {}
 
 fn is_function_name(node: &TreeNode) -> bool {
