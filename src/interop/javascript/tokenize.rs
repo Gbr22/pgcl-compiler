@@ -82,11 +82,11 @@ impl Token {
     }
     #[wasm_bindgen(getter = startIndex)]
     pub fn get_start_index(&self) -> usize {
-        self.token.start_index
+        self.token.range.start_index
     }
     #[wasm_bindgen(getter = endIndex)]
     pub fn get_end_index(&self) -> usize {
-        self.token.end_index
+        self.token.range.end_index
     }
     #[wasm_bindgen(js_name = splitByLine)]
     pub fn split_by_line(self) -> Vec<Token> {

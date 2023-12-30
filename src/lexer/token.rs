@@ -1,9 +1,8 @@
 use std::collections::VecDeque;
 
 use serde_derive::Serialize;
-use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::lexer::types::definitions::get_definition;
+use crate::{lexer::types::definitions::get_definition, common::range::Range};
 
 use super::{types::token_type::TokenType, definitions::token_def::TokenDef};
 
@@ -11,8 +10,7 @@ use super::{types::token_type::TokenType, definitions::token_def::TokenDef};
 pub struct Token {
     pub string: String,
     pub typ: TokenType,
-    pub start_index: usize,
-    pub end_index: usize
+    pub range: Range
 }
 
 
@@ -51,18 +49,18 @@ impl Token {
             };
 
             let string = str.to_owned();
-            let start_index = self.start_index;
+            let start_index = self.range.start_index;
             let end_index = start_index + string.chars().count();
+            let range = Range::new(start_index, end_index);
             let typ = self.typ;
 
             tokens.push(Token {
                 string,
                 typ,
-                start_index,
-                end_index
+                range,
             });
 
-            self.start_index = end_index + 1;
+            self.range.start_index = end_index + 1;
         }
 
         tokens

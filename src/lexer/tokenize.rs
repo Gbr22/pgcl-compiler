@@ -1,5 +1,7 @@
 use serde_derive::Serialize;
 
+use crate::common::range::Range;
+
 use super::{token::Token, types::{definitions::{get_definitions, get_definition}, token_type::TokenType}};
 
 fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
@@ -60,7 +62,7 @@ pub fn flush_tokens(state: &mut LexerState) {
     };
     if token.is_valid() {
         let valid_token = token;
-        state.index = valid_token.end_index;
+        state.index = valid_token.range.end_index;
         state.tokens.push(valid_token);
         return;
     }
@@ -75,7 +77,7 @@ pub fn flush_tokens(state: &mut LexerState) {
     };
 
     // successfully recovered a valid token
-    state.index = valid_sub_token.end_index;
+    state.index = valid_sub_token.range.end_index;
     state.tokens.push(valid_sub_token);
     return;
 }
@@ -128,8 +130,10 @@ pub fn try_extend_tokens(state: &mut LexerState) -> bool {
                 token: Token {
                     typ: token.typ,
                     string: format!("{}{}",token.string.to_owned(),char),
-                    start_index: token.start_index,
-                    end_index: state.index + 1
+                    range: Range::new(
+                        token.range.start_index,
+                        state.index + 1
+                    )
                 },
                 is_finished
             }
@@ -164,8 +168,10 @@ pub fn try_create_tokens(state: &mut LexerState) -> bool {
         let token = Token {
             typ: typ.to_owned(),
             string: format!("{}",char),
-            start_index: state.index,
-            end_index: state.index + 1
+            range: Range::new(
+                state.index,
+                state.index + 1
+            )
         };
 
         state.current_tokens.push(TokenState { token, is_finished: false });
@@ -210,8 +216,7 @@ pub fn tokenize(input: &str) -> TokenizeResult {
     state.current_tokens.push(TokenState { token: Token {
         string: "".to_owned(),
         typ: TokenType::StartOfInput,
-        start_index: 0,
-        end_index: 0
+        range: Range::null()
     }, is_finished: true });
     
     loop {

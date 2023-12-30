@@ -79,8 +79,8 @@ impl UniformDeclaration {
 
         let typ = Type::parse(type_nodes);
 
-        let start_index = colon_token.start_index;
-        let end_index = last.end_index;
+        let start_index = colon_token.range.start_index;
+        let end_index = last.range.end_index;
         let name = colon_token.string.to_owned();
 
         TreeNode::UniformDeclaration(UniformDeclaration {

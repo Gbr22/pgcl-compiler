@@ -92,10 +92,10 @@ pub trait TreeNodeLike {
 
 impl TreeNodeLike for Token {
     fn get_start_index(&self) -> usize {
-        self.start_index
+        self.range.start_index
     }
     fn get_end_index(&self) -> usize {
-        self.end_index
+        self.range.end_index
     }
 }
 

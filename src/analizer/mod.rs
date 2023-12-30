@@ -16,8 +16,8 @@ pub fn analize(input: &str) -> AnalizeResult {
             let text = token.get_error_message();
             crate::error::Error {
                 text: text,
-                start_pos: get_position(&input, token.start_index),
-                end_pos: get_position(&input, token.end_index),
+                start_pos: get_position(&input, token.range.start_index),
+                end_pos: get_position(&input, token.range.end_index),
             }
         })
         .collect();
