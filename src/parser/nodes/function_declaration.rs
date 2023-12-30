@@ -1,10 +1,6 @@
-use std::collections::VecDeque;
-
-
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}, tree_nodes::TreeNodes}, common::range::Range};
-
+use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}, tree_nodes::{TreeNodes, MaybeTreeNode}}, common::range::Range};
 use super::{block::Block, types::typ::Type};
-
+use crate::pop_front_node;
 
 #[derive(Debug, Clone)]
 pub struct FunctionDeclaration {
@@ -18,20 +14,21 @@ impl FunctionDeclaration {
     pub fn parse(mut nodes: TreeNodes) -> TreeNode {
         let range = nodes.range;
 
-        let missing_keyword = ParseError::at(range, format!("Missing fn keyword."));
-        let Some(fn_keyword) = nodes.pop_front() else {
-            return missing_keyword.into();
-        };
-        if !fn_keyword.is_keyword(FN) {
-            return missing_keyword.into();
-        }
-        let name_error = ParseError::at(range, format!("Missing function name."));
-        let Some(TreeNode::Token(name_node)) = nodes.pop_front() else {
-            return name_error.into();
-        };
-        if name_node.typ != TokenType::Identifier || is_keyword(&name_node.string) {
-            return name_error.into();
-        }
+        pop_front_node! (
+            nodes,
+            "Missing fn keyword",
+            Some(fn_keyword),
+            fn_keyword.is_keyword(FN)
+        );
+        
+        pop_front_node! (
+            nodes,
+            "Missing function name.",
+            Some(TreeNode::Token(name_node)),
+            name_node.typ == TokenType::Identifier
+            && !is_keyword(&name_node.string)
+        );
+        
         let name = name_node.string;
         let expected_args = ParseError::at(range,format!("Expected opening round bracket after function name."));
         let Some(args_open) = nodes.pop_front() else {

@@ -200,8 +200,21 @@ impl TreeNodes {
         let slice = self.slice_left(1);
         slice.into_first()
     }
+    pub fn pop_front_r(&mut self) -> MaybeTreeNode {
+        let slice = self.slice_left(1);
+        let range = slice.range;
+        match slice.into_first() {
+            Some(node)=>MaybeTreeNode::Some(node),
+            None=>MaybeTreeNode::None(range)
+        }
+    }
     pub fn pop_back(&mut self) -> Option<TreeNode> {
         let slice = self.slice_right(1);
         slice.into_last()
     }
+}
+
+pub enum MaybeTreeNode {
+    Some(TreeNode),
+    None(Range)
 }
