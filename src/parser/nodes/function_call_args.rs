@@ -22,14 +22,15 @@ impl FunctionCallArgs {
         let nodes = function_call_arg_grammar.process_all(nodes);
 
         let nodes: Vec<TreeNode> = nodes.into_iter().map(|node|{
-            if let TreeNode::ParseError(error) = node {
+            /* if let TreeNode::ParseError(error) = node {
                 return TreeNode::ParseError(error);
             }
             if let TreeNode::Expression(expr) = node {
                 return TreeNode::Expression(expr);
-            }
+            } */
             
-            return ParseError::from_nodes(&vec![node], format!("Function calls may only contain expressions.")).into();
+            return node;
+            //return ParseError::from_nodes(&vec![node], format!("Function calls may only contain expressions.")).into();
         }).collect();
 
         let fn_call_args = FunctionCallArgs {

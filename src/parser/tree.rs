@@ -8,6 +8,7 @@ use crate::parser::nodes::statements::statement::Statement;
 use crate::parser::nodes::types::typ::Type;
 use crate::parser::nodes::expressions::expr::Expression;
 use crate::parser::nodes::function_call_args::FunctionCallArgs;
+use crate::parser::nodes::function_call_arg::FunctionCallArg;
 
 trait_enum!{
     #[derive(Debug, Clone)]
@@ -22,7 +23,8 @@ trait_enum!{
         Block,
         Statement,
         Expression,
-        FunctionCallArgs
+        FunctionCallArgs,
+        FunctionCallArg
     }
 }
 
