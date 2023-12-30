@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}}};
+use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}}, common::range::Range};
 
 use super::{block::Block, types::typ::Type};
 
@@ -9,14 +9,14 @@ use super::{block::Block, types::typ::Type};
 #[derive(Debug, Clone)]
 pub struct FunctionDeclaration {
     name: String,
-    start_index: usize,
-    end_index: usize,
     return_type: Box<TreeNode>,
-    body: Box<TreeNode>
+    body: Box<TreeNode>,
+    range: Range
 }
 
 impl FunctionDeclaration {
     pub fn parse(original_nodes: Vec<TreeNode>) -> TreeNode {
+        let range = get_range(&original_nodes).unwrap_or(Range::null());
         let start_index = get_start_index(&original_nodes).unwrap_or_default();
         let end_index = get_end_index(&original_nodes).unwrap_or_default();
         let mut queue: VecDeque<TreeNode> = original_nodes.clone().into();
@@ -82,21 +82,17 @@ impl FunctionDeclaration {
         let typ = Type::parse(type_nodes);
 
         TreeNode::FunctionDeclaration(FunctionDeclaration {
-            start_index,
-            end_index,
             name,
             return_type: Box::new(typ),
-            body: Box::new(body_block)
+            body: Box::new(body_block),
+            range
         })
     }
 }
 
 impl TreeNodeLike for FunctionDeclaration {
-    fn get_start_index(&self) -> usize {
-        self.start_index
-    }
-    fn get_end_index(&self) -> usize {
-        self.end_index
+    fn get_range(&self) -> Range {
+        self.range
     }
     fn get_errors(&self) -> Vec<ParseError> {
         let mut errors: Vec<ParseError> = vec![];

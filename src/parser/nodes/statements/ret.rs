@@ -1,25 +1,21 @@
 use std::collections::VecDeque;
 
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression}, lexer::types::{keywords::RETURN, token_type::TokenType}};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression}, lexer::types::{keywords::RETURN, token_type::TokenType}, common::range::Range};
 
 use super::statement::{StatementLike, Statement};
 
 #[derive(Debug, Clone)]
 pub struct ReturnStatement {
-    start_index: usize,
-    end_index: usize,
+    range: Range,
     expr: Box<TreeNode>
 }
 
 impl ReturnStatement {
     pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let start_index = get_start_index(&nodes)
-            .unwrap_or_default();
-        let end_index = get_end_index(&nodes)
-            .unwrap_or_default();
+        let range = get_range(&nodes).unwrap_or(Range::null());
 
         let mut queue: VecDeque<TreeNode> = nodes.into();
-        let keyword_error = ParseError::at(start_index, end_index, format!("Expected return keyword."));
+        let keyword_error = ParseError::at(range, format!("Expected return keyword."));
         let return_keyword = queue.pop_front();
         let Some(return_keyword) = return_keyword else {
             return keyword_error.into();
@@ -27,7 +23,7 @@ impl ReturnStatement {
         if !return_keyword.is_keyword(RETURN) {
             return return_keyword.into();
         }
-        let semi_error = ParseError::at(start_index, end_index, format!("Semicolon expected at end of return statement."));
+        let semi_error = ParseError::at(range, format!("Semicolon expected at end of return statement."));
         let semi_colon = queue.pop_back();
         let Some(semi_colon) = semi_colon else {
             return semi_error.into();
@@ -40,8 +36,7 @@ impl ReturnStatement {
         let expr = Expression::parse(nodes);
 
         let statement = ReturnStatement {
-            start_index,
-            end_index,
+            range,
             expr: Box::new(expr)
         };
 
@@ -50,11 +45,8 @@ impl ReturnStatement {
 }
 
 impl TreeNodeLike for ReturnStatement {
-    fn get_start_index(&self) -> usize {
-        self.start_index
-    }
-    fn get_end_index(&self) -> usize {
-        self.end_index
+    fn get_range(&self) -> Range {
+        self.range
     }
     fn get_errors(&self) -> Vec<ParseError> {
         self.expr.get_errors()

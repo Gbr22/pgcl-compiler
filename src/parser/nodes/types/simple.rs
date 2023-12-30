@@ -1,4 +1,5 @@
 
+use crate::common::range::Range;
 use crate::lexer::types::keywords::is_keyword;
 use crate::lexer::types::token_type::TokenType;
 use crate::parser::tree::{TreeNode, TreeNodeLike, ParseError};
@@ -6,17 +7,15 @@ use super::typ::{Type, TypeLike};
 
 #[derive(Debug, Clone)]
 pub struct SimpleType {
-    start_index: usize,
-    end_index: usize,
+    range: Range,
     name: String
 }
 
 impl SimpleType {
     pub fn parse(node: TreeNode) -> TreeNode {
-        let start_index = node.get_start_index();
-        let end_index = node.get_end_index();
+        let range = node.get_range();
 
-        let id_error = ParseError::at(start_index, end_index, format!("Expected simple type, got {:?}.",node));
+        let id_error = ParseError::at(range, format!("Expected simple type, got {:?}.",node));
 
         let TreeNode::Token(token) = node else {
             return id_error.into();
@@ -28,9 +27,8 @@ impl SimpleType {
         let name = token.string;
 
         let typ = SimpleType {
-            start_index,
-            end_index,
-            name
+            name,
+            range,
         };
 
         TreeNode::Type(Type::SimpleType(typ))
@@ -39,11 +37,8 @@ impl SimpleType {
 
 
 impl TreeNodeLike for SimpleType {
-    fn get_start_index(&self) -> usize {
-        self.start_index
-    }
-    fn get_end_index(&self) -> usize {
-        self.end_index
+    fn get_range(&self) -> Range {
+        self.range
     }
 }
 

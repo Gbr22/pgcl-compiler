@@ -1,14 +1,14 @@
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::{GrammarLike}, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}}}, process_grammars};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::{GrammarLike}, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}}}, process_grammars, common::range::Range};
 
 #[derive(Debug, Clone)]
 pub struct Document {
-    start_index: usize,
-    end_index: usize,
+    range: Range,
     children: Vec<TreeNode>
 }
 
 impl Document {
     pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
+        let range = get_range(&nodes).unwrap_or(Range::null());
         let start_index = get_start_index(&nodes)
             .unwrap_or_default();
         let end_index = get_end_index(&nodes)
@@ -20,9 +20,8 @@ impl Document {
         ] };
         
         let document = Document {
+            range,
             children: nodes,
-            start_index,
-            end_index
         };
 
         TreeNode::Document(document)
@@ -30,11 +29,8 @@ impl Document {
 }
 
 impl TreeNodeLike for Document {
-    fn get_start_index(&self) -> usize {
-        self.start_index
-    }
-    fn get_end_index(&self) -> usize {
-        self.end_index
+    fn get_range(&self) -> Range {
+        self.range
     }
     fn get_errors(&self) -> Vec<ParseError> {
         let mut errors: Vec<ParseError> = vec![];

@@ -1,20 +1,20 @@
 use std::collections::VecDeque;
 
 
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM}}, parser::tree::{TreeNode, ParseError, TreeNodeLike}};
+use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM}}, parser::tree::{TreeNode, ParseError, TreeNodeLike, get_range}, common::range::{Range, Len}};
 
 use super::types::typ::Type;
 
 #[derive(Debug, Clone)]
 pub struct UniformDeclaration {
     pub name: String,
-    start_index: usize,
-    end_index: usize,
-    pub typ: Box<TreeNode>
+    pub typ: Box<TreeNode>,
+    range: Range
 }
 
 impl UniformDeclaration {
     pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
+        let range = get_range(&nodes).unwrap_or(Range::null());
         let copy = nodes.to_vec();
         let mut queue: VecDeque<TreeNode> = copy.into();
 
@@ -52,8 +52,7 @@ impl UniformDeclaration {
         }
 
         let error_colon = ParseError::at(
-            name_node.get_end_index(),
-            name_node.get_end_index()+1,
+            name_node.get_range() + Len(1),
             "Colon expected after uniform name."
         );
 
@@ -71,33 +70,25 @@ impl UniformDeclaration {
         let type_nodes: Vec<TreeNode> = queue.into();
         if type_nodes.len() == 0 {
             return ParseError::at(
-                colon_node.get_end_index(),
-                semi_colon.get_start_index(),
-                "Uniform type must not be empty."
+                Range::between(colon_node.get_range(), semi_colon.get_range()),
+                format!("Uniform type must not be empty.")
             ).into();
         }
 
         let typ = Type::parse(type_nodes);
 
-        let start_index = colon_token.range.start_index;
-        let end_index = last.range.end_index;
         let name = colon_token.string.to_owned();
-
         TreeNode::UniformDeclaration(UniformDeclaration {
             name,
-            start_index,
-            end_index,
+            range,
             typ: Box::new(typ)
         })
     }
 }
 
 impl TreeNodeLike for UniformDeclaration {
-    fn get_start_index(&self) -> usize {
-        self.start_index
-    }
-    fn get_end_index(&self) -> usize {
-        self.end_index
+    fn get_range(&self) -> Range {
+        self.range
     }
     fn get_errors(&self) -> Vec<ParseError> {
         let typ: TreeNode = *self.typ.clone();

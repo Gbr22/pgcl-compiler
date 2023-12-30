@@ -26,8 +26,8 @@ pub fn analize(input: &str) -> AnalizeResult {
     let parse_errors = parse_errors.iter().map(|e|{
         crate::error::Error {
             text: e.text.to_owned(),
-            start_pos: get_position(&input, e.get_start_index()),
-            end_pos: get_position(&input, e.get_end_index()),
+            start_pos: get_position(&input, e.get_range().start_index),
+            end_pos: get_position(&input, e.get_range().end_index),
         }
     });
     let mut errors: Vec<crate::error::Error> = vec![];

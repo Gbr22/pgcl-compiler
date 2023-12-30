@@ -1,3 +1,4 @@
+use crate::common::range::Range;
 use crate::lexer::types::token_type::TokenType;
 use crate::lexer::token::Token;
 use crate::parser::nodes::document::Document;
@@ -14,7 +15,6 @@ trait_enum!{
     #[derive(Debug, Clone)]
     pub enum TreeNode: TreeNodeLike {
         Token,
-        Unit,
         Document,
         UniformDeclaration,
         ParseError,
@@ -83,75 +83,41 @@ impl TreeNode {
 }
 
 pub trait TreeNodeLike {
-    fn get_start_index(&self) -> usize;
-    fn get_end_index(&self) -> usize;
+    fn get_range(&self) -> Range;
     fn get_errors(&self) -> Vec<ParseError> {
         return vec![];
     }
 }
 
 impl TreeNodeLike for Token {
-    fn get_start_index(&self) -> usize {
-        self.range.start_index
-    }
-    fn get_end_index(&self) -> usize {
-        self.range.end_index
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Unit {
-    start_index: usize,
-}
-impl Unit {
-    pub fn new(pos: usize) -> Self {
-        Unit {
-            start_index: pos
-        }
-    }
-}
-impl TreeNodeLike for Unit {
-    fn get_start_index(&self) -> usize {
-        self.start_index
-    }
-    fn get_end_index(&self) -> usize {
-        self.start_index
+    fn get_range(&self) -> Range {
+        self.range
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct ParseError {
     pub text: String,
-    start_index: usize,
-    end_index: usize
+    pub range: Range
 }
 
 impl ParseError {
     pub fn new(text: impl Into<String>) -> ParseError {
-        ParseError { text: text.into(), start_index: 0, end_index: 0 }
+        ParseError { text: text.into(), range: Range::null() }
     }
-    pub fn at(start_index: usize, end_index: usize, text: impl Into<String>) -> ParseError {
+    pub fn at(range: Range, text: impl Into<String>) -> ParseError {
         ParseError {
-            start_index,
-            end_index,
+            range: range,
             text: text.into()
         }
     }
     pub fn from_nodes(nodes: &[TreeNode], text: impl Into<String>) -> ParseError {
         let text = text.into();
-        let start_index = nodes
-            .first()
-            .map(|node|node.get_start_index())
-            .unwrap_or_default();
-        let end_index = nodes
-            .last()
-            .map(|node|node.get_end_index())
-            .unwrap_or_default();
+        let range = get_range(nodes).unwrap_or(Range::null());
 
         ParseError {
             text,
-            start_index,
-            end_index
+            range
         }
     }
 }
@@ -163,22 +129,24 @@ impl Into<TreeNode> for ParseError {
 }
 
 impl TreeNodeLike for ParseError {
-    fn get_start_index(&self) -> usize {
-        self.start_index
+    fn get_range(&self) -> Range {
+        self.range
     }
-
-    fn get_end_index(&self) -> usize {
-        self.end_index
-    }
-
     fn get_errors(&self) -> Vec<ParseError> {
         vec![self.to_owned()]
     }
 }
 
+pub fn get_range(nodes: &[TreeNode]) -> Option<Range> {
+    let start_index = get_start_index(nodes)?;
+    let end_index = get_end_index(nodes)?;
+
+    Some(Range::new(start_index, end_index))
+}
+
 pub fn get_start_index(nodes: &[TreeNode]) -> Option<usize> {
-    nodes.first().map(|f|f.get_start_index())
+    nodes.first().map(|f|f.get_range().start_index)
 }
 pub fn get_end_index(nodes: &[TreeNode]) -> Option<usize> {
-    nodes.last().map(|f|f.get_end_index())
+    nodes.last().map(|f|f.get_range().end_index)
 }

@@ -16,12 +16,8 @@ pub trait StatementLike {
 }
 
 impl TreeNodeLike for Statement {
-    fn get_start_index(&self) -> usize {
-        self.to_node_like().get_start_index()
-    }
-
-    fn get_end_index(&self) -> usize {
-        self.to_node_like().get_end_index()
+    fn get_range(&self) -> crate::common::range::Range {
+        self.to_node_like().get_range()
     }
 
     fn get_errors(&self) -> Vec<ParseError> {

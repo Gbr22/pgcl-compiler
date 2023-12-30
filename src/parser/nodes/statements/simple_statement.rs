@@ -1,26 +1,26 @@
 use std::collections::VecDeque;
 
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression}, lexer::types::token_type::TokenType};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression}, lexer::types::token_type::TokenType, common::range::Range};
 
 use super::statement::{Statement, StatementLike};
 
 // Semicolon delimited statement
 #[derive(Debug, Clone)]
 pub struct SimpleStatement {
-    start_index: usize,
-    end_index: usize,
+    range: Range,
     expr: Box<TreeNode>
 }
 
 impl SimpleStatement {
     pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
+        let range = get_range(&nodes).unwrap_or(Range::null());
         let start_index = get_start_index(&nodes)
             .unwrap_or_default();
         let end_index = get_end_index(&nodes)
             .unwrap_or_default();
 
         let mut queue: VecDeque<TreeNode> = nodes.into();
-        let semi_error = ParseError::at(start_index, end_index, format!("Semicolon expected at end of statement."));
+        let semi_error = ParseError::at(range, format!("Semicolon expected at end of statement."));
         let semi_colon = queue.pop_back();
         let Some(semi_colon) = semi_colon else {
             return semi_error.into();
@@ -33,8 +33,7 @@ impl SimpleStatement {
         let expr = Expression::parse(nodes);
 
         let statement = SimpleStatement {
-            start_index,
-            end_index,
+            range,
             expr: Box::new(expr)
         };
 
@@ -43,11 +42,8 @@ impl SimpleStatement {
 }
 
 impl TreeNodeLike for SimpleStatement {
-    fn get_start_index(&self) -> usize {
-        self.start_index
-    }
-    fn get_end_index(&self) -> usize {
-        self.end_index
+    fn get_range(&self) -> Range {
+        self.range
     }
     fn get_errors(&self) -> Vec<ParseError> {
         self.expr.get_errors()
