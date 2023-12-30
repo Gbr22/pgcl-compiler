@@ -1,5 +1,7 @@
 use crate::parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}};
 
+use super::statement::{Statement, StatementLike};
+
 // Semicolon delimited statement
 #[derive(Debug, Clone)]
 pub struct SimpleStatement {
@@ -21,7 +23,7 @@ impl SimpleStatement {
             end_index
         };
 
-        TreeNode::SimpleStatement(statement)
+        TreeNode::Statement(Statement::SimpleStatement(statement))
     }
 }
 
@@ -31,5 +33,11 @@ impl TreeNodeLike for SimpleStatement {
     }
     fn get_end_index(&self) -> usize {
         self.end_index
+    }
+}
+
+impl StatementLike for SimpleStatement {
+    fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
+        Box::new(self)
     }
 }

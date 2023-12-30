@@ -8,7 +8,7 @@ impl GrammarLike for SimpleStatementGrammar {
             return None
         }
         for (index, node) in nodes.iter().enumerate() {
-            if let TreeNode::SimpleStatement(simple_statement) = node {
+            if let TreeNode::Statement(simple_statement) = node {
                 continue;
             }
             return Some(index);

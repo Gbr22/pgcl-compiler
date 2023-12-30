@@ -5,7 +5,7 @@ use crate::parser::nodes::uniform_declaration::UniformDeclaration;
 use crate::parser::nodes::typ::Type;
 use crate::parser::nodes::function_declaration::FunctionDeclaration;
 use crate::parser::nodes::block::Block;
-use crate::parser::nodes::statements::simple_statement::SimpleStatement;
+use crate::parser::nodes::statements::statement::Statement;
 
 trait_enum!{
     #[derive(Debug, Clone)]
@@ -18,7 +18,7 @@ trait_enum!{
         Type,
         FunctionDeclaration,
         Block,
-        SimpleStatement
+        Statement,
     }
 }
 
