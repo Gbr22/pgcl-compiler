@@ -1,6 +1,6 @@
 use crate::parser::tree::{TreeNode, TreeNodeLike, ParseError};
 
-use super::return_statement::ReturnStatement;
+use super::ret::ReturnStatement;
 use super::simple_statement::SimpleStatement;
 
 trait_enum! {

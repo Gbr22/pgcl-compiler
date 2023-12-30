@@ -1,4 +1,4 @@
-use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Document, statements::{simple_statement::SimpleStatement, return_statement::ReturnStatement}}}, lexer::types::{token_type::TokenType, keywords::RETURN}};
+use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Document, statements::{simple_statement::SimpleStatement, ret::ReturnStatement}}}, lexer::types::{token_type::TokenType, keywords::RETURN}};
 
 pub struct ReturnStatementGrammar {}
 

@@ -1,2 +1,2 @@
-pub mod simple_statement;
-pub mod return_statement;
+pub mod simple;
+pub mod ret;
