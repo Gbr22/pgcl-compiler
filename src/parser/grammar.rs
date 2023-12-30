@@ -1,8 +1,7 @@
-use std::sync::Arc;
 use super::tree::TreeNode;
 
 pub struct Grammar<'a> {
-    inner: Arc<dyn GrammarLike + 'a>
+    inner: Box<dyn GrammarLike + 'a>
 }
 
 pub trait GrammarLike {
@@ -51,7 +50,7 @@ pub trait GrammarLike {
 
 impl<'a, T> From<T> for Grammar<'a> where T: GrammarLike + 'a {
     fn from(value: T) -> Self {
-        let b = Arc::new(value);
+        let b = Box::new(value);
         Grammar { inner: b }
     }
 }
