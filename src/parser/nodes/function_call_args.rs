@@ -1,9 +1,7 @@
-use std::collections::VecDeque;
 
 
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index}, grammars::{function_declaration::{find_args_end, find_body_start, find_body_end}, function_call_arg::FunctionCallArgGrammar}, grammar::{GrammarLike, process_grammars}}};
+use crate::{parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index}, grammars::function_call_arg::FunctionCallArgGrammar}, process_grammars};
 
-use super::{block::Block, types::typ::Type};
 
 
 #[derive(Debug, Clone)]
@@ -18,11 +16,11 @@ impl FunctionCallArgs {
         let start_index = get_start_index(&nodes).unwrap_or_default();
         let end_index = get_end_index(&nodes).unwrap_or_default();
 
-        let nodes = process_grammars(vec![
-            FunctionCallArgGrammar {}.into()
-        ], nodes);
+        let nodes = process_grammars! { nodes [
+            FunctionCallArgGrammar
+        ] };
 
-        // TODO: asstert that the only children are FunctionCallArg structs
+        // TODO: assert that the only children are FunctionCallArg structs
 
         let fn_call_args = FunctionCallArgs {
             start_index,

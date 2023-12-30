@@ -1,4 +1,4 @@
-use crate::parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::{GrammarLike, process_grammars}, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}}};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::{GrammarLike}, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}}}, process_grammars};
 
 #[derive(Debug, Clone)]
 pub struct Document {
@@ -14,10 +14,10 @@ impl Document {
         let end_index = get_end_index(&nodes)
             .unwrap_or_default();
 
-        let nodes = process_grammars(vec![
-            UniformDeclarationGrammar {}.into(),
-            FunctionDeclarationGrammar {}.into(),
-        ], nodes);
+        let nodes = process_grammars! { nodes [
+            UniformDeclarationGrammar,
+            FunctionDeclarationGrammar
+        ] };
         
         let document = Document {
             children: nodes,

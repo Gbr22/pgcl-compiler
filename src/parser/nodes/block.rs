@@ -1,4 +1,4 @@
-use crate::parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammar::{GrammarLike, process_grammars}, grammars::{statements::{simple::SimpleStatementGrammar, ret::ReturnStatementGrammar}}};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index}, grammars::statements::{simple::SimpleStatementGrammar, ret::ReturnStatementGrammar}}, process_grammars};
 
 #[derive(Debug, Clone)]
 pub struct Block {
@@ -14,10 +14,10 @@ impl Block {
         let end_index = get_end_index(&nodes)
             .unwrap_or_default();
 
-        let nodes = process_grammars(vec![
-            ReturnStatementGrammar {}.into(),
-            SimpleStatementGrammar {}.into(),
-        ], nodes);
+        let nodes = process_grammars! { nodes [
+            ReturnStatementGrammar,
+            SimpleStatementGrammar
+        ] };
         
         let block = Block {
             children: nodes,

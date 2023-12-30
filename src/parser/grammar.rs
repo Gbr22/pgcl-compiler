@@ -65,3 +65,15 @@ pub fn process_grammars(grammars: Vec<Grammar>, nodes: Vec<TreeNode>) -> Vec<Tre
 
     nodes
 }
+
+#[macro_export]
+macro_rules! process_grammars {
+    ($existing_nodes:ident [ $( $grammar:ident ),* ] ) => {
+        {
+            let grammar_nodes = vec![
+                $( ($grammar {}).into() ),*
+            ];
+            crate::parser::grammar::process_grammars(grammar_nodes, $existing_nodes)
+        }
+    };
+}

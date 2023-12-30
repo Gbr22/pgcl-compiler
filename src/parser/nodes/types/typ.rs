@@ -1,5 +1,5 @@
 
-use crate::parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammars::types::simple::SimpleTypeGrammar, grammar::{GrammarLike, process_grammars}};
+use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammars::types::simple::SimpleTypeGrammar}, process_grammars};
 use super::simple::SimpleType;
 
 trait_enum! {
@@ -11,9 +11,9 @@ trait_enum! {
 
 impl Type {
     pub fn parse(nodes: Vec<TreeNode>) -> TreeNode {
-        let nodes = process_grammars(vec![
-            SimpleTypeGrammar {}.into(),
-        ], nodes);
+        let nodes = process_grammars! { nodes [
+            SimpleTypeGrammar
+        ] };
 
         if nodes.len() > 1 {
             return ParseError::from_nodes(&nodes, format!("Could not combine types. Multiple types detected where only one is expected.")).into();
