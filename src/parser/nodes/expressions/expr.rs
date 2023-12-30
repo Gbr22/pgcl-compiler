@@ -45,6 +45,6 @@ impl Expression {
             return ParseError::at(range,format!("Multiple expressions detected. Expected one.")).into();    
         }
 
-        return nodes.vec[0].clone();
+        return nodes.into_first().unwrap();
     }
 }

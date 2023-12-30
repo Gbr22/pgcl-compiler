@@ -16,7 +16,7 @@ impl Block {
         ] };
         
         let block = Block {
-            children: nodes.vec,
+            children: nodes.into_vec(),
             range,
         };
 

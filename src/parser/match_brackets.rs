@@ -1,13 +1,13 @@
 use super::{tree::TreeNode, brackets::BracketType};
 
-pub fn find_bracket_end(
+pub fn find_bracket_end<'a>(
     bracket_type: BracketType,
     opening_index: usize,
-    nodes: &[TreeNode]
+    nodes: impl Iterator<Item = &'a TreeNode>
 ) -> Option<usize> {
     let mut opening_count = 1;
     let mut closing_count = 0;
-    for (index, node) in nodes.iter().enumerate() {
+    for (index, node) in nodes.enumerate() {
         if index <= opening_index {
             continue;
         }
@@ -50,14 +50,15 @@ impl BracketTracker {
 }
 
 pub fn find_next_match_outside_brackets<
+    'a,
     IsMatch: Fn(&TreeNode)->bool
->(bracket_types: Vec<BracketType>, is_match: IsMatch, start_index: usize, nodes: &[TreeNode]) -> Option<usize> {
+>(bracket_types: Vec<BracketType>, is_match: IsMatch, start_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
     let mut trackers: Vec<BracketTracker> = bracket_types
         .into_iter()
         .map(|typ|typ.into())
         .collect();
 
-    'outer: for (index, node) in nodes.iter().enumerate() {
+    'outer: for (index, node) in nodes.enumerate() {
         if index < start_index {
             continue;
         }

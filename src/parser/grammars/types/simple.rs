@@ -17,16 +17,16 @@ impl GrammarLike for SimpleTypeGrammar {
 
         None
     }
-    fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, _nodes: &TreeNodes, start_index: usize) -> Option<usize> {
         Some(start_index)
     }
     fn construct(&self, nodes: TreeNodes) -> TreeNode {
         if nodes.len() > 1 {
-            return ParseError::from_nodes(&nodes.vec, format!("Multiple types detected where only one is expected.")).into();
+            return ParseError::at(nodes.range, format!("Multiple types detected where only one is expected.")).into();
         }
         if nodes.len() == 0 {
-            return ParseError::from_nodes(&nodes.vec, format!("Type expected.")).into();
+            return ParseError::at(nodes.range, format!("Type expected.")).into();
         }
-        SimpleType::parse(nodes.vec[0].clone())
+        SimpleType::parse(nodes.into_first().unwrap())
     }
 }

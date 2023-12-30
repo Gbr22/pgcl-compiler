@@ -26,7 +26,7 @@ impl GrammarLike for FunctionCallArgGrammar {
     }
 
     fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
-        let index = find_next_comma_outside_brackets(start_index, &nodes.vec);
+        let index = find_next_comma_outside_brackets(start_index, nodes.iter());
         
         match index {
             Some(index)=>Some(index),

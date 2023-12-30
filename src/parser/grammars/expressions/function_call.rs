@@ -33,7 +33,7 @@ impl GrammarLike for FunctionCallGrammar {
         find_bracket_end(
             round_bracket(),
             start_index+1, // start_index is the index of the identifier
-            &nodes.vec
+            nodes.iter()
         )
     }
     fn construct(&self, nodes: TreeNodes) -> TreeNode {

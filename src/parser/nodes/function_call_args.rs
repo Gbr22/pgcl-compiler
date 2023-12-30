@@ -21,7 +21,7 @@ impl FunctionCallArgs {
         // TODO: assert that the only children are FunctionCallArg structs
 
         let fn_call_args = FunctionCallArgs {
-            args: nodes.vec,
+            args: nodes.into_vec(),
             range,
         };
         TreeNode::FunctionCallArgs(fn_call_args)

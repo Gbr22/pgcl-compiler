@@ -21,10 +21,10 @@ impl GrammarLike for ValueAccessGrammar {
     }
     fn construct(&self, nodes: TreeNodes) -> TreeNode {
         if nodes.len() == 0 {
-            return ParseError::from_nodes(&nodes.vec, format!("Identifier expected.")).into();
+            return ParseError::at(nodes.range, format!("Identifier expected.")).into();
         }
         if nodes.len() > 1 {
-            return ParseError::from_nodes(&nodes.vec, format!("Too many items in value access. Expected one.")).into();
+            return ParseError::at(nodes.range, format!("Too many items in value access. Expected one.")).into();
         }
 
         let node = nodes.iter().next().expect("Nodes empty in `ValueAccessGrammar::construct`.").to_owned();

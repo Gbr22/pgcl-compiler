@@ -23,7 +23,7 @@ pub fn find_args_end(args_start_index: usize, nodes: &[TreeNode]) -> Option<usiz
     find_bracket_end(
         round_bracket(),
         args_start_index,
-        nodes
+        nodes.iter()
     )
 }
 pub fn find_body_start(args_end_index: usize, nodes: &[TreeNode]) -> Option<usize> {
@@ -42,7 +42,7 @@ pub fn find_body_end(body_start_index: usize, nodes: &[TreeNode]) -> Option<usiz
     find_bracket_end(
         curly_bracket(),
         body_start_index,
-        nodes
+        nodes.iter()
     )
 }
 

@@ -17,7 +17,7 @@ impl Document {
         
         let document = Document {
             range,
-            children: nodes.vec,
+            children: nodes.into_vec(),
         };
 
         TreeNode::Document(document)

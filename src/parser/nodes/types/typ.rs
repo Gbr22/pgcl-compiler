@@ -21,7 +21,7 @@ impl Type {
         if nodes.len() == 0 {
             return ParseError::from_nodes(&nodes.vec, format!("Could not parse type. Expected type, found nothing.")).into();
         }
-        let node = nodes.vec[0].clone();
+        let node = nodes.into_first().unwrap();
         
         node
     }

@@ -4,7 +4,7 @@ fn is_comma(node: &TreeNode) -> bool {
     node.is_token_type(TokenType::Comma)
 }
 
-pub fn find_next_comma_outside_brackets(start_index: usize, nodes: &[TreeNode]) -> Option<usize> {
+pub fn find_next_comma_outside_brackets<'a>(start_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
     find_next_match_outside_brackets(vec![
         curly_bracket(),
         round_bracket(),

@@ -175,4 +175,19 @@ impl TreeNodes {
     pub fn null() -> TreeNodes {
         TreeNodes { range: Range::null(), vec: vec![] }
     }
+    pub fn first(&self) -> Option<&TreeNode> {
+        self.vec.first()
+    }
+    pub fn into_first(self) -> Option<TreeNode> {
+        self.vec.into_iter().next()
+    }
+    pub fn last(&self) -> Option<&TreeNode> {
+        self.vec.last()
+    }
+    pub fn into_last(self) -> Option<TreeNode> {
+        self.vec.into_iter().last()
+    }
+    pub fn into_vec(self) -> Vec<TreeNode> {
+        self.vec
+    }
 }
