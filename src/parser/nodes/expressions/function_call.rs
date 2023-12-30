@@ -12,10 +12,9 @@ pub struct FunctionCall {
 }
 
 impl FunctionCall {
-    pub fn parse(nodes: TreeNodes) -> TreeNode {
+    pub fn parse(mut nodes: TreeNodes) -> TreeNode {
         let range = nodes.range;
-        let mut queue: VecDeque<TreeNode> = nodes.vec.into();
-        let name_node = queue.pop_front();
+        let name_node = nodes.pop_front();
         let name_error = ParseError::at(range,format!("Expected identifier at function call."));
         let Some(TreeNode::Token(name_token)) = name_node else {
             return name_error.into();
@@ -26,23 +25,22 @@ impl FunctionCall {
         let name = name_token.string;
 
         let missing_opening = ParseError::at(range, format!("Expected opening bracket `(` at function call."));
-        let Some(opening_bracket) = queue.pop_front() else {
+        let Some(opening_bracket) = nodes.pop_front() else {
             return missing_opening.into();
         };
         if !opening_bracket.is_token_type(TokenType::OpeningBracketRound) {
             return missing_opening.into(); 
         }
         
-        let missing_closing = ParseError::at(range, format!("Mismatched brackets. Expected closing round bracket `()` at function call. {:#?}",&queue));
-        let Some(closing_bracket) = queue.pop_back() else {
+        let missing_closing = ParseError::at(range, format!("Mismatched brackets. Expected closing round bracket `()` at function call."));
+        let Some(closing_bracket) = nodes.pop_back() else {
             return missing_closing.into();
         };
         if !closing_bracket.is_token_type(TokenType::ClosingBracketRound) {
             return missing_closing.into(); 
         }
 
-        let arg_nodes: Vec<TreeNode> = queue.into();
-        let arg_nodes: TreeNodes = TreeNodes::new(range, arg_nodes);
+        let arg_nodes: TreeNodes = nodes;
         let args = FunctionCallArgs::parse(arg_nodes);
         
         let call = FunctionCall {

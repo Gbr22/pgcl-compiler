@@ -13,14 +13,11 @@ pub struct UniformDeclaration {
 }
 
 impl UniformDeclaration {
-    pub fn parse(nodes: TreeNodes) -> TreeNode {
+    pub fn parse(mut nodes: TreeNodes) -> TreeNode {
         let range = nodes.range;
-        let nodes = nodes.vec;
-        let copy = nodes.to_vec();
-        let mut queue: VecDeque<TreeNode> = copy.into();
 
-        let error_end_with_semi = ParseError::from_nodes(&nodes, "Uniform declaration must end with semicolon.");
-        let semi_colon = queue.pop_back();
+        let error_end_with_semi = ParseError::at(range, "Uniform declaration must end with semicolon.");
+        let semi_colon = nodes.pop_back();
         let Some(semi_colon) = semi_colon else {
             return error_end_with_semi.into();
         };
@@ -31,16 +28,16 @@ impl UniformDeclaration {
             return error_end_with_semi.into();
         }
 
-        let error_start_with_keyword = ParseError::from_nodes(&nodes,"Uniform declaration must start with keyword 'uniform'.");
-        let Some(TreeNode::Token(first)) = queue.pop_front() else {
+        let error_start_with_keyword = ParseError::at(range,"Uniform declaration must start with keyword 'uniform'.");
+        let Some(TreeNode::Token(first)) = nodes.pop_front() else {
             return error_start_with_keyword.into();
         };
         if first.typ != TokenType::Identifier || &first.string != UNIFORM {
             return error_start_with_keyword.into();
         }
 
-        let error_name = ParseError::from_nodes(&nodes,"Uniform name must be an identifier.");
-        let name_node = queue.pop_front();
+        let error_name = ParseError::at(range,"Uniform name must be an identifier.");
+        let name_node = nodes.pop_front();
         let Some(name_node) = name_node else {
             return error_name.into();
         };
@@ -57,7 +54,7 @@ impl UniformDeclaration {
             "Colon expected after uniform name."
         );
 
-        let colon_node = queue.pop_front();
+        let colon_node = nodes.pop_front();
         let Some(colon_node) = colon_node else {
             return error_colon.into();
         };
@@ -68,7 +65,7 @@ impl UniformDeclaration {
             return error_colon.into();
         }
 
-        let type_nodes: Vec<TreeNode> = queue.into();
+        let type_nodes = nodes;
         if type_nodes.len() == 0 {
             return ParseError::at(
                 Range::between(colon_node.get_range(), semi_colon.get_range()),
@@ -76,7 +73,6 @@ impl UniformDeclaration {
             ).into();
         }
 
-        let type_nodes = TreeNodes::new(range, type_nodes);
         let typ = Type::parse(type_nodes);
 
         let name = colon_token.string.to_owned();

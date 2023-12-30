@@ -16,10 +16,10 @@ impl Type {
         ] };
 
         if nodes.len() > 1 {
-            return ParseError::from_nodes(&nodes.vec, format!("Could not combine types. Multiple types detected where only one is expected.")).into();
+            return ParseError::at(nodes.range, format!("Could not combine types. Multiple types detected where only one is expected.")).into();
         }
         if nodes.len() == 0 {
-            return ParseError::from_nodes(&nodes.vec, format!("Could not parse type. Expected type, found nothing.")).into();
+            return ParseError::at(nodes.range, format!("Could not parse type. Expected type, found nothing.")).into();
         }
         let node = nodes.into_first().unwrap();
         

@@ -7,7 +7,7 @@ use super::tree::{TreeNode, get_range};
 #[derive(Clone)]
 pub struct TreeNodes {
     pub range: Range,
-    pub vec: Vec<TreeNode>
+    vec: Vec<TreeNode>
 }
 
 fn calculate_new_ranges(original_range: Range,left_last: Option<&TreeNode>, right_first: Option<&TreeNode>) -> (Range, Range) {
@@ -189,5 +189,13 @@ impl TreeNodes {
     }
     pub fn into_vec(self) -> Vec<TreeNode> {
         self.vec
+    }
+    pub fn pop_front(&mut self) -> Option<TreeNode> {
+        let slice = self.slice_left(1);
+        slice.into_first()
+    }
+    pub fn pop_back(&mut self) -> Option<TreeNode> {
+        let slice = self.slice_right(1);
+        slice.into_last()
     }
 }

@@ -13,9 +13,8 @@ pub struct FunctionCallArg {
 }
 
 impl FunctionCallArg {
-    pub fn parse(nodes: TreeNodes) -> TreeNode {
+    pub fn parse(mut nodes: TreeNodes) -> TreeNode {
         let range = nodes.range;
-        let mut nodes = nodes.vec;
 
         let has_comma = match nodes.last() {
             None => false,
@@ -23,10 +22,9 @@ impl FunctionCallArg {
         };
 
         if has_comma {
-            nodes.pop();
+            nodes.pop_back();
         }
 
-        let nodes = TreeNodes::new(range, nodes);
         let expr = Expression::parse(nodes);
 
         let arg = FunctionCallArg {

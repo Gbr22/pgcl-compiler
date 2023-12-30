@@ -11,13 +11,10 @@ pub struct ReturnStatement {
 }
 
 impl ReturnStatement {
-    pub fn parse(nodes: TreeNodes) -> TreeNode {
-        let nodes = nodes.vec;
-        let range = get_range(&nodes).unwrap_or(Range::null());
-
-        let mut queue: VecDeque<TreeNode> = nodes.into();
+    pub fn parse(mut nodes: TreeNodes) -> TreeNode {
+        let range = nodes.range;
         let keyword_error = ParseError::at(range, format!("Expected return keyword."));
-        let return_keyword = queue.pop_front();
+        let return_keyword = nodes.pop_front();
         let Some(return_keyword) = return_keyword else {
             return keyword_error.into();
         };
@@ -25,7 +22,7 @@ impl ReturnStatement {
             return return_keyword.into();
         }
         let semi_error = ParseError::at(range, format!("Semicolon expected at end of return statement."));
-        let semi_colon = queue.pop_back();
+        let semi_colon = nodes.pop_back();
         let Some(semi_colon) = semi_colon else {
             return semi_error.into();
         };
@@ -33,8 +30,6 @@ impl ReturnStatement {
             return semi_error.into();
         }
 
-        let nodes: Vec<TreeNode> = queue.into();
-        let nodes = TreeNodes::new(range, nodes);
         let expr = Expression::parse(nodes);
 
         let statement = ReturnStatement {

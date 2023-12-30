@@ -7,8 +7,8 @@ use crate::{parser::{tree::TreeNode, grammar::GrammarLike}, lexer::types::{token
 
 pub struct FunctionDeclarationGrammar {}
 
-pub fn find_args_start(fn_index: usize, nodes: &[TreeNode]) -> Option<usize> {
-    for (index, node) in nodes.iter().enumerate() {
+pub fn find_args_start<'a>(fn_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
+    for (index, node) in nodes.enumerate() {
         if index <= fn_index {
             continue;
         }
@@ -19,15 +19,15 @@ pub fn find_args_start(fn_index: usize, nodes: &[TreeNode]) -> Option<usize> {
 
     None
 }
-pub fn find_args_end(args_start_index: usize, nodes: &[TreeNode]) -> Option<usize> {
+pub fn find_args_end<'a>(args_start_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
     find_bracket_end(
         round_bracket(),
         args_start_index,
-        nodes.iter()
+        nodes
     )
 }
-pub fn find_body_start(args_end_index: usize, nodes: &[TreeNode]) -> Option<usize> {
-    for (index, node) in nodes.iter().enumerate() {
+pub fn find_body_start<'a>(args_end_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
+    for (index, node) in nodes.enumerate() {
         if index <= args_end_index {
             continue;
         }
@@ -38,11 +38,11 @@ pub fn find_body_start(args_end_index: usize, nodes: &[TreeNode]) -> Option<usiz
 
     None
 }
-pub fn find_body_end(body_start_index: usize, nodes: &[TreeNode]) -> Option<usize> {
+pub fn find_body_end<'a>(body_start_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
     find_bracket_end(
         curly_bracket(),
         body_start_index,
-        nodes.iter()
+        nodes
     )
 }
 
@@ -58,10 +58,10 @@ impl GrammarLike for FunctionDeclarationGrammar {
     }
 
     fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
-        let args_start = find_args_start(start_index, &nodes.vec)?;
-        let args_end = find_args_end(args_start, &nodes.vec)?;
-        let body_start = find_body_start(args_end, &nodes.vec)?;
-        let body_end = find_body_end(body_start, &nodes.vec)?;
+        let args_start = find_args_start(start_index, nodes.iter())?;
+        let args_end = find_args_end(args_start, nodes.iter())?;
+        let body_start = find_body_start(args_end, nodes.iter())?;
+        let body_end = find_body_end(body_start, nodes.iter())?;
 
         Some(body_end)
     }
