@@ -1,4 +1,4 @@
-use crate::{parser::{grammar::GrammarLike, tree::{TreeNode, ParseError}, nodes::{document::Document, types::simple_type::SimpleType}}, lexer::types::{token_type::TokenType, keywords::is_keyword}};
+use crate::{parser::{grammar::GrammarLike, tree::{TreeNode, ParseError}, nodes::{document::Document, types::simple::SimpleType}}, lexer::types::{token_type::TokenType, keywords::is_keyword}};
 
 pub struct SimpleTypeGrammar {}
 

@@ -1,1 +1,1 @@
-pub mod simple_type;
+pub mod simple;

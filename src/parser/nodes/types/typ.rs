@@ -1,6 +1,6 @@
 
-use crate::parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammars::types::simple_type::SimpleTypeGrammar, grammar::GrammarLike};
-use super::simple_type::SimpleType;
+use crate::parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammars::types::simple::SimpleTypeGrammar, grammar::GrammarLike};
+use super::simple::SimpleType;
 
 trait_enum! {
     #[derive(Debug, Clone)]
