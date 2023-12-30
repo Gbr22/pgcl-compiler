@@ -50,6 +50,36 @@ impl TreeNode {
             false
         }
     }
+    pub fn to_string(&self) -> String {
+        let string = format!("{:#?}",self);
+        
+        let string = string
+            .split("\n")
+            .into_iter()
+            .map(|line|{
+                let space_count = line
+                    .chars()
+                    .take_while(|char|char==&' ')
+                    .count();
+
+                let rest: String = line
+                    .chars()
+                    .skip_while(|char|char==&' ')
+                    .collect();
+
+                let new_space_count = space_count / 4;
+                let new_spaces: String = (0..new_space_count)
+                    .map(|_|' ')
+                    .collect();
+
+                let new_string = format!("{}{}",new_spaces,rest);
+                
+                new_string
+            }).collect::<Vec<String>>().join("\n");
+
+
+        string
+    }
 }
 
 pub trait TreeNodeLike {
