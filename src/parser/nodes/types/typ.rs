@@ -37,4 +37,7 @@ impl TreeNodeLike for Type {
     fn get_end_index(&self) -> usize {
         self.to_node_like().get_end_index()
     }
+    fn get_errors(&self) -> Vec<ParseError> {
+        self.to_node_like().get_errors()
+    }
 }

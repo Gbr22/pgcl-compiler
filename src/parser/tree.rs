@@ -6,6 +6,7 @@ use crate::parser::nodes::function_declaration::FunctionDeclaration;
 use crate::parser::nodes::block::Block;
 use crate::parser::nodes::statements::statement::Statement;
 use crate::parser::nodes::types::typ::Type;
+use crate::parser::nodes::expressions::expr::Expression;
 
 trait_enum!{
     #[derive(Debug, Clone)]
@@ -19,6 +20,7 @@ trait_enum!{
         FunctionDeclaration,
         Block,
         Statement,
+        Expression
     }
 }
 
