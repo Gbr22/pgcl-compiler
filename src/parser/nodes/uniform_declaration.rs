@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
-
+use crate::pop_back_node;
+use crate::pop_front_node;
 
 use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_range}, tree_nodes::TreeNodes}, common::range::{Range, Len}};
 
@@ -16,66 +17,48 @@ impl UniformDeclaration {
     pub fn parse(mut nodes: TreeNodes) -> TreeNode {
         let range = nodes.range;
 
-        let error_end_with_semi = ParseError::at(range, "Uniform declaration must end with semicolon.");
-        let semi_colon = nodes.pop_back();
-        let Some(semi_colon) = semi_colon else {
-            return error_end_with_semi.into();
-        };
-        let TreeNode::Token(last) = &semi_colon else {
-            return error_end_with_semi.into();
-        };
-        if last.typ != TokenType::Semicolon {
-            return error_end_with_semi.into();
-        }
-
-        let error_start_with_keyword = ParseError::at(range,"Uniform declaration must start with keyword 'uniform'.");
-        let Some(TreeNode::Token(first)) = nodes.pop_front() else {
-            return error_start_with_keyword.into();
-        };
-        if first.typ != TokenType::Identifier || &first.string != UNIFORM {
-            return error_start_with_keyword.into();
-        }
-
-        let error_name = ParseError::at(range,"Uniform name must be an identifier.");
-        let name_node = nodes.pop_front();
-        let Some(name_node) = name_node else {
-            return error_name.into();
-        };
-        let TreeNode::Token(name) = &name_node else {
-            return error_name.into();
-        };
-        let name_text = name.string.clone();
-        if name.typ != TokenType::Identifier || is_keyword(&name_text) {
-            return error_name.into();
-        }
-
-        let error_colon = ParseError::at(
-            name_node.get_range() + Len(1),
-            "Colon expected after uniform name."
+        pop_back_node!(
+            nodes,
+            "Uniform declaration must end with semicolon.",
+            Some(TreeNode::Token(semi_colon)),
+            semi_colon.typ == TokenType::Semicolon
         );
 
-        let colon_node = nodes.pop_front();
-        let Some(colon_node) = colon_node else {
-            return error_colon.into();
-        };
-        let TreeNode::Token(colon_token) = &colon_node else {
-            return error_colon.into();
-        };
-        if colon_token.typ != TokenType::Colon {
-            return error_colon.into();
-        }
+        pop_front_node!(
+            nodes,
+            "Uniform declaration must start with keyword 'uniform'.",
+            Some(TreeNode::Token(uniform_keyword)),
+            uniform_keyword.typ == TokenType::Identifier
+            && uniform_keyword.string == UNIFORM
+        );
+
+        pop_front_node!(
+            nodes,
+            "Uniform name must be an identifier.",
+            Some(TreeNode::Token(name)),
+            name.typ == TokenType::Identifier
+            && !is_keyword(&name.string)
+        );
+
+        let name = name.string;
+
+        pop_front_node!(
+            nodes,
+            "Colon expected after uniform name.",
+            Some(TreeNode::Token(colon)),
+            colon.typ == TokenType::Colon
+        );
 
         let type_nodes = nodes;
         if type_nodes.len() == 0 {
             return ParseError::at(
-                Range::between(colon_node.get_range(), semi_colon.get_range()),
+                Range::between(colon.get_range(), semi_colon.get_range()),
                 format!("Uniform type must not be empty.")
             ).into();
         }
 
         let typ = Type::parse(type_nodes);
 
-        let name = colon_token.string.to_owned();
         TreeNode::UniformDeclaration(UniformDeclaration {
             name,
             range,

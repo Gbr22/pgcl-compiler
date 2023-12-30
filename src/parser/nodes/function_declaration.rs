@@ -1,4 +1,4 @@
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}, tree_nodes::{TreeNodes, MaybeTreeNode}}, common::range::Range};
+use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}, tree_nodes::TreeNodes}, common::range::Range};
 use super::{block::Block, types::typ::Type};
 use crate::pop_front_node;
 
@@ -14,14 +14,14 @@ impl FunctionDeclaration {
     pub fn parse(mut nodes: TreeNodes) -> TreeNode {
         let range = nodes.range;
 
-        pop_front_node! (
+        pop_front_node!(
             nodes,
             "Missing fn keyword",
             Some(fn_keyword),
             fn_keyword.is_keyword(FN)
         );
         
-        pop_front_node! (
+        pop_front_node!(
             nodes,
             "Missing function name.",
             Some(TreeNode::Token(name_node)),
@@ -30,13 +30,14 @@ impl FunctionDeclaration {
         );
         
         let name = name_node.string;
-        let expected_args = ParseError::at(range,format!("Expected opening round bracket after function name."));
-        let Some(args_open) = nodes.pop_front() else {
-            return expected_args.into();
-        };
-        if !args_open.is_token_type(TokenType::OpeningBracketRound) {
-            return expected_args.into();
-        }
+
+        pop_front_node!(
+            nodes,
+            "Expected opening round bracket after function name.",
+            Some(args_open),
+            args_open.is_token_type(TokenType::OpeningBracketRound)
+        );
+
         let Some(args_end_index) = find_args_end(0, nodes.iter()) else {
             return ParseError::at(range,format!("Mismatched brackets. Round bracket `()` not closed.")).into();
         };
@@ -45,13 +46,12 @@ impl FunctionDeclaration {
 
         // TODO parse arguments
 
-        let expected_arrow = ParseError::at(range, format!("Expected `->` after function parameters."));
-        let Some(arrow) = nodes.pop_front() else {
-            return expected_arrow.into();
-        };
-        if !arrow.is_token_type(TokenType::ArrowRight) {
-            return expected_arrow.into();
-        }
+        pop_front_node!(
+            nodes,
+            "Expected `->` after function parameters.",
+            Some(arrow),
+            arrow.is_token_type(TokenType::ArrowRight)
+        );
 
         let Some(body_start_index) = find_body_start(0, nodes.iter()) else {
             return ParseError::at(range, format!("Could not find start of function body.")).into();

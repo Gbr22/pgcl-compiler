@@ -11,6 +11,7 @@ pub struct ValueAccess {
 impl ValueAccess {
     pub fn parse(node: TreeNode) -> TreeNode {
         let range = node.get_range();
+
         let id_error = ParseError::at(range, format!("Expected identifier."));
         let TreeNode::Token(name) = node else {
             return id_error.into();
