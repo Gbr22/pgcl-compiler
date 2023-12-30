@@ -26,7 +26,7 @@ pub fn find_bracket_end(
 }
 
 pub struct BracketTracker {
-    pub depth: usize,
+    pub depth: isize,
     pub typ: BracketType
 }
 impl Into<BracketTracker> for BracketType {
