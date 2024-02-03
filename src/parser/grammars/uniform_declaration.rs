@@ -57,4 +57,8 @@ impl GrammarLike for UniformDeclarationGrammar {
 
         None
     }
+
+    fn allow_parallel_processing(&self) -> bool {
+        true
+    }
 }

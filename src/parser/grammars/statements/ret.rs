@@ -24,4 +24,8 @@ impl GrammarLike for ReturnStatementGrammar {
     fn next_match_end(&self, nodes: &TreeNodes, _start_index: usize) -> Option<usize> {
         Some(nodes.len() - 1)
     }
+
+    fn allow_parallel_processing(&self) -> bool {
+        true
+    }
 }

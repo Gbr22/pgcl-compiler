@@ -46,4 +46,7 @@ impl GrammarLike for FunctionCallGrammar {
             nodes.iter(),
         )
     }
+    fn allow_parallel_processing(&self) -> bool {
+        true
+    }
 }

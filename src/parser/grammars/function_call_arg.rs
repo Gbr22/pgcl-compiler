@@ -40,4 +40,8 @@ impl GrammarLike for FunctionCallArgGrammar {
             None => Some(nodes.len() - 1),
         }
     }
+
+    fn allow_parallel_processing(&self) -> bool {
+        true
+    }
 }

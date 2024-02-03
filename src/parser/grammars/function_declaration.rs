@@ -76,4 +76,8 @@ impl GrammarLike for FunctionDeclarationGrammar {
 
         Some(body_end)
     }
+
+    fn allow_parallel_processing(&self) -> bool {
+        true
+    }
 }

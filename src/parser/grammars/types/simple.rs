@@ -29,4 +29,7 @@ impl GrammarLike for SimpleTypeGrammar {
     fn next_match_end(&self, _nodes: &TreeNodes, start_index: usize) -> Option<usize> {
         Some(start_index)
     }
+    fn allow_parallel_processing(&self) -> bool {
+        true
+    }
 }

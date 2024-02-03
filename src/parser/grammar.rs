@@ -1,5 +1,8 @@
 use std::{collections::VecDeque, fmt::format};
 
+use rayon::prelude::*; 
+use rayon::iter::IntoParallelIterator;
+
 use crate::parser::tree::ParseError;
 
 use super::{tree::TreeNode, tree_nodes::TreeNodes};
@@ -16,7 +19,7 @@ struct ProcessedMatch {
     nodes_before: TreeNodes,
     result: TreeNode
 }
-pub trait GrammarLike {
+pub trait GrammarLike: Sync {
     fn next_match_start(&self, _nodes: &TreeNodes) -> Option<usize>;
 
     // range inclusive
@@ -70,7 +73,7 @@ pub trait GrammarLike {
         let rest = nodes;
 
         let mut processed_matches: VecDeque<ProcessedMatch> = matched
-            .into_iter()
+            .into_par_iter()
             .map(|m| {
                 ProcessedMatch {
                     nodes_before: m.nodes_before,

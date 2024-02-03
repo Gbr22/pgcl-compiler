@@ -37,4 +37,7 @@ impl GrammarLike for SimpleStatementGrammar {
 
         None
     }
+    fn allow_parallel_processing(&self) -> bool {
+        true
+    }
 }
