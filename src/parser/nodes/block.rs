@@ -1,9 +1,17 @@
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammars::statements::{simple::SimpleStatementGrammar, ret::ReturnStatementGrammar}, tree_nodes::TreeNodes}, process_grammars, common::range::Range};
+use crate::{
+    common::range::Range,
+    parser::{
+        grammars::statements::{ret::ReturnStatementGrammar, simple::SimpleStatementGrammar},
+        tree::{get_end_index, get_range, get_start_index, ParseError, TreeNode, TreeNodeLike},
+        tree_nodes::TreeNodes,
+    },
+    process_grammars,
+};
 
 #[derive(Debug, Clone)]
 pub struct Block {
     range: Range,
-    children: Vec<TreeNode>
+    children: Vec<TreeNode>,
 }
 
 impl Block {
@@ -14,7 +22,7 @@ impl Block {
             ReturnStatementGrammar,
             SimpleStatementGrammar
         ] };
-        
+
         let block = Block {
             children: nodes.into_vec(),
             range,

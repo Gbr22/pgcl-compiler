@@ -36,5 +36,5 @@ pub enum TokenType {
     OpeningBracketCurly,
     ClosingBracketCurly,
     LineComment,
-    BlockComment
+    BlockComment,
 }

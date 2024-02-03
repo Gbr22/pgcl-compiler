@@ -1,4 +1,4 @@
-use crate::lexer::types::{token_type::TokenType, comments::get_comments};
+use crate::lexer::types::{comments::get_comments, token_type::TokenType};
 
 pub fn get_ignored_token_types() -> Vec<TokenType> {
     let mut vec: Vec<TokenType> = vec![];
@@ -8,9 +8,9 @@ pub fn get_ignored_token_types() -> Vec<TokenType> {
         T::Whitespace,
         T::Newline,
         T::InvalidChar,
-        T::StartOfInput
+        T::StartOfInput,
     ]);
-    
+
     vec
 }
 

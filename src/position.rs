@@ -1,11 +1,10 @@
-
 use wasm_bindgen::prelude::wasm_bindgen;
 
 #[wasm_bindgen]
 #[derive(Debug, Clone)]
 pub struct Position {
     pub row: u32,
-    pub col: u32
+    pub col: u32,
 }
 
 #[wasm_bindgen]
@@ -26,8 +25,5 @@ pub fn get_position(text: &str, index: usize) -> Position {
         i = i + 1;
     }
 
-    Position {
-        row,
-        col
-    }
+    Position { row, col }
 }

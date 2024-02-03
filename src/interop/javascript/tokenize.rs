@@ -1,33 +1,35 @@
-use wasm_bindgen::prelude::*;
 use crate::lexer::token::Token as RustToken;
 use crate::lexer::tokenize::tokenize as rust_tokenize;
 use crate::lexer::types::keywords::get_keywords as rust_get_keywords;
 use crate::lexer::types::token_type::TokenType;
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(js_name = TokenizeResult)]
 #[derive(Debug)]
 pub struct TokenizeResult {
     pub todo: i32,
     tokens: Vec<RustToken>,
-    failed_tokens: Vec<RustToken>
+    failed_tokens: Vec<RustToken>,
 }
 
 pub fn token_vec_into_js(tokens: Vec<RustToken>) -> Vec<Token> {
-    let tokens: Vec<Token> = tokens.into_iter().map(|token|{
-        let token_js: Token = token.to_owned().into();
-        
-        token_js
-    }).collect();
+    let tokens: Vec<Token> = tokens
+        .into_iter()
+        .map(|token| {
+            let token_js: Token = token.to_owned().into();
+
+            token_js
+        })
+        .collect();
 
     tokens
 }
-
 
 #[wasm_bindgen]
 impl TokenizeResult {
     #[wasm_bindgen(js_name = toString)]
     pub fn to_string(&self) -> String {
-        format!("{:?}",&self)
+        format!("{:?}", &self)
     }
 
     #[wasm_bindgen(getter = tokens)]
@@ -46,7 +48,7 @@ pub fn tokenize(input: &str) -> TokenizeResult {
     TokenizeResult {
         todo: 0,
         tokens: result.tokens,
-        failed_tokens: result.failed_tokens
+        failed_tokens: result.failed_tokens,
     }
 }
 
@@ -59,13 +61,13 @@ impl Into<Token> for RustToken {
 #[wasm_bindgen]
 #[derive(Clone, Debug)]
 pub struct Token {
-    token: RustToken
+    token: RustToken,
 }
 #[wasm_bindgen]
 impl Token {
     #[wasm_bindgen(js_name = toString)]
     pub fn to_string(&self) -> String {
-        format!("{:?}",&self)
+        format!("{:?}", &self)
     }
 
     #[wasm_bindgen(js_name = isValid)]
@@ -90,11 +92,16 @@ impl Token {
     }
     #[wasm_bindgen(js_name = splitByLine)]
     pub fn split_by_line(self) -> Vec<Token> {
-        let js_tokens: Vec<Token> = self.token.split_by_line().iter().map(|token| {
-            let js_token: Token = token.clone().into();
-            
-            js_token
-        }).collect();
+        let js_tokens: Vec<Token> = self
+            .token
+            .split_by_line()
+            .iter()
+            .map(|token| {
+                let js_token: Token = token.clone().into();
+
+                js_token
+            })
+            .collect();
 
         js_tokens
     }
@@ -102,10 +109,7 @@ impl Token {
 
 #[wasm_bindgen(js_name = getKeywords)]
 pub fn get_keywords() -> Vec<String> {
-    let strings = rust_get_keywords()
-        .iter()
-        .map(|s|s.to_string())
-        .collect();
-    
+    let strings = rust_get_keywords().iter().map(|s| s.to_string()).collect();
+
     strings
 }

@@ -1,14 +1,27 @@
 use std::collections::VecDeque;
 
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression, tree_nodes::TreeNodes}, lexer::types::token_type::TokenType, common::range::Range};
 use super::statement::{Statement, StatementLike};
 use crate::pop_back_node;
+use crate::{
+    common::range::Range,
+    lexer::types::token_type::TokenType,
+    parser::{
+        grammar::GrammarLike,
+        grammars::{
+            function_declaration::FunctionDeclarationGrammar,
+            uniform_declaration::UniformDeclarationGrammar,
+        },
+        nodes::expressions::expr::Expression,
+        tree::{get_end_index, get_range, get_start_index, ParseError, TreeNode, TreeNodeLike},
+        tree_nodes::TreeNodes,
+    },
+};
 
 // Semicolon delimited statement
 #[derive(Debug, Clone)]
 pub struct SimpleStatement {
     range: Range,
-    expr: Box<TreeNode>
+    expr: Box<TreeNode>,
 }
 
 impl SimpleStatement {
@@ -26,7 +39,7 @@ impl SimpleStatement {
 
         let statement = SimpleStatement {
             range,
-            expr: Box::new(expr)
+            expr: Box::new(expr),
         };
 
         TreeNode::Statement(Statement::SimpleStatement(statement))

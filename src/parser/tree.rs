@@ -1,17 +1,17 @@
 use crate::common::range::Range;
-use crate::lexer::types::token_type::TokenType;
 use crate::lexer::token::Token;
-use crate::parser::nodes::document::Document;
-use crate::parser::nodes::uniform_declaration::UniformDeclaration;
-use crate::parser::nodes::function_declaration::FunctionDeclaration;
+use crate::lexer::types::token_type::TokenType;
 use crate::parser::nodes::block::Block;
+use crate::parser::nodes::document::Document;
+use crate::parser::nodes::expressions::expr::Expression;
+use crate::parser::nodes::function_call_arg::FunctionCallArg;
+use crate::parser::nodes::function_call_args::FunctionCallArgs;
+use crate::parser::nodes::function_declaration::FunctionDeclaration;
 use crate::parser::nodes::statements::statement::Statement;
 use crate::parser::nodes::types::typ::Type;
-use crate::parser::nodes::expressions::expr::Expression;
-use crate::parser::nodes::function_call_args::FunctionCallArgs;
-use crate::parser::nodes::function_call_arg::FunctionCallArg;
+use crate::parser::nodes::uniform_declaration::UniformDeclaration;
 
-trait_enum!{
+trait_enum! {
     #[derive(Debug, Clone)]
     pub enum TreeNode: TreeNodeLike {
         Token,
@@ -51,32 +51,25 @@ impl TreeNode {
         }
     }
     pub fn to_string(&self) -> String {
-        let string = format!("{:#?}",self);
-        
+        let string = format!("{:#?}", self);
+
         let string = string
             .split("\n")
             .into_iter()
-            .map(|line|{
-                let space_count = line
-                    .chars()
-                    .take_while(|char|char==&' ')
-                    .count();
+            .map(|line| {
+                let space_count = line.chars().take_while(|char| char == &' ').count();
 
-                let rest: String = line
-                    .chars()
-                    .skip_while(|char|char==&' ')
-                    .collect();
+                let rest: String = line.chars().skip_while(|char| char == &' ').collect();
 
                 let new_space_count = space_count / 4;
-                let new_spaces: String = (0..new_space_count)
-                    .map(|_|' ')
-                    .collect();
+                let new_spaces: String = (0..new_space_count).map(|_| ' ').collect();
 
-                let new_string = format!("{}{}",new_spaces,rest);
-                
+                let new_string = format!("{}{}", new_spaces, rest);
+
                 new_string
-            }).collect::<Vec<String>>().join("\n");
-
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
 
         string
     }
@@ -98,27 +91,27 @@ impl TreeNodeLike for Token {
 #[derive(Debug, Clone)]
 pub struct ParseError {
     pub text: String,
-    pub range: Range
+    pub range: Range,
 }
 
 impl ParseError {
     pub fn new(text: impl Into<String>) -> ParseError {
-        ParseError { text: text.into(), range: Range::null() }
+        ParseError {
+            text: text.into(),
+            range: Range::null(),
+        }
     }
     pub fn at(range: Range, text: impl Into<String>) -> ParseError {
         ParseError {
             range: range,
-            text: text.into()
+            text: text.into(),
         }
     }
     pub fn from_nodes(nodes: &[TreeNode], text: impl Into<String>) -> ParseError {
         let text = text.into();
         let range = get_range(nodes).unwrap_or(Range::null());
 
-        ParseError {
-            text,
-            range
-        }
+        ParseError { text, range }
     }
 }
 
@@ -145,8 +138,8 @@ pub fn get_range(nodes: &[TreeNode]) -> Option<Range> {
 }
 
 pub fn get_start_index(nodes: &[TreeNode]) -> Option<usize> {
-    nodes.first().map(|f|f.get_range().start_index)
+    nodes.first().map(|f| f.get_range().start_index)
 }
 pub fn get_end_index(nodes: &[TreeNode]) -> Option<usize> {
-    nodes.last().map(|f|f.get_range().end_index)
+    nodes.last().map(|f| f.get_range().end_index)
 }

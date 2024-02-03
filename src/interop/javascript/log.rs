@@ -6,6 +6,6 @@ extern "C" {
     fn log(s: &str);
 }
 
-pub fn console_log(s: &str){
+pub fn console_log(s: &str) {
     log(s);
 }

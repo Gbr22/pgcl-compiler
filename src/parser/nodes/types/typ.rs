@@ -1,6 +1,12 @@
-
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError}, grammars::types::simple::SimpleTypeGrammar, tree_nodes::TreeNodes}, process_grammars};
 use super::simple::SimpleType;
+use crate::{
+    parser::{
+        grammars::types::simple::SimpleTypeGrammar,
+        tree::{ParseError, TreeNode, TreeNodeLike},
+        tree_nodes::TreeNodes,
+    },
+    process_grammars,
+};
 
 trait_enum! {
     #[derive(Debug, Clone)]
@@ -16,13 +22,23 @@ impl Type {
         ] };
 
         if nodes.len() > 1 {
-            return ParseError::at(nodes.range, format!("Could not combine types. Multiple types detected where only one is expected.")).into();
+            return ParseError::at(
+                nodes.range,
+                format!(
+                    "Could not combine types. Multiple types detected where only one is expected."
+                ),
+            )
+            .into();
         }
         if nodes.len() == 0 {
-            return ParseError::at(nodes.range, format!("Could not parse type. Expected type, found nothing.")).into();
+            return ParseError::at(
+                nodes.range,
+                format!("Could not parse type. Expected type, found nothing."),
+            )
+            .into();
         }
         let node = nodes.into_first().unwrap();
-        
+
         node
     }
 }

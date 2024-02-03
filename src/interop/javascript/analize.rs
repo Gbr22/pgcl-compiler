@@ -3,12 +3,12 @@ use wasm_bindgen::prelude::*;
 use crate::analizer::analize as rust_analize;
 use crate::analizer::AnalizeResult as RustAnalizeResult;
 
-use super::tokenize::Token;
 use super::tokenize::token_vec_into_js;
+use super::tokenize::Token;
 
 #[wasm_bindgen]
 pub struct AnalizeResult {
-    result: RustAnalizeResult
+    result: RustAnalizeResult,
 }
 
 #[wasm_bindgen]
@@ -23,7 +23,5 @@ impl AnalizeResult {
 pub fn analize(input: &str) -> AnalizeResult {
     let result = rust_analize(input);
 
-    AnalizeResult {
-        result
-    }
+    AnalizeResult { result }
 }

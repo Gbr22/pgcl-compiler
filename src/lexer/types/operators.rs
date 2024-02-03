@@ -9,10 +9,8 @@ pub fn get_operators() -> Vec<TokenType> {
         T::Star,
         T::Dash,
         T::Plus,
-
         // logical operators
         T::Bang,
-
         // comparison operators
         T::DoubleEquals,
         T::BangEquals,
@@ -20,12 +18,10 @@ pub fn get_operators() -> Vec<TokenType> {
         T::GtEquals,
         T::Lt,
         T::Gt,
-
         // punctuation
         T::Colon,
         T::Comma,
         T::Dot,
-
         // other
         T::ArrowRight,
         T::Equals,

@@ -1,13 +1,24 @@
-use crate::{lexer::types::{token_type::TokenType, keywords::{is_keyword, UNIFORM, FN}}, parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_declaration::{find_args_end, find_body_start, find_body_end}, tree_nodes::TreeNodes}, common::range::Range};
 use super::{block::Block, types::typ::Type};
 use crate::pop_front_node;
+use crate::{
+    common::range::Range,
+    lexer::types::{
+        keywords::{is_keyword, FN, UNIFORM},
+        token_type::TokenType,
+    },
+    parser::{
+        grammars::function_declaration::{find_args_end, find_body_end, find_body_start},
+        tree::{get_end_index, get_range, get_start_index, ParseError, TreeNode, TreeNodeLike},
+        tree_nodes::TreeNodes,
+    },
+};
 
 #[derive(Debug, Clone)]
 pub struct FunctionDeclaration {
     name: String,
     return_type: Box<TreeNode>,
     body: Box<TreeNode>,
-    range: Range
+    range: Range,
 }
 
 impl FunctionDeclaration {
@@ -20,15 +31,14 @@ impl FunctionDeclaration {
             Some(fn_keyword),
             fn_keyword.is_keyword(FN)
         );
-        
+
         pop_front_node!(
             nodes,
             "Missing function name.",
             Some(TreeNode::Token(name_node)),
-            name_node.typ == TokenType::Identifier
-            && !is_keyword(&name_node.string)
+            name_node.typ == TokenType::Identifier && !is_keyword(&name_node.string)
         );
-        
+
         let name = name_node.string;
 
         pop_front_node!(
@@ -59,12 +69,12 @@ impl FunctionDeclaration {
         let Some(body_end_index) = find_body_end(body_start_index, nodes.iter()) else {
             return ParseError::at(range, format!("Mismatched brackets. Curly bracket `{{}}` not closed.")).into();
         };
-        let after_body = nodes.slice(body_end_index,usize::MAX);
+        let after_body = nodes.slice(body_end_index, usize::MAX);
         // there should only be a single `}` in the vector
         if after_body.len() > 1 {
             return ParseError::at(range, format!("Unexpected items after function body.")).into();
         }
-        let mut body_nodes = nodes.slice(body_start_index,body_end_index);
+        let mut body_nodes = nodes.slice(body_start_index, body_end_index);
         body_nodes.pop_front(); // skip opening curly `{`
 
         let body_block = Block::parse(body_nodes);
@@ -76,7 +86,7 @@ impl FunctionDeclaration {
             name,
             return_type: Box::new(typ),
             body: Box::new(body_block),
-            range
+            range,
         })
     }
 }

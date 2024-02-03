@@ -1,49 +1,56 @@
 use crate::lexer::types::keywords::FN;
-use crate::parser::brackets::{round_bracket, curly_bracket};
+use crate::parser::brackets::{curly_bracket, round_bracket};
 use crate::parser::match_brackets::find_bracket_end;
 use crate::parser::nodes::function_declaration::FunctionDeclaration;
 use crate::parser::tree_nodes::TreeNodes;
-use crate::{parser::{tree::TreeNode, grammar::GrammarLike}, lexer::types::{token_type::TokenType, keywords::UNIFORM}};
+use crate::{
+    lexer::types::{keywords::UNIFORM, token_type::TokenType},
+    parser::{grammar::GrammarLike, tree::TreeNode},
+};
 
 pub struct FunctionDeclarationGrammar {}
 
-pub fn find_args_start<'a>(fn_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
+pub fn find_args_start<'a>(
+    fn_index: usize,
+    nodes: impl Iterator<Item = &'a TreeNode>,
+) -> Option<usize> {
     for (index, node) in nodes.enumerate() {
         if index <= fn_index {
             continue;
         }
         if node.is_token_type(TokenType::OpeningBracketRound) {
-            return Some(index)
+            return Some(index);
         }
     }
 
     None
 }
-pub fn find_args_end<'a>(args_start_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
-    find_bracket_end(
-        round_bracket(),
-        args_start_index,
-        nodes
-    )
+pub fn find_args_end<'a>(
+    args_start_index: usize,
+    nodes: impl Iterator<Item = &'a TreeNode>,
+) -> Option<usize> {
+    find_bracket_end(round_bracket(), args_start_index, nodes)
 }
-pub fn find_body_start<'a>(args_end_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
+pub fn find_body_start<'a>(
+    args_end_index: usize,
+    nodes: impl Iterator<Item = &'a TreeNode>,
+) -> Option<usize> {
     for (index, node) in nodes.enumerate() {
         if index <= args_end_index {
             continue;
         }
         if node.is_token_type(TokenType::OpeningBracketCurly) {
-            return Some(index)
+            return Some(index);
         }
     }
 
     None
 }
-pub fn find_body_end<'a>(body_start_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
-    find_bracket_end(
-        curly_bracket(),
-        body_start_index,
-        nodes
-    )
+pub fn find_body_end<'a>(
+    body_start_index: usize,
+    nodes: impl Iterator<Item = &'a TreeNode>,
+) -> Option<usize> {
+    find_bracket_end(curly_bracket(), body_start_index, nodes)
 }
 
 impl GrammarLike for FunctionDeclarationGrammar {

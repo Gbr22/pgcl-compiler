@@ -2,17 +2,16 @@ use std::collections::VecDeque;
 
 use serde_derive::Serialize;
 
-use crate::{lexer::types::definitions::get_definition, common::range::Range};
+use crate::{common::range::Range, lexer::types::definitions::get_definition};
 
-use super::{types::token_type::TokenType, definitions::token_def::TokenDef};
+use super::{definitions::token_def::TokenDef, types::token_type::TokenType};
 
 #[derive(Clone, PartialEq, Serialize, Debug)]
 pub struct Token {
     pub string: String,
     pub typ: TokenType,
-    pub range: Range
+    pub range: Range,
 }
-
 
 impl Token {
     pub fn is_valid(&self) -> bool {
@@ -35,7 +34,7 @@ impl Token {
         let Some(msg) = msg else {
             return format!("Token ({:?}): {:?} is invalid.",self.typ,self.string);
         };
-        
+
         msg
     }
 
@@ -54,11 +53,7 @@ impl Token {
             let range = Range::new(start_index, end_index);
             let typ = self.typ;
 
-            tokens.push(Token {
-                string,
-                typ,
-                range,
-            });
+            tokens.push(Token { string, typ, range });
 
             self.range.start_index = end_index + 1;
         }

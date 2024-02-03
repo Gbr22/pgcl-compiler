@@ -3,7 +3,9 @@ use super::token_def::TokenDef;
 #[derive(Clone)]
 pub struct LineCommentDef {}
 impl TokenDef for LineCommentDef {
-    fn get_priority(&self) -> i32 { -1 }
+    fn get_priority(&self) -> i32 {
+        -1
+    }
     fn check_character(&self, current: &str, char: char) -> bool {
         if current.len() <= 1 {
             return char == '/';
@@ -17,7 +19,7 @@ impl TokenDef for LineCommentDef {
             return false;
         }
         if str.contains('\n') || str.contains('\r') {
-            return  false;
+            return false;
         }
 
         true

@@ -1,9 +1,10 @@
-pub mod parse;
-pub mod tree;
-pub mod tree_nodes;
+pub mod brackets;
 pub mod grammar;
 pub mod grammars;
-pub mod nodes;
-pub mod match_brackets;
-pub mod brackets;
 pub mod macros;
+pub mod match_brackets;
+pub mod nodes;
+pub mod parse;
+pub mod parsers;
+pub mod tree;
+pub mod tree_nodes;

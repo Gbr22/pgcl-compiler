@@ -2,10 +2,12 @@ use super::token_def::TokenDef;
 
 #[derive(Clone)]
 pub struct MatchAnyDef {
-    pub chars: Vec<char>
+    pub chars: Vec<char>,
 }
 impl TokenDef for MatchAnyDef {
-    fn get_priority(&self) -> i32 { 0 }
+    fn get_priority(&self) -> i32 {
+        0
+    }
     fn check_character(&self, _current: &str, char: char) -> bool {
         self.chars.contains(&char)
     }

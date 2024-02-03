@@ -1,9 +1,9 @@
-use crate::lexer::types::token_type::TokenType;
 use super::tree::TreeNode;
+use crate::lexer::types::token_type::TokenType;
 
 pub struct BracketType {
-    pub is_opening: Box<dyn Fn(&TreeNode)->bool>,
-    pub is_closing: Box<dyn Fn(&TreeNode)->bool>
+    pub is_opening: Box<dyn Fn(&TreeNode) -> bool>,
+    pub is_closing: Box<dyn Fn(&TreeNode) -> bool>,
 }
 
 // (Round)
@@ -16,7 +16,7 @@ pub fn is_closing_bracket_round(node: &TreeNode) -> bool {
 pub fn round_bracket() -> BracketType {
     BracketType {
         is_opening: Box::new(is_opening_bracket_round),
-        is_closing: Box::new(is_closing_bracket_round)
+        is_closing: Box::new(is_closing_bracket_round),
     }
 }
 
@@ -30,7 +30,7 @@ pub fn is_closing_bracket_curly(node: &TreeNode) -> bool {
 pub fn curly_bracket() -> BracketType {
     BracketType {
         is_opening: Box::new(is_opening_bracket_curly),
-        is_closing: Box::new(is_closing_bracket_curly)
+        is_closing: Box::new(is_closing_bracket_curly),
     }
 }
 
@@ -44,6 +44,6 @@ pub fn is_closing_bracket_square(node: &TreeNode) -> bool {
 pub fn square_bracket() -> BracketType {
     BracketType {
         is_opening: Box::new(is_opening_bracket_square),
-        is_closing: Box::new(is_closing_bracket_square)
+        is_closing: Box::new(is_closing_bracket_square),
     }
 }

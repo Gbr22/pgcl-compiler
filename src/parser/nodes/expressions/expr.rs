@@ -1,13 +1,15 @@
+use super::function_call::FunctionCall;
+use super::value_access::ValueAccess;
 use crate::common::range::Range;
 use crate::parser::grammars::expressions::function_call::FunctionCallGrammar;
 use crate::parser::grammars::expressions::value_access::ValueAccessGrammar;
-use crate::parser::tree::{TreeNodeLike, TreeNode, ParseError, get_start_index, get_end_index, get_range};
+use crate::parser::tree::{
+    get_end_index, get_range, get_start_index, ParseError, TreeNode, TreeNodeLike,
+};
 use crate::parser::tree_nodes::TreeNodes;
 use crate::process_grammars;
-use super::value_access::ValueAccess;
-use super::function_call::FunctionCall;
 
-trait_enum!{
+trait_enum! {
     #[derive(Debug, Clone)]
     pub enum Expression: ExpressionLike {
         ValueAccess,
@@ -31,18 +33,22 @@ impl TreeNodeLike for Expression {
 impl Expression {
     pub fn parse(nodes: TreeNodes) -> TreeNode {
         let range = nodes.range;
-        
+
         let nodes = process_grammars! { nodes [
             FunctionCallGrammar,
             ValueAccessGrammar
         ] };
 
         if nodes.len() == 0 {
-            return ParseError::at(range,format!("Expected expression")).into();    
+            return ParseError::at(range, format!("Expected expression")).into();
         }
 
         if nodes.len() > 1 {
-            return ParseError::at(range,format!("Multiple expressions detected. Expected one.")).into();    
+            return ParseError::at(
+                range,
+                format!("Multiple expressions detected. Expected one."),
+            )
+            .into();
         }
 
         return nodes.into_first().unwrap();

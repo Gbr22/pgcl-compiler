@@ -1,9 +1,9 @@
-use super::{tree::TreeNode, brackets::BracketType};
+use super::{brackets::BracketType, tree::TreeNode};
 
 pub fn find_bracket_end<'a>(
     bracket_type: BracketType,
     opening_index: usize,
-    nodes: impl Iterator<Item = &'a TreeNode>
+    nodes: impl Iterator<Item = &'a TreeNode>,
 ) -> Option<usize> {
     let mut opening_count = 1;
     let mut closing_count = 0;
@@ -27,11 +27,14 @@ pub fn find_bracket_end<'a>(
 
 pub struct BracketTracker {
     pub depth: isize,
-    pub typ: BracketType
+    pub typ: BracketType,
 }
 impl Into<BracketTracker> for BracketType {
     fn into(self) -> BracketTracker {
-        BracketTracker { depth: 0, typ: self }
+        BracketTracker {
+            depth: 0,
+            typ: self,
+        }
     }
 }
 pub fn track_bracket_depth(tracker: &mut BracketTracker, node: &TreeNode) {
@@ -49,14 +52,14 @@ impl BracketTracker {
     }
 }
 
-pub fn find_next_match_outside_brackets<
-    'a,
-    IsMatch: Fn(&TreeNode)->bool
->(bracket_types: Vec<BracketType>, is_match: IsMatch, start_index: usize, nodes: impl Iterator<Item = &'a TreeNode>) -> Option<usize> {
-    let mut trackers: Vec<BracketTracker> = bracket_types
-        .into_iter()
-        .map(|typ|typ.into())
-        .collect();
+pub fn find_next_match_outside_brackets<'a, IsMatch: Fn(&TreeNode) -> bool>(
+    bracket_types: Vec<BracketType>,
+    is_match: IsMatch,
+    start_index: usize,
+    nodes: impl Iterator<Item = &'a TreeNode>,
+) -> Option<usize> {
+    let mut trackers: Vec<BracketTracker> =
+        bracket_types.into_iter().map(|typ| typ.into()).collect();
 
     'outer: for (index, node) in nodes.enumerate() {
         if index < start_index {
@@ -77,7 +80,7 @@ pub fn find_next_match_outside_brackets<
             }
         }
 
-        return Some(index)
+        return Some(index);
     }
 
     None

@@ -1,4 +1,15 @@
-use crate::{parser::{grammar::GrammarLike, tree::TreeNode, nodes::{document::Document, statements::{simple_statement::SimpleStatement, ret::ReturnStatement}}, tree_nodes::TreeNodes}, lexer::types::{token_type::TokenType, keywords::RETURN}};
+use crate::{
+    lexer::types::{keywords::RETURN, token_type::TokenType},
+    parser::{
+        grammar::GrammarLike,
+        nodes::{
+            document::Document,
+            statements::{ret::ReturnStatement, simple_statement::SimpleStatement},
+        },
+        tree::TreeNode,
+        tree_nodes::TreeNodes,
+    },
+};
 
 pub struct ReturnStatementGrammar {}
 
@@ -13,7 +24,7 @@ impl GrammarLike for ReturnStatementGrammar {
         None
     }
     fn next_match_end(&self, nodes: &TreeNodes, _start_index: usize) -> Option<usize> {
-        Some(nodes.len()-1)
+        Some(nodes.len() - 1)
     }
     fn construct(&self, nodes: TreeNodes) -> TreeNode {
         let statement = ReturnStatement::parse(nodes);

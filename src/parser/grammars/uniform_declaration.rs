@@ -1,6 +1,9 @@
 use crate::parser::nodes::uniform_declaration::UniformDeclaration;
 use crate::parser::tree_nodes::TreeNodes;
-use crate::{parser::{tree::TreeNode, grammar::GrammarLike}, lexer::types::{token_type::TokenType, keywords::UNIFORM}};
+use crate::{
+    lexer::types::{keywords::UNIFORM, token_type::TokenType},
+    parser::{grammar::GrammarLike, tree::TreeNode},
+};
 
 pub struct UniformDeclarationGrammar {}
 
@@ -45,7 +48,7 @@ impl GrammarLike for UniformDeclarationGrammar {
             }
 
             if can_end_uniform_search(&item) {
-                return Some(index)
+                return Some(index);
             }
         }
 

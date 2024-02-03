@@ -1,12 +1,12 @@
 use super::{tree::TreeNode, tree_nodes::TreeNodes};
 
 pub struct Grammar<'a> {
-    inner: Box<dyn GrammarLike + 'a>
+    inner: Box<dyn GrammarLike + 'a>,
 }
 
 pub trait GrammarLike {
     fn next_match_start(&self, _nodes: &TreeNodes) -> Option<usize>;
-    
+
     // range inclusive
     fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize>;
     fn has_match(&self, nodes: &TreeNodes) -> bool {
@@ -23,31 +23,33 @@ pub trait GrammarLike {
             return (None, nodes);
         };
 
-        let inner_nodes = nodes
-            .slice(start_index,end_index+1);
+        let inner_nodes = nodes.slice(start_index, end_index + 1);
 
         let new_node = self.construct(inner_nodes);
 
-        nodes.insert(start_index,new_node.clone());
+        nodes.insert(start_index, new_node.clone());
 
         (Some(new_node), nodes)
     }
     fn process_all(&self, nodes: TreeNodes) -> TreeNodes {
         let mut processed_nodes = nodes;
-        
+
         while self.has_match(&processed_nodes) {
             let (new_node, new_nodes) = self.process_next(processed_nodes);
             processed_nodes = new_nodes;
             if let None = new_node {
                 break;
             }
-        };
+        }
 
         processed_nodes
     }
 }
 
-impl<'a, T> From<T> for Grammar<'a> where T: GrammarLike + 'a {
+impl<'a, T> From<T> for Grammar<'a>
+where
+    T: GrammarLike + 'a,
+{
     fn from(value: T) -> Self {
         let b = Box::new(value);
         Grammar { inner: b }

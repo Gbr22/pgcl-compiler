@@ -7,15 +7,7 @@ pub static STRUCT: &'static str = "struct";
 pub static CONST: &'static str = "const";
 
 pub fn get_keywords() -> Vec<&'static str> {
-    vec![
-        RETURN,
-        UNIFORM,
-        FN,
-        LET,
-        MUT,
-        STRUCT,
-        CONST,
-    ]
+    vec![RETURN, UNIFORM, FN, LET, MUT, STRUCT, CONST]
 }
 pub fn is_keyword(str: &str) -> bool {
     get_keywords().contains(&str)

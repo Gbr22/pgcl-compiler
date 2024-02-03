@@ -1,13 +1,17 @@
-
-
-use crate::{parser::{tree::{TreeNode, ParseError, TreeNodeLike, get_start_index, get_end_index, get_range}, grammars::function_call_arg::FunctionCallArgGrammar, tree_nodes::TreeNodes}, process_grammars, common::range::Range};
-
-
+use crate::{
+    common::range::Range,
+    parser::{
+        grammars::function_call_arg::FunctionCallArgGrammar,
+        tree::{get_end_index, get_range, get_start_index, ParseError, TreeNode, TreeNodeLike},
+        tree_nodes::TreeNodes,
+    },
+    process_grammars,
+};
 
 #[derive(Debug, Clone)]
 pub struct FunctionCallArgs {
     args: Vec<TreeNode>,
-    range: Range
+    range: Range,
 }
 
 impl FunctionCallArgs {
@@ -33,9 +37,7 @@ impl TreeNodeLike for FunctionCallArgs {
         self.range
     }
     fn get_errors(&self) -> Vec<ParseError> {
-        let errors: Vec<ParseError> = self.args.iter()
-            .flat_map(|arg|arg.get_errors())
-            .collect();
+        let errors: Vec<ParseError> = self.args.iter().flat_map(|arg| arg.get_errors()).collect();
 
         errors
     }

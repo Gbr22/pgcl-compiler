@@ -1,32 +1,11 @@
-use crate::{parser::tree::{TreeNodeLike, TreeNode, ParseError, get_range}, lexer::types::token_type::TokenType, common::range::Range};
+use crate::{common::range::Range, parser::tree::TreeNodeLike};
 
-use super::expr::{ExpressionLike, Expression};
+use super::expr::ExpressionLike;
 
 #[derive(Debug, Clone)]
 pub struct ValueAccess {
-    name: String,
-    range: Range,
-}
-
-impl ValueAccess {
-    pub fn parse(node: TreeNode) -> TreeNode {
-        let range = node.get_range();
-
-        let id_error = ParseError::at(range, format!("Expected identifier."));
-        let TreeNode::Token(name) = node else {
-            return id_error.into();
-        };
-        if name.typ != TokenType::Identifier {
-            return id_error.into();
-        }
-        let name = name.string.to_owned();
-
-        let value_access = ValueAccess {
-            name,
-            range
-        };
-        TreeNode::Expression(Expression::ValueAccess(value_access))
-    }
+    pub name: String,
+    pub range: Range,
 }
 
 impl TreeNodeLike for ValueAccess {

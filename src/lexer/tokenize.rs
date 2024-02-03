@@ -2,22 +2,20 @@ use serde_derive::Serialize;
 
 use crate::common::range::Range;
 
-use super::{token::Token, types::{definitions::{get_definitions, get_definition}, token_type::TokenType}};
+use super::{
+    token::Token,
+    types::{
+        definitions::{get_definition, get_definitions},
+        token_type::TokenType,
+    },
+};
 
 fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
     let mut sorted = tokens.clone();
-    sorted.sort_by(|a, b| {
-        a.def().get_priority().cmp(&b.def().get_priority())
-    });
-    let max = sorted.iter()
-        .max_by(|a, b| 
-            a.string
-                .chars()
-                .count()
-                .cmp(
-                    &b.string.chars().count()
-                )
-        );
+    sorted.sort_by(|a, b| a.def().get_priority().cmp(&b.def().get_priority()));
+    let max = sorted
+        .iter()
+        .max_by(|a, b| a.string.chars().count().cmp(&b.string.chars().count()));
     if let Some(max) = max {
         Some(max.to_owned().clone())
     } else {
@@ -28,7 +26,7 @@ fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
 fn clear_and_take_best_token(state: &mut LexerState) -> Option<Token> {
     let old_tokens = state.current_tokens.clone();
     state.current_tokens.clear();
-    
+
     let mut valid_tokens: Vec<&Token> = Vec::new();
     let mut invalid_tokens: Vec<&Token> = Vec::new();
 
@@ -39,10 +37,10 @@ fn clear_and_take_best_token(state: &mut LexerState) -> Option<Token> {
             invalid_tokens.push(&token_state.token);
         }
     }
-    
+
     let max_valid = max_token(&valid_tokens);
     if let Some(max) = max_valid {
-        return Some(max)
+        return Some(max);
     }
 
     let max_invalid = max_token(&invalid_tokens);
@@ -51,7 +49,6 @@ fn clear_and_take_best_token(state: &mut LexerState) -> Option<Token> {
     }
 
     None
-
 }
 
 pub fn flush_tokens(state: &mut LexerState) {
@@ -82,17 +79,16 @@ pub fn flush_tokens(state: &mut LexerState) {
     return;
 }
 
-
 #[derive(Debug, Serialize)]
 pub struct TokenizeResult {
     pub tokens: Vec<Token>,
-    pub failed_tokens: Vec<Token>
+    pub failed_tokens: Vec<Token>,
 }
 
 #[derive(Clone, Debug)]
 pub struct TokenState {
     token: Token,
-    is_finished: bool
+    is_finished: bool,
 }
 impl TokenState {
     fn into_token(self) -> Token {
@@ -106,7 +102,7 @@ pub struct LexerState {
     pub tokens: Vec<Token>,
     pub failed_tokens: Vec<Token>,
     pub current_tokens: Vec<TokenState>,
-    pub index: usize
+    pub index: usize,
 }
 
 impl LexerState {
@@ -118,32 +114,33 @@ impl LexerState {
 pub fn try_extend_tokens(state: &mut LexerState) -> bool {
     let char: char = *(&state.get_char());
     let mut did_extend = false;
-    state.current_tokens = state.current_tokens.iter().map(|token_state: &TokenState| {
-        let token = &token_state.token;
-        let is_finished = token_state.is_finished;
-        let def = token.def();
-        let can_extend = def.check_character(&token.string,char);
-        if can_extend && !is_finished {
-            did_extend = true;
+    state.current_tokens = state
+        .current_tokens
+        .iter()
+        .map(|token_state: &TokenState| {
+            let token = &token_state.token;
+            let is_finished = token_state.is_finished;
+            let def = token.def();
+            let can_extend = def.check_character(&token.string, char);
+            if can_extend && !is_finished {
+                did_extend = true;
 
-            TokenState {
-                token: Token {
-                    typ: token.typ,
-                    string: format!("{}{}",token.string.to_owned(),char),
-                    range: Range::new(
-                        token.range.start_index,
-                        state.index + 1
-                    )
-                },
-                is_finished
+                TokenState {
+                    token: Token {
+                        typ: token.typ,
+                        string: format!("{}{}", token.string.to_owned(), char),
+                        range: Range::new(token.range.start_index, state.index + 1),
+                    },
+                    is_finished,
+                }
+            } else {
+                TokenState {
+                    token: token.clone(),
+                    is_finished: true,
+                }
             }
-        } else {
-            TokenState {
-                token: token.clone(),
-                is_finished: true
-            }
-        }
-    }).collect();
+        })
+        .collect();
 
     if did_extend {
         state.index = state.index + 1;
@@ -161,20 +158,20 @@ pub fn try_create_tokens(state: &mut LexerState) -> bool {
     for typ in get_definitions() {
         let def = get_definition(typ);
 
-        if !def.check_character("",char) {
+        if !def.check_character("", char) {
             continue;
         }
 
         let token = Token {
             typ: typ.to_owned(),
-            string: format!("{}",char),
-            range: Range::new(
-                state.index,
-                state.index + 1
-            )
+            string: format!("{}", char),
+            range: Range::new(state.index, state.index + 1),
         };
 
-        state.current_tokens.push(TokenState { token, is_finished: false });
+        state.current_tokens.push(TokenState {
+            token,
+            is_finished: false,
+        });
         did_create = true;
     }
     if did_create {
@@ -187,7 +184,7 @@ pub fn try_create_tokens(state: &mut LexerState) -> bool {
 pub enum LexerControlFlow {
     Continue,
     Break,
-    FallThrough
+    FallThrough,
 }
 
 pub fn check_is_finished(state: &mut LexerState) -> LexerControlFlow {
@@ -197,9 +194,9 @@ pub fn check_is_finished(state: &mut LexerState) -> LexerControlFlow {
     if state.current_tokens.len() == 0 {
         return LexerControlFlow::Break;
     }
-    
+
     flush_tokens(state);
-    
+
     LexerControlFlow::Continue
 }
 
@@ -210,15 +207,18 @@ pub fn tokenize(input: &str) -> TokenizeResult {
         current_tokens: vec![],
         index: 0,
         input_string: input.to_owned(),
-        input_chars: input.chars().collect()
+        input_chars: input.chars().collect(),
     };
 
-    state.current_tokens.push(TokenState { token: Token {
-        string: "".to_owned(),
-        typ: TokenType::StartOfInput,
-        range: Range::null()
-    }, is_finished: true });
-    
+    state.current_tokens.push(TokenState {
+        token: Token {
+            string: "".to_owned(),
+            typ: TokenType::StartOfInput,
+            range: Range::null(),
+        },
+        is_finished: true,
+    });
+
     loop {
         let flow = check_is_finished(&mut state);
         if let LexerControlFlow::Continue = flow {
@@ -244,6 +244,6 @@ pub fn tokenize(input: &str) -> TokenizeResult {
 
     TokenizeResult {
         tokens: state.tokens,
-        failed_tokens: state.failed_tokens
+        failed_tokens: state.failed_tokens,
     }
 }

@@ -1,9 +1,21 @@
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::{GrammarLike}, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar, find_args_start, find_args_end}}, tree_nodes::TreeNodes}, process_grammars, common::range::Range};
+use crate::{
+    common::range::Range,
+    parser::{
+        grammar::GrammarLike,
+        grammars::{
+            function_declaration::{find_args_end, find_args_start, FunctionDeclarationGrammar},
+            uniform_declaration::UniformDeclarationGrammar,
+        },
+        tree::{get_end_index, get_range, get_start_index, ParseError, TreeNode, TreeNodeLike},
+        tree_nodes::TreeNodes,
+    },
+    process_grammars,
+};
 
 #[derive(Debug, Clone)]
 pub struct Document {
     range: Range,
-    children: Vec<TreeNode>
+    children: Vec<TreeNode>,
 }
 
 impl Document {
@@ -14,7 +26,7 @@ impl Document {
             UniformDeclarationGrammar,
             FunctionDeclarationGrammar
         ] };
-        
+
         let document = Document {
             range,
             children: nodes.into_vec(),

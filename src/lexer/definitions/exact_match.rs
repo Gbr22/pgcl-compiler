@@ -2,12 +2,14 @@ use super::token_def::TokenDef;
 
 #[derive(Clone)]
 pub struct ExactMatchDef {
-    pub string: String
+    pub string: String,
 }
 impl TokenDef for ExactMatchDef {
-    fn get_priority(&self) -> i32 { 0 }
+    fn get_priority(&self) -> i32 {
+        0
+    }
     fn check_character(&self, current: &str, char: char) -> bool {
-        let new = format!("{}{}",current,char);
+        let new = format!("{}{}", current, char);
         let new_char_count = new.chars().count();
 
         if new_char_count > self.string.chars().count() {

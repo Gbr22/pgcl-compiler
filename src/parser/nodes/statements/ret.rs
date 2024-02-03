@@ -1,15 +1,28 @@
 use std::collections::VecDeque;
 
-use crate::{parser::{tree::{TreeNode, TreeNodeLike, ParseError, get_start_index, get_end_index, get_range}, grammar::GrammarLike, grammars::{uniform_declaration::UniformDeclarationGrammar, function_declaration::{FunctionDeclarationGrammar}}, nodes::expressions::expr::Expression, tree_nodes::TreeNodes}, lexer::types::{keywords::RETURN, token_type::TokenType}, common::range::Range};
+use crate::{
+    common::range::Range,
+    lexer::types::{keywords::RETURN, token_type::TokenType},
+    parser::{
+        grammar::GrammarLike,
+        grammars::{
+            function_declaration::FunctionDeclarationGrammar,
+            uniform_declaration::UniformDeclarationGrammar,
+        },
+        nodes::expressions::expr::Expression,
+        tree::{get_end_index, get_range, get_start_index, ParseError, TreeNode, TreeNodeLike},
+        tree_nodes::TreeNodes,
+    },
+};
 
-use super::statement::{StatementLike, Statement};
+use super::statement::{Statement, StatementLike};
 use crate::pop_back_node;
 use crate::pop_front_node;
 
 #[derive(Debug, Clone)]
 pub struct ReturnStatement {
     range: Range,
-    expr: Box<TreeNode>
+    expr: Box<TreeNode>,
 }
 
 impl ReturnStatement {
@@ -20,10 +33,9 @@ impl ReturnStatement {
             nodes,
             "Expected `return` keyword.",
             Some(TreeNode::Token(return_keyword)),
-            return_keyword.typ == TokenType::Identifier
-            && return_keyword.string == RETURN
+            return_keyword.typ == TokenType::Identifier && return_keyword.string == RETURN
         );
-        
+
         pop_back_node!(
             nodes,
             "Semicolon expected at end of return statement.",
@@ -35,7 +47,7 @@ impl ReturnStatement {
 
         let statement = ReturnStatement {
             range,
-            expr: Box::new(expr)
+            expr: Box::new(expr),
         };
 
         TreeNode::Statement(Statement::ReturnStatement(statement))

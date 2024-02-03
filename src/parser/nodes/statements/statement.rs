@@ -1,4 +1,4 @@
-use crate::parser::tree::{TreeNode, TreeNodeLike, ParseError};
+use crate::parser::tree::{ParseError, TreeNode, TreeNodeLike};
 
 use super::ret::ReturnStatement;
 use super::simple_statement::SimpleStatement;
