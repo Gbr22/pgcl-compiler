@@ -52,9 +52,9 @@ pub fn tokenize(input: &str) -> TokenizeResult {
     }
 }
 
-impl Into<Token> for RustToken {
-    fn into(self) -> Token {
-        Token { token: self }
+impl From<RustToken> for Token {
+    fn from(val: RustToken) -> Self {
+        Token { token: val }
     }
 }
 

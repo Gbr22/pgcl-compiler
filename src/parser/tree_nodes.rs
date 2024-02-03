@@ -30,15 +30,12 @@ fn calculate_new_ranges(
         right_range.start_index = right_first.get_range().start_index;
     }
 
-    return (left_range, right_range);
+    (left_range, right_range)
 }
 
 impl TreeNodes {
     pub fn new(range: Range, nodes: Vec<TreeNode>) -> TreeNodes {
-        TreeNodes {
-            range,
-            vec: nodes.into(),
-        }
+        TreeNodes { range, vec: nodes }
     }
     pub fn iter(&self) -> Iter<'_, TreeNode> {
         let iter = self.vec.iter();
@@ -88,7 +85,7 @@ impl TreeNodes {
         self
     }
     pub fn slice(&mut self, start_inclusive: usize, end_exclusive: usize) -> TreeNodes {
-        if self.vec.len() == 0 {
+        if self.vec.is_empty() {
             // There are no nodes.
             // It doesn't matter where we take the slice from.
             // The clone will keep the range data and have an empty vector.
@@ -138,7 +135,7 @@ impl TreeNodes {
                       */
 
                 let right = self.slice_right(self.vec.len() - end_exclusive);
-                let left = self.slice_left(0 + start_inclusive);
+                let left = self.slice_left(start_inclusive);
                 let middle = self.clone();
                 let union = left.append(right);
 
@@ -222,7 +219,11 @@ impl TreeNodes {
 
         let mut iter = self.vec.into_iter();
         let Some(one) = iter.next() else {
-            return ParseError::at(self.range, format!("Not enough items. Expected one, got zero.")).into(); 
+            return ParseError::at(
+                self.range,
+                "Not enough items. Expected one, got zero.".to_string(),
+            )
+            .into();
         };
 
         one

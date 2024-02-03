@@ -54,8 +54,7 @@ impl TreeNode {
         let string = format!("{:#?}", self);
 
         let string = string
-            .split("\n")
-            .into_iter()
+            .split('\n')
             .map(|line| {
                 let space_count = line.chars().take_while(|char| char == &' ').count();
 
@@ -78,7 +77,7 @@ impl TreeNode {
 pub trait TreeNodeLike {
     fn get_range(&self) -> Range;
     fn get_errors(&self) -> Vec<ParseError> {
-        return vec![];
+        vec![]
     }
 }
 
@@ -103,7 +102,7 @@ impl ParseError {
     }
     pub fn at(range: Range, text: impl Into<String>) -> ParseError {
         ParseError {
-            range: range,
+            range,
             text: text.into(),
         }
     }
@@ -115,9 +114,9 @@ impl ParseError {
     }
 }
 
-impl Into<TreeNode> for ParseError {
-    fn into(self) -> TreeNode {
-        TreeNode::ParseError(self)
+impl From<ParseError> for TreeNode {
+    fn from(val: ParseError) -> Self {
+        TreeNode::ParseError(val)
     }
 }
 

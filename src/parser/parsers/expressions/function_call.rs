@@ -43,7 +43,7 @@ impl Parser for FunctionCallParser {
         let args = FunctionCallArgsParser::parse(arg_nodes);
 
         let call = FunctionCall {
-            name: name,
+            name,
             range,
             args: Box::new(args),
         };

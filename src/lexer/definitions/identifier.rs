@@ -9,7 +9,7 @@ impl TokenDef for IdentifierDef {
     fn check_character(&self, current: &str, char: char) -> bool {
         let new = format!("{}{}", current, char);
 
-        Self::is_valid(&self, &new)
+        Self::is_valid(self, &new)
     }
 
     fn is_valid(&self, r#final: &str) -> bool {

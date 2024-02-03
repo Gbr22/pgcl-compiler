@@ -12,15 +12,11 @@ use super::{
 
 fn max_token(tokens: &Vec<&Token>) -> Option<Token> {
     let mut sorted = tokens.clone();
-    sorted.sort_by(|a, b| a.def().get_priority().cmp(&b.def().get_priority()));
+    sorted.sort_by_key(|a| a.def().get_priority());
     let max = sorted
         .iter()
         .max_by(|a, b| a.string.chars().count().cmp(&b.string.chars().count()));
-    if let Some(max) = max {
-        Some(max.to_owned().clone())
-    } else {
-        None
-    }
+    max.map(|max| max.to_owned().clone())
 }
 
 fn clear_and_take_best_token(state: &mut LexerState) -> Option<Token> {
@@ -76,7 +72,6 @@ pub fn flush_tokens(state: &mut LexerState) {
     // successfully recovered a valid token
     state.index = valid_sub_token.range.end_index;
     state.tokens.push(valid_sub_token);
-    return;
 }
 
 #[derive(Debug, Serialize)]
@@ -112,7 +107,7 @@ impl LexerState {
 }
 
 pub fn try_extend_tokens(state: &mut LexerState) -> bool {
-    let char: char = *(&state.get_char());
+    let char: char = state.get_char();
     let mut did_extend = false;
     state.current_tokens = state
         .current_tokens
@@ -143,14 +138,14 @@ pub fn try_extend_tokens(state: &mut LexerState) -> bool {
         .collect();
 
     if did_extend {
-        state.index = state.index + 1;
+        state.index += 1;
     }
 
     did_extend
 }
 
 pub fn try_create_tokens(state: &mut LexerState) -> bool {
-    if state.current_tokens.len() != 0 {
+    if !state.current_tokens.is_empty() {
         return false;
     }
     let char = state.get_char();
@@ -175,7 +170,7 @@ pub fn try_create_tokens(state: &mut LexerState) -> bool {
         did_create = true;
     }
     if did_create {
-        state.index = state.index + 1;
+        state.index += 1;
     };
 
     did_create
@@ -191,7 +186,7 @@ pub fn check_is_finished(state: &mut LexerState) -> LexerControlFlow {
     if state.index < state.input_chars.len() {
         return LexerControlFlow::FallThrough;
     }
-    if state.current_tokens.len() == 0 {
+    if state.current_tokens.is_empty() {
         return LexerControlFlow::Break;
     }
 

@@ -7,7 +7,7 @@ impl TokenDef for BlockCommentDef {
         -1
     }
     fn check_character(&self, current: &str, char: char) -> bool {
-        if current.len() == 0 {
+        if current.is_empty() {
             return char == '/';
         }
         if current.len() == 1 {

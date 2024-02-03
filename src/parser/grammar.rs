@@ -73,7 +73,7 @@ macro_rules! process_grammars {
             let grammar_nodes = vec![
                 $( ($grammar {}).into() ),*
             ];
-            crate::parser::grammar::process_grammars(grammar_nodes, $existing_nodes)
+            $crate::parser::grammar::process_grammars(grammar_nodes, $existing_nodes)
         }
     };
 }

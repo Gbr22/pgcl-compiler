@@ -13,9 +13,6 @@ impl TokenDef for MatchAnyDef {
     }
 
     fn is_valid(&self, r#final: &str) -> bool {
-        r#final
-            .chars()
-            .into_iter()
-            .all(|char| self.chars.contains(&char))
+        r#final.chars().all(|char| self.chars.contains(&char))
     }
 }

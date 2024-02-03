@@ -6,7 +6,7 @@ use crate::{
         tree::{ParseError, TreeNode},
         tree_nodes::TreeNodes,
     },
-    try_nodes_into_one, try_nodes_into_one_with_message,
+    try_nodes_into_one_with_message,
 };
 
 pub struct SimpleTypeParser {}

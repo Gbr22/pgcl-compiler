@@ -14,8 +14,8 @@ fn remove_whitespace(nodes: Vec<TreeNode>) -> Vec<TreeNode> {
         .into_iter()
         .filter(|node| {
             let TreeNode::Token(token) = node else {
-            return true;
-        };
+                return true;
+            };
 
             if is_ignored_token_type(&token.typ) {
                 return false;
@@ -37,9 +37,7 @@ pub fn parse(tokens: &[Token]) -> TreeNode {
     let nodes = remove_whitespace(nodes);
     let nodes = TreeNodes::new(range, nodes);
 
-    let document = DocumentParser::parse(nodes);
-
-    document
+    DocumentParser::parse(nodes)
 }
 
 pub trait Parser {

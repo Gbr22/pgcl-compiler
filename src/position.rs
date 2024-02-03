@@ -18,11 +18,11 @@ pub fn get_position(text: &str, index: usize) -> Position {
         }
         if char == '\n' {
             col = 0;
-            row = row + 1;
+            row += 1;
         } else {
-            col = col + 1;
+            col += 1;
         }
-        i = i + 1;
+        i += 1;
     }
 
     Position { row, col }

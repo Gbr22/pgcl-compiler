@@ -1,16 +1,6 @@
-use super::{block::Block, types::typ::Type};
-use crate::pop_front_node;
 use crate::{
     common::range::Range,
-    lexer::types::{
-        keywords::{is_keyword, FN, UNIFORM},
-        token_type::TokenType,
-    },
-    parser::{
-        grammars::function_declaration::{find_args_end, find_body_end, find_body_start},
-        tree::{get_end_index, get_range, get_start_index, ParseError, TreeNode, TreeNodeLike},
-        tree_nodes::TreeNodes,
-    },
+    parser::tree::{ParseError, TreeNode, TreeNodeLike},
 };
 
 #[derive(Debug, Clone)]

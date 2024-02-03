@@ -16,7 +16,7 @@ impl TokenDef for NumberDef {
         let mut dot_count = 0;
         for c in current.chars() {
             if c == '.' {
-                dot_count = dot_count + 1;
+                dot_count += 1;
             }
         }
         if dot_count >= 1 && char == '.' {
@@ -43,7 +43,7 @@ impl TokenDef for NumberDef {
                 ));
             }
             if char == '.' {
-                dot_count = dot_count + 1;
+                dot_count += 1;
             }
         }
         if dot_count > 1 {

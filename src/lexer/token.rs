@@ -28,11 +28,11 @@ impl Token {
         let def = self.def();
         let is_valid = def.is_valid(&self.string);
         if is_valid {
-            return format!("Token is valid. You should not see this.");
+            return "Token is valid. You should not see this.".to_string();
         }
         let msg = def.get_error_message(&self.string);
         let Some(msg) = msg else {
-            return format!("Token ({:?}): {:?} is invalid.",self.typ,self.string);
+            return format!("Token ({:?}): {:?} is invalid.", self.typ, self.string);
         };
 
         msg

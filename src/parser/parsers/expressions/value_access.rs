@@ -17,7 +17,7 @@ impl Parser for ValueAccessParser {
 
         let range = node.get_range();
 
-        let id_error = ParseError::at(range, format!("Expected identifier."));
+        let id_error = ParseError::at(range, "Expected identifier.".to_string());
         let TreeNode::Token(name) = node else {
             return id_error.into();
         };

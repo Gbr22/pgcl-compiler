@@ -1,19 +1,17 @@
-use crate::parser::nodes::types::typ::Type;
 use crate::parser::nodes::uniform_declaration::UniformDeclaration;
 use crate::parser::parse::Parser;
 use crate::parser::parsers::types::typ::TypeParser;
 use crate::pop_back_node;
 use crate::pop_front_node;
-use std::collections::VecDeque;
 
 use crate::{
-    common::range::{Len, Range},
+    common::range::Range,
     lexer::types::{
         keywords::{is_keyword, UNIFORM},
         token_type::TokenType,
     },
     parser::{
-        tree::{get_range, ParseError, TreeNode, TreeNodeLike},
+        tree::{ParseError, TreeNode, TreeNodeLike},
         tree_nodes::TreeNodes,
     },
 };
@@ -57,7 +55,7 @@ impl Parser for UniformDeclarationParser {
         if type_nodes.len() == 0 {
             return ParseError::at(
                 Range::between(colon.get_range(), semi_colon.get_range()),
-                format!("Uniform type must not be empty."),
+                "Uniform type must not be empty.".to_string(),
             )
             .into();
         }

@@ -1,12 +1,8 @@
 use crate::{
     lexer::types::{keywords::is_keyword, token_type::TokenType},
     parser::{
-        grammar::GrammarLike,
-        nodes::types::simple::SimpleType,
-        parse::Parser,
-        parsers::types::simple::SimpleTypeParser,
-        tree::{ParseError, TreeNode},
-        tree_nodes::TreeNodes,
+        grammar::GrammarLike, parse::Parser, parsers::types::simple::SimpleTypeParser,
+        tree::TreeNode, tree_nodes::TreeNodes,
     },
     use_parser,
 };

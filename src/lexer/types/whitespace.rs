@@ -6,5 +6,5 @@ pub fn get_whitespace() -> Vec<TokenType> {
 }
 
 pub fn is_whitespace(typ: &TokenType) -> bool {
-    get_whitespace().contains(&typ)
+    get_whitespace().contains(typ)
 }

@@ -1,8 +1,7 @@
-use super::typ::{Type, TypeLike};
+use super::typ::TypeLike;
 use crate::common::range::Range;
-use crate::lexer::types::keywords::is_keyword;
-use crate::lexer::types::token_type::TokenType;
-use crate::parser::tree::{ParseError, TreeNode, TreeNodeLike};
+
+use crate::parser::tree::TreeNodeLike;
 
 #[derive(Debug, Clone)]
 pub struct SimpleType {

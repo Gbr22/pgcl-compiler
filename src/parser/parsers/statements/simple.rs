@@ -1,10 +1,7 @@
 use crate::{
     lexer::types::token_type::TokenType,
     parser::{
-        nodes::{
-            expressions::expr::Expression,
-            statements::{simple::SimpleStatement, statement::Statement},
-        },
+        nodes::statements::{simple::SimpleStatement, statement::Statement},
         parse::Parser,
         parsers::expressions::expr::ExpressionParser,
         tree::TreeNode,

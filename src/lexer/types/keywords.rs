@@ -1,10 +1,10 @@
-pub static RETURN: &'static str = "return";
-pub static UNIFORM: &'static str = "uniform";
-pub static FN: &'static str = "fn";
-pub static LET: &'static str = "let";
-pub static MUT: &'static str = "mut";
-pub static STRUCT: &'static str = "struct";
-pub static CONST: &'static str = "const";
+pub static RETURN: &str = "return";
+pub static UNIFORM: &str = "uniform";
+pub static FN: &str = "fn";
+pub static LET: &str = "let";
+pub static MUT: &str = "mut";
+pub static STRUCT: &str = "struct";
+pub static CONST: &str = "const";
 
 pub fn get_keywords() -> Vec<&'static str> {
     vec![RETURN, UNIFORM, FN, LET, MUT, STRUCT, CONST]

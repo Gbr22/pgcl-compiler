@@ -15,5 +15,5 @@ pub fn get_ignored_token_types() -> Vec<TokenType> {
 }
 
 pub fn is_ignored_token_type(typ: &TokenType) -> bool {
-    get_ignored_token_types().contains(&typ)
+    get_ignored_token_types().contains(typ)
 }

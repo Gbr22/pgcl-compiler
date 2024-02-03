@@ -15,17 +15,17 @@ impl Parser for ExpressionParser {
         ] };
 
         if nodes.len() == 0 {
-            return ParseError::at(range, format!("Expected expression")).into();
+            return ParseError::at(range, "Expected expression".to_string()).into();
         }
 
         if nodes.len() > 1 {
             return ParseError::at(
                 range,
-                format!("Multiple expressions detected. Expected one."),
+                "Multiple expressions detected. Expected one.".to_string(),
             )
             .into();
         }
 
-        return nodes.into_first().unwrap();
+        nodes.into_first().unwrap()
     }
 }

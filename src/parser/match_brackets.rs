@@ -12,9 +12,9 @@ pub fn find_bracket_end<'a>(
             continue;
         }
         if (bracket_type.is_opening)(node) {
-            opening_count = opening_count + 1;
+            opening_count += 1;
         } else if (bracket_type.is_closing)(node) {
-            closing_count = closing_count + 1;
+            closing_count += 1;
         }
 
         if opening_count == closing_count {
@@ -29,20 +29,17 @@ pub struct BracketTracker {
     pub depth: isize,
     pub typ: BracketType,
 }
-impl Into<BracketTracker> for BracketType {
-    fn into(self) -> BracketTracker {
-        BracketTracker {
-            depth: 0,
-            typ: self,
-        }
+impl From<BracketType> for BracketTracker {
+    fn from(val: BracketType) -> Self {
+        BracketTracker { depth: 0, typ: val }
     }
 }
 pub fn track_bracket_depth(tracker: &mut BracketTracker, node: &TreeNode) {
     if (tracker.typ.is_opening)(node) {
-        tracker.depth = tracker.depth + 1;
+        tracker.depth += 1;
     }
     if (tracker.typ.is_closing)(node) {
-        tracker.depth = tracker.depth - 1;
+        tracker.depth -= 1;
     }
 }
 

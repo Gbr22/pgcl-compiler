@@ -1,20 +1,7 @@
-use crate::pop_back_node;
-use crate::pop_front_node;
-use std::collections::VecDeque;
-
 use crate::{
-    common::range::{Len, Range},
-    lexer::types::{
-        keywords::{is_keyword, UNIFORM},
-        token_type::TokenType,
-    },
-    parser::{
-        tree::{get_range, ParseError, TreeNode, TreeNodeLike},
-        tree_nodes::TreeNodes,
-    },
+    common::range::Range,
+    parser::tree::{ParseError, TreeNode, TreeNodeLike},
 };
-
-use super::types::typ::Type;
 
 #[derive(Debug, Clone)]
 pub struct UniformDeclaration {
@@ -35,6 +22,6 @@ impl TreeNodeLike for UniformDeclaration {
             return vec![];
         };
 
-        return vec![error];
+        vec![error]
     }
 }

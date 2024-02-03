@@ -17,7 +17,7 @@ pub trait TokenDef {
                 return None;
             }
             clone.string.pop();
-            clone.range.end_index = clone.range.end_index - 1;
+            clone.range.end_index -= 1;
         }
     }
 }

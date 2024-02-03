@@ -1,8 +1,8 @@
 use crate::{
     lexer::types::token_type::TokenType,
     parser::{
-        brackets::{curly_bracket, round_bracket, square_bracket, BracketType},
-        match_brackets::{find_next_match_outside_brackets, BracketTracker},
+        brackets::{curly_bracket, round_bracket, square_bracket},
+        match_brackets::find_next_match_outside_brackets,
         tree::TreeNode,
     },
 };
