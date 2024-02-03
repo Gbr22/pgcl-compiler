@@ -24,4 +24,7 @@ impl TreeNodeLike for UniformDeclaration {
 
         vec![error]
     }
+    fn children(&self) -> Vec<&TreeNode> {
+        vec![&self.typ]
+    }
 }

@@ -21,4 +21,7 @@ impl TreeNodeLike for Block {
 
         errors
     }
+    fn children(&self) -> Vec<&TreeNode> {
+        return self.children.iter().collect();
+    }
 }

@@ -1,3 +1,6 @@
+use std::slice::Iter;
+use std::vec::{self, IntoIter};
+
 use crate::common::range::Range;
 use crate::lexer::token::Token;
 use crate::lexer::types::token_type::TokenType;
@@ -78,6 +81,23 @@ pub trait TreeNodeLike {
     fn get_range(&self) -> Range;
     fn get_errors(&self) -> Vec<ParseError> {
         vec![]
+    }
+    fn children(&self) -> Vec<&TreeNode> {
+        return vec![];
+    }
+    fn descendants(&self) -> Vec<&TreeNode> {
+        let children: Vec<&TreeNode> = self.children();
+        let mut descendants: Vec<&TreeNode> = vec![];
+
+        for child in children {
+            descendants.push(child);
+            descendants.extend(child.descendants())
+        }
+
+        descendants
+    }
+    fn iter(&self) -> <Vec<&TreeNode> as IntoIterator>::IntoIter {
+        return self.descendants().into_iter();
     }
 }
 

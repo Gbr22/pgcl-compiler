@@ -18,6 +18,9 @@ impl TreeNodeLike for SimpleStatement {
     fn get_errors(&self) -> Vec<ParseError> {
         self.expr.get_errors()
     }
+    fn children(&self) -> Vec<&TreeNode> {
+        vec![&self.expr]
+    }
 }
 
 impl StatementLike for SimpleStatement {

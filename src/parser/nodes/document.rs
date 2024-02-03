@@ -23,4 +23,7 @@ impl TreeNodeLike for Document {
 
         errors
     }
+    fn children(&self) -> Vec<&TreeNode> {
+        return self.children.iter().collect();
+    }
 }

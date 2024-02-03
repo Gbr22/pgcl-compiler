@@ -19,4 +19,7 @@ impl TreeNodeLike for Type {
     fn get_errors(&self) -> Vec<ParseError> {
         self.to_node_like().get_errors()
     }
+    fn children(&self) -> Vec<&crate::parser::tree::TreeNode> {
+        self.to_node_like().children()
+    }
 }

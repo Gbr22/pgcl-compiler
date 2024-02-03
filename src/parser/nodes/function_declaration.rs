@@ -24,4 +24,7 @@ impl TreeNodeLike for FunctionDeclaration {
 
         errors
     }
+    fn children(&self) -> Vec<&TreeNode> {
+        vec![&self.return_type,&self.body]
+    }
 }

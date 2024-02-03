@@ -18,4 +18,7 @@ impl TreeNodeLike for FunctionCallArgs {
 
         errors
     }
+    fn children(&self) -> Vec<&TreeNode> {
+        self.args.iter().collect()
+    }
 }

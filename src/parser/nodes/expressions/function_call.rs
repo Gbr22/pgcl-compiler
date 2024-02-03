@@ -20,6 +20,9 @@ impl TreeNodeLike for FunctionCall {
     fn get_errors(&self) -> Vec<ParseError> {
         self.args.get_errors()
     }
+    fn children(&self) -> Vec<&TreeNode> {
+        vec![&self.args]
+    }
 }
 
 impl ExpressionLike for FunctionCall {
