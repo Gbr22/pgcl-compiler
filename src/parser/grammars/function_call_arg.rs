@@ -3,15 +3,19 @@ use crate::parser::brackets::{curly_bracket, round_bracket};
 use crate::parser::match_brackets::find_bracket_end;
 use crate::parser::nodes::comma_separator::find_next_comma_outside_brackets;
 use crate::parser::nodes::function_call_arg::FunctionCallArg;
+use crate::parser::parsers::function_call_arg::FunctionCallArgParser;
 use crate::parser::tree_nodes::TreeNodes;
+use crate::use_parser;
 use crate::{
-    lexer::types::{keywords::UNIFORM, token_type::TokenType},
+    parser::parse::Parser,
     parser::{grammar::GrammarLike, tree::TreeNode},
 };
 
 pub struct FunctionCallArgGrammar {}
 
 impl GrammarLike for FunctionCallArgGrammar {
+    use_parser!(FunctionCallArgParser);
+
     fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         if nodes.len() == 0 {
             return None;
@@ -35,9 +39,5 @@ impl GrammarLike for FunctionCallArgGrammar {
             Some(index) => Some(index),
             None => Some(nodes.len() - 1),
         }
-    }
-
-    fn construct(&self, nodes: TreeNodes) -> TreeNode {
-        FunctionCallArg::parse(nodes)
     }
 }

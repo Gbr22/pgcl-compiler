@@ -1,11 +1,9 @@
 use crate::{
     lexer::types::{keywords::is_keyword, token_type::TokenType},
     parser::{
-        nodes::{
-            expressions::{expr::Expression, function_call::FunctionCall},
-            function_call_args::FunctionCallArgs,
-        },
+        nodes::expressions::{expr::Expression, function_call::FunctionCall},
         parse::Parser,
+        parsers::function_call_args::FunctionCallArgsParser,
         tree::TreeNode,
         tree_nodes::TreeNodes,
     },
@@ -42,7 +40,7 @@ impl Parser for FunctionCallParser {
         );
 
         let arg_nodes: TreeNodes = nodes;
-        let args = FunctionCallArgs::parse(arg_nodes);
+        let args = FunctionCallArgsParser::parse(arg_nodes);
 
         let call = FunctionCall {
             name: name,

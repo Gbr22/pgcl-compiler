@@ -2,15 +2,20 @@ use crate::{
     lexer::types::{keywords::is_keyword, token_type::TokenType},
     parser::{
         grammar::GrammarLike,
-        nodes::{document::Document, types::simple::SimpleType},
+        nodes::types::simple::SimpleType,
+        parse::Parser,
+        parsers::types::simple::SimpleTypeParser,
         tree::{ParseError, TreeNode},
         tree_nodes::TreeNodes,
     },
+    use_parser,
 };
 
 pub struct SimpleTypeGrammar {}
 
 impl GrammarLike for SimpleTypeGrammar {
+    use_parser!(SimpleTypeParser);
+
     fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             let TreeNode::Token(token) = node else {
@@ -27,18 +32,5 @@ impl GrammarLike for SimpleTypeGrammar {
     }
     fn next_match_end(&self, _nodes: &TreeNodes, start_index: usize) -> Option<usize> {
         Some(start_index)
-    }
-    fn construct(&self, nodes: TreeNodes) -> TreeNode {
-        if nodes.len() > 1 {
-            return ParseError::at(
-                nodes.range,
-                format!("Multiple types detected where only one is expected."),
-            )
-            .into();
-        }
-        if nodes.len() == 0 {
-            return ParseError::at(nodes.range, format!("Type expected.")).into();
-        }
-        SimpleType::parse(nodes.into_first().unwrap())
     }
 }

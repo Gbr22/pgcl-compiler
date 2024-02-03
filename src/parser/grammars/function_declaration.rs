@@ -1,10 +1,12 @@
 use crate::lexer::types::keywords::FN;
 use crate::parser::brackets::{curly_bracket, round_bracket};
 use crate::parser::match_brackets::find_bracket_end;
-use crate::parser::nodes::function_declaration::FunctionDeclaration;
+use crate::parser::parsers::function_declaration::FunctionDeclarationParser;
 use crate::parser::tree_nodes::TreeNodes;
+use crate::use_parser;
 use crate::{
-    lexer::types::{keywords::UNIFORM, token_type::TokenType},
+    lexer::types::token_type::TokenType,
+    parser::parse::Parser,
     parser::{grammar::GrammarLike, tree::TreeNode},
 };
 
@@ -54,6 +56,8 @@ pub fn find_body_end<'a>(
 }
 
 impl GrammarLike for FunctionDeclarationGrammar {
+    use_parser!(FunctionDeclarationParser);
+
     fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             if node.is_keyword(FN) {
@@ -71,9 +75,5 @@ impl GrammarLike for FunctionDeclarationGrammar {
         let body_end = find_body_end(body_start, nodes.iter())?;
 
         Some(body_end)
-    }
-
-    fn construct(&self, nodes: TreeNodes) -> TreeNode {
-        FunctionDeclaration::parse(nodes)
     }
 }

@@ -15,34 +15,6 @@ trait_enum! {
     }
 }
 
-impl Type {
-    pub fn parse(nodes: TreeNodes) -> TreeNode {
-        let nodes = process_grammars! { nodes [
-            SimpleTypeGrammar
-        ] };
-
-        if nodes.len() > 1 {
-            return ParseError::at(
-                nodes.range,
-                format!(
-                    "Could not combine types. Multiple types detected where only one is expected."
-                ),
-            )
-            .into();
-        }
-        if nodes.len() == 0 {
-            return ParseError::at(
-                nodes.range,
-                format!("Could not parse type. Expected type, found nothing."),
-            )
-            .into();
-        }
-        let node = nodes.into_first().unwrap();
-
-        node
-    }
-}
-
 pub trait TypeLike {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike>;
 }

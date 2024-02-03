@@ -4,10 +4,8 @@ use crate::{
 };
 
 use super::{
-    grammar::GrammarLike,
-    grammars::document::DocumentGrammar,
-    nodes::document::Document,
-    tree::{get_range, ParseError, TreeNode},
+    parsers::document::DocumentParser,
+    tree::{get_range, TreeNode},
     tree_nodes::TreeNodes,
 };
 
@@ -39,11 +37,7 @@ pub fn parse(tokens: &[Token]) -> TreeNode {
     let nodes = remove_whitespace(nodes);
     let nodes = TreeNodes::new(range, nodes);
 
-    let grammar = DocumentGrammar {};
-    if !grammar.has_match(&nodes) {
-        return ParseError::new("Document is empty").into();
-    }
-    let document = Document::parse(nodes);
+    let document = DocumentParser::parse(nodes);
 
     document
 }

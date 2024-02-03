@@ -1,22 +1,23 @@
 use crate::{
     lexer::types::token_type::TokenType,
     parser::{
-        grammar::GrammarLike,
-        nodes::{document::Document, statements::simple_statement::SimpleStatement},
-        tree::TreeNode,
-        tree_nodes::TreeNodes,
+        grammar::GrammarLike, parse::Parser, parsers::statements::simple::SimpleStatementParser,
+        tree::TreeNode, tree_nodes::TreeNodes,
     },
+    use_parser,
 };
 
 pub struct SimpleStatementGrammar {}
 
 impl GrammarLike for SimpleStatementGrammar {
+    use_parser!(SimpleStatementParser);
+
     fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         if nodes.len() == 0 {
             return None;
         }
         for (index, node) in nodes.iter().enumerate() {
-            if let TreeNode::Statement(simple_statement) = node {
+            if let TreeNode::Statement(_) = node {
                 continue;
             }
             return Some(index);
@@ -35,10 +36,5 @@ impl GrammarLike for SimpleStatementGrammar {
         }
 
         None
-    }
-    fn construct(&self, nodes: TreeNodes) -> TreeNode {
-        let statement = SimpleStatement::parse(nodes);
-
-        statement
     }
 }

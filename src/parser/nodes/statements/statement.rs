@@ -1,7 +1,7 @@
 use crate::parser::tree::{ParseError, TreeNode, TreeNodeLike};
 
 use super::ret::ReturnStatement;
-use super::simple_statement::SimpleStatement;
+use super::simple::SimpleStatement;
 
 trait_enum! {
     #[derive(Debug, Clone)]

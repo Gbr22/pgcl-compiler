@@ -6,30 +6,11 @@ use crate::parser::tree::{ParseError, TreeNode, TreeNodeLike};
 
 #[derive(Debug, Clone)]
 pub struct SimpleType {
-    range: Range,
-    name: String,
+    pub range: Range,
+    pub name: String,
 }
 
-impl SimpleType {
-    pub fn parse(node: TreeNode) -> TreeNode {
-        let range = node.get_range();
-
-        let id_error = ParseError::at(range, format!("Expected simple type, got {:?}.", node));
-
-        let TreeNode::Token(token) = node else {
-            return id_error.into();
-        };
-        if token.typ != TokenType::Identifier || is_keyword(&token.string) {
-            return id_error.into();
-        }
-
-        let name = token.string;
-
-        let typ = SimpleType { name, range };
-
-        TreeNode::Type(Type::SimpleType(typ))
-    }
-}
+impl SimpleType {}
 
 impl TreeNodeLike for SimpleType {
     fn get_range(&self) -> Range {

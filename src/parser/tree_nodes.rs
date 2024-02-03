@@ -227,4 +227,20 @@ impl TreeNodes {
 
         one
     }
+    pub fn into_one_with_message(
+        self,
+        zero: impl Into<String>,
+        many: impl Into<String>,
+    ) -> TreeNode {
+        if self.len() > 1 {
+            return ParseError::at(self.range, zero.into()).into();
+        }
+
+        let mut iter = self.vec.into_iter();
+        let Some(one) = iter.next() else {
+            return ParseError::at(self.range, many.into()).into();
+        };
+
+        one
+    }
 }

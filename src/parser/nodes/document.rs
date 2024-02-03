@@ -14,27 +14,11 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct Document {
-    range: Range,
-    children: Vec<TreeNode>,
+    pub range: Range,
+    pub children: Vec<TreeNode>,
 }
 
-impl Document {
-    pub fn parse(nodes: TreeNodes) -> TreeNode {
-        let range = nodes.range;
-
-        let nodes = process_grammars! { nodes [
-            UniformDeclarationGrammar,
-            FunctionDeclarationGrammar
-        ] };
-
-        let document = Document {
-            range,
-            children: nodes.into_vec(),
-        };
-
-        TreeNode::Document(document)
-    }
-}
+impl Document {}
 
 impl TreeNodeLike for Document {
     fn get_range(&self) -> Range {

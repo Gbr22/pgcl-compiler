@@ -33,3 +33,17 @@ macro_rules! try_nodes_into_one {
         }
     };
 }
+
+#[macro_export]
+macro_rules! try_nodes_into_one_with_message {
+    (
+        let $node:ident from $nodes:ident ;
+        = 0 : $zero:expr ;
+        > 1 : $many:expr ;
+    ) => {
+        let $node = $nodes.into_one_with_message($zero, $many);
+        if TreeNode::is_error(&$node) {
+            return $node;
+        }
+    };
+}

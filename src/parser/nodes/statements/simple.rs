@@ -1,19 +1,17 @@
+use super::statement::StatementLike;
 use crate::{
     common::range::Range,
     parser::tree::{ParseError, TreeNode, TreeNodeLike},
 };
 
-use super::statement::StatementLike;
-
+// Semicolon delimited statement
 #[derive(Debug, Clone)]
-pub struct ReturnStatement {
+pub struct SimpleStatement {
     pub range: Range,
     pub expr: Box<TreeNode>,
 }
 
-impl ReturnStatement {}
-
-impl TreeNodeLike for ReturnStatement {
+impl TreeNodeLike for SimpleStatement {
     fn get_range(&self) -> Range {
         self.range
     }
@@ -22,7 +20,7 @@ impl TreeNodeLike for ReturnStatement {
     }
 }
 
-impl StatementLike for ReturnStatement {
+impl StatementLike for SimpleStatement {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
         Box::new(self)
     }
