@@ -43,7 +43,8 @@ impl Parser for FunctionDeclarationParser {
             args_open.is_token_type(TokenType::OpeningBracketRound)
         );
 
-        let Some(args_end_index) = find_args_end(0, nodes.iter()) else {
+        // since the opening bracket has been removed the starting index is shifted by -1
+        let Some(args_end_index) = find_args_end(-1, nodes.iter()) else {
             return ParseError::at(
                 range,
                 "Mismatched brackets. Round bracket `()` not closed.".to_string(),

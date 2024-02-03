@@ -1,6 +1,6 @@
 use crate::lexer::types::keywords::FN;
 use crate::parser::brackets::{curly_bracket, round_bracket};
-use crate::parser::match_brackets::find_bracket_end;
+use crate::parser::match_brackets::{find_bracket_end, SignedIndex};
 use crate::parser::parsers::function_declaration::FunctionDeclarationParser;
 use crate::parser::tree_nodes::TreeNodes;
 use crate::use_parser;
@@ -28,7 +28,7 @@ pub fn find_args_start<'a>(
     None
 }
 pub fn find_args_end<'a>(
-    args_start_index: usize,
+    args_start_index: impl Into<SignedIndex>,
     nodes: impl Iterator<Item = &'a TreeNode>,
 ) -> Option<usize> {
     find_bracket_end(round_bracket(), args_start_index, nodes)

@@ -1,14 +1,37 @@
 use super::{brackets::BracketType, tree::TreeNode};
 
+impl From<usize> for SignedIndex {
+    fn from(value: usize) -> Self {
+        Self(value as isize)
+    }
+}
+
+impl From<i32> for SignedIndex {
+    fn from(value: i32) -> Self {
+        Self(value as isize)
+    }
+}
+
+impl From<isize> for SignedIndex {
+    fn from(value: isize) -> Self {
+        Self(value)
+    }
+}
+
+pub struct SignedIndex(isize);
+
 pub fn find_bracket_end<'a>(
     bracket_type: BracketType,
-    opening_index: usize,
+    opening_index: impl Into<SignedIndex>,
     nodes: impl Iterator<Item = &'a TreeNode>,
 ) -> Option<usize> {
+    let opening_index: SignedIndex = opening_index.into();
+    let opening_index: isize = opening_index.0;
+
     let mut opening_count = 1;
     let mut closing_count = 0;
     for (index, node) in nodes.enumerate() {
-        if index <= opening_index {
+        if (index as isize) <= opening_index {
             continue;
         }
         if (bracket_type.is_opening)(node) {

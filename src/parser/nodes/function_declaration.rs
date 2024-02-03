@@ -3,8 +3,6 @@ use crate::{
     parser::tree::{ParseError, TreeNode, TreeNodeLike},
 };
 
-use super::function_call_args::FunctionCallArgs;
-
 #[derive(Debug, Clone)]
 pub struct FunctionDeclaration {
     pub name: String,
