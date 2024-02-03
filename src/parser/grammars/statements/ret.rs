@@ -1,5 +1,5 @@
 use crate::{
-    lexer::types::keywords::RETURN,
+    lexer::types::{keywords::RETURN, token_type::TokenType},
     parser::{
         grammar::GrammarLike, parse::Parser, parsers::statements::ret::ReturnStatementParser,
         tree::TreeNode, tree_nodes::TreeNodes,
@@ -21,8 +21,17 @@ impl GrammarLike for ReturnStatementGrammar {
 
         None
     }
-    fn next_match_end(&self, nodes: &TreeNodes, _start_index: usize) -> Option<usize> {
-        Some(nodes.len() - 1)
+    fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
+        for (index, node) in nodes.iter().enumerate() {
+            if index < start_index {
+                continue;
+            }
+            if node.is_token_type(TokenType::Semicolon) {
+                return Some(index);
+            }
+        }
+
+        None
     }
 
     fn allow_parallel_processing(&self) -> bool {

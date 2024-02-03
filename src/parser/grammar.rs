@@ -35,7 +35,7 @@ pub trait GrammarLike: Sync {
         Some((start_index,end_index))
     }
     fn has_match(&self, nodes: &TreeNodes) -> bool {
-        self.next_match_start(nodes).is_some()
+        self.next_match(nodes).is_some()
     }
     fn construct(&self, nodes: TreeNodes) -> TreeNode;
     

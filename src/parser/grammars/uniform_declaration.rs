@@ -9,9 +9,6 @@ use crate::{
 pub struct UniformDeclarationGrammar {}
 
 fn can_end_uniform_search(node: &TreeNode) -> bool {
-    if node.is_token_type(TokenType::Semicolon) {
-        return true;
-    };
     if node.is_keyword("fn") {
         return true;
     }
@@ -50,12 +47,16 @@ impl GrammarLike for UniformDeclarationGrammar {
                 continue;
             }
 
-            if can_end_uniform_search(item) {
+            if item.is_token_type(TokenType::Semicolon) {
                 return Some(index);
+            };
+
+            if can_end_uniform_search(item) {
+                return Some(index-1);
             }
         }
 
-        None
+        Some(start_index)
     }
 
     fn allow_parallel_processing(&self) -> bool {
