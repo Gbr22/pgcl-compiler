@@ -7,7 +7,7 @@ use crate::parser::tree::{TreeNode, TreeNodeLike};
 pub struct CompoundType {
     pub range: Range,
     pub name: String,
-    pub args: Box<TreeNode>
+    pub args: Box<TreeNode>,
 }
 
 impl CompoundType {}

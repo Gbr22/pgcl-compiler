@@ -1,22 +1,19 @@
-use std::slice::Iter;
-use std::vec::{self, IntoIter};
-
 use crate::common::range::Range;
 use crate::lexer::token::Token;
 use crate::lexer::types::token_type::TokenType;
 use crate::parser::nodes::block::Block;
 use crate::parser::nodes::document::Document;
 use crate::parser::nodes::expressions::expr::Expression;
+use crate::parser::nodes::function_arg::FunctionArg;
+use crate::parser::nodes::function_args::FunctionArgs;
 use crate::parser::nodes::function_call_arg::FunctionCallArg;
 use crate::parser::nodes::function_call_args::FunctionCallArgs;
 use crate::parser::nodes::function_declaration::FunctionDeclaration;
 use crate::parser::nodes::statements::statement::Statement;
 use crate::parser::nodes::types::typ::Type;
-use crate::parser::nodes::uniform_declaration::UniformDeclaration;
-use crate::parser::nodes::function_arg::FunctionArg;
-use crate::parser::nodes::function_args::FunctionArgs;
 use crate::parser::nodes::types::type_arg::TypeArg;
 use crate::parser::nodes::types::type_args::TypeArgs;
+use crate::parser::nodes::uniform_declaration::UniformDeclaration;
 
 trait_enum! {
     #[derive(Debug, Clone)]
@@ -87,12 +84,18 @@ impl TreeNode {
 
 pub trait TreeNodeLike {
     fn get_range(&self) -> Range;
-    fn get_errors(&self) -> Vec<ParseError> {
-        vec![]
+    fn get_errors(&self) -> Vec<&ParseError> {
+        self.descendants()
+            .into_iter()
+            .filter_map(|n| {
+                if let TreeNode::ParseError(err) = n {
+                    return Some(err);
+                }
+                None
+            })
+            .collect()
     }
-    fn children(&self) -> Vec<&TreeNode> {
-        return vec![];
-    }
+    fn children(&self) -> Vec<&TreeNode>;
     fn descendants(&self) -> Vec<&TreeNode> {
         let children: Vec<&TreeNode> = self.children();
         let mut descendants: Vec<&TreeNode> = vec![];
@@ -112,6 +115,9 @@ pub trait TreeNodeLike {
 impl TreeNodeLike for Token {
     fn get_range(&self) -> Range {
         self.range
+    }
+    fn children(&self) -> Vec<&TreeNode> {
+        vec![]
     }
 }
 
@@ -152,8 +158,8 @@ impl TreeNodeLike for ParseError {
     fn get_range(&self) -> Range {
         self.range
     }
-    fn get_errors(&self) -> Vec<ParseError> {
-        vec![self.to_owned()]
+    fn children(&self) -> Vec<&TreeNode> {
+        vec![]
     }
 }
 

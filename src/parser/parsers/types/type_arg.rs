@@ -1,8 +1,9 @@
 use crate::{
-    lexer::types::{keywords::is_keyword, token_type::TokenType},
+    lexer::types::token_type::TokenType,
     parser::{
-        nodes::{function_arg::FunctionArg, function_call_arg::FunctionCallArg, types::{typ, type_arg::TypeArg}}, parse::Parser, parsers::types::typ::TypeParser, tree::TreeNode, tree_nodes::TreeNodes
-    }, pop_front_node, try_nodes_into_one,
+        nodes::types::type_arg::TypeArg, parse::Parser, parsers::types::typ::TypeParser,
+        tree::TreeNode, tree_nodes::TreeNodes,
+    },
 };
 
 pub struct TypeArgParser {}
@@ -24,7 +25,7 @@ impl Parser for TypeArgParser {
 
         let arg = TypeArg {
             value: Box::new(node),
-            range
+            range,
         };
 
         TreeNode::TypeArg(arg)

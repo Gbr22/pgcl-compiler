@@ -1,6 +1,6 @@
 use crate::{
     common::range::Range,
-    parser::tree::{ParseError, TreeNode, TreeNodeLike},
+    parser::tree::{TreeNode, TreeNodeLike},
 };
 
 use super::expr::ExpressionLike;
@@ -17,9 +17,6 @@ impl TreeNodeLike for FunctionCall {
         self.range
     }
 
-    fn get_errors(&self) -> Vec<ParseError> {
-        self.args.get_errors()
-    }
     fn children(&self) -> Vec<&TreeNode> {
         vec![&self.args]
     }

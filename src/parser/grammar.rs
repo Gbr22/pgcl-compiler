@@ -1,7 +1,7 @@
-use std::{collections::VecDeque, fmt::format};
+use std::collections::VecDeque;
 
-use rayon::prelude::*; 
 use rayon::iter::IntoParallelIterator;
+use rayon::prelude::*;
 
 use crate::parser::tree::ParseError;
 
@@ -13,37 +13,34 @@ pub struct Grammar<'a> {
 
 struct Match {
     nodes_before: TreeNodes,
-    nodes_inner: TreeNodes
+    nodes_inner: TreeNodes,
 }
 struct ProcessedMatch {
     nodes_before: TreeNodes,
-    result: TreeNode
+    result: TreeNode,
 }
 pub trait GrammarLike: Sync {
     fn next_match_start(&self, _nodes: &TreeNodes) -> Option<usize>;
 
     // range inclusive
     fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize>;
-    fn next_match(&self, nodes: &TreeNodes) -> Option<(usize,usize)> {
-        let Some(start_index) = self.next_match_start(&nodes) else {
+    fn next_match(&self, nodes: &TreeNodes) -> Option<(usize, usize)> {
+        let Some(start_index) = self.next_match_start(nodes) else {
             return None;
         };
-        let Some(end_index) = self.next_match_end(&nodes,start_index) else {
+        let Some(end_index) = self.next_match_end(nodes, start_index) else {
             return None;
         };
 
-        Some((start_index,end_index))
+        Some((start_index, end_index))
     }
     fn has_match(&self, nodes: &TreeNodes) -> bool {
         self.next_match(nodes).is_some()
     }
     fn construct(&self, nodes: TreeNodes) -> TreeNode;
-    
+
     fn process_sequential_iteration(&self, mut nodes: TreeNodes) -> TreeNodes {
-        let Some((
-            start_index,
-            end_index
-        )) = self.next_match(&nodes) else {
+        let Some((start_index, end_index)) = self.next_match(&nodes) else {
             return nodes;
         };
 
@@ -60,25 +57,23 @@ pub trait GrammarLike: Sync {
     fn process_parallel_iteration(&self, mut nodes: TreeNodes) -> TreeNodes {
         let mut matched: Vec<Match> = vec![];
 
-        while let Some((
-            start_index,
-            end_index
-        )) = self.next_match(&nodes) {
+        while let Some((start_index, end_index)) = self.next_match(&nodes) {
             let nodes_inner = nodes.slice(start_index, end_index + 1);
             let nodes_before = nodes.slice(0, start_index);
 
-            matched.push(Match { nodes_before, nodes_inner });
+            matched.push(Match {
+                nodes_before,
+                nodes_inner,
+            });
         }
 
         let rest = nodes;
 
         let mut processed_matches: VecDeque<ProcessedMatch> = matched
             .into_par_iter()
-            .map(|m| {
-                ProcessedMatch {
-                    nodes_before: m.nodes_before,
-                    result: self.construct(m.nodes_inner)
-                }
+            .map(|m| ProcessedMatch {
+                nodes_before: m.nodes_before,
+                result: self.construct(m.nodes_inner),
             })
             .collect();
 
@@ -108,7 +103,14 @@ pub trait GrammarLike: Sync {
 
         while self.has_match(&nodes) {
             if iteration_count > max_iteration_count {
-                let err: TreeNode = ParseError::at(range, format!("Internal error: Max iteration count ({}) exceeded!",max_iteration_count)).into();
+                let err: TreeNode = ParseError::at(
+                    range,
+                    format!(
+                        "Internal error: Max iteration count ({}) exceeded!",
+                        max_iteration_count
+                    ),
+                )
+                .into();
                 nodes = nodes.push_right(err);
                 break;
             }

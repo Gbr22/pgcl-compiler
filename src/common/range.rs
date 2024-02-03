@@ -42,9 +42,8 @@ impl Range {
         }
         s
     }
-    pub fn includes(&self,other: &Range) -> bool {
-        other.start_index >= self.start_index
-        && other.end_index <= self.end_index
+    pub fn includes(&self, other: &Range) -> bool {
+        other.start_index >= self.start_index && other.end_index <= self.end_index
     }
 }
 

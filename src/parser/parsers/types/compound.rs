@@ -4,7 +4,7 @@ use crate::parser::nodes::types::compound::CompoundType;
 use crate::parser::nodes::types::typ::Type;
 use crate::parser::parsers::types::type_args::TypeArgsParser;
 use crate::parser::{parse::Parser, tree::TreeNode, tree_nodes::TreeNodes};
-use crate::{pop_back_node, pop_front_node, process_grammars, try_nodes_into_one_with_message};
+use crate::{pop_back_node, pop_front_node};
 
 pub struct CompoundTypeParser {}
 
@@ -16,8 +16,7 @@ impl Parser for CompoundTypeParser {
             nodes,
             "Expected identifier.",
             Some(TreeNode::Token(token)),
-            token.typ == TokenType::Identifier
-            && !is_keyword(&token.string)
+            token.typ == TokenType::Identifier && !is_keyword(&token.string)
         );
 
         let name = token.string;
@@ -39,7 +38,6 @@ impl Parser for CompoundTypeParser {
         let args = nodes;
         let args = TypeArgsParser::parse(args);
         let args = Box::new(args);
-
 
         let typ = CompoundType { name, range, args };
 

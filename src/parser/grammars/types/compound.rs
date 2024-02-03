@@ -1,8 +1,7 @@
-use crate::parser::brackets::{is_closing_bracket_angle, is_opening_bracket_angle};
-use crate::parser::nodes::comma_separator::{find_next_type_separator_comma, find_next_value_separator_comma};
+use crate::parser::brackets::is_opening_bracket_angle;
 
 use crate::parser::parsers::types::compound::CompoundTypeParser;
-use crate::parser::parsers::types::type_arg::TypeArgParser;
+
 use crate::parser::tree_nodes::TreeNodes;
 use crate::use_parser;
 use crate::{
@@ -22,14 +21,14 @@ impl GrammarLike for CompoundTypeGrammar {
 
         for (index, node) in nodes.iter().enumerate() {
             if is_opening_bracket_angle(node) && index >= 1 {
-                return Some(index-1);
+                return Some(index - 1);
             }
         }
 
         None
     }
 
-    fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
+    fn next_match_end(&self, nodes: &TreeNodes, _start_index: usize) -> Option<usize> {
         Some(nodes.len() - 1)
     }
 

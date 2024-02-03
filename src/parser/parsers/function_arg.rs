@@ -1,8 +1,10 @@
 use crate::{
     lexer::types::{keywords::is_keyword, token_type::TokenType},
     parser::{
-        nodes::{function_arg::FunctionArg, function_call_arg::FunctionCallArg, types::typ}, parse::Parser, parsers::types::typ::TypeParser, tree::TreeNode, tree_nodes::TreeNodes
-    }, pop_front_node,
+        nodes::function_arg::FunctionArg, parse::Parser, parsers::types::typ::TypeParser,
+        tree::TreeNode, tree_nodes::TreeNodes,
+    },
+    pop_front_node,
 };
 
 pub struct FunctionArgParser {}
@@ -24,8 +26,7 @@ impl Parser for FunctionArgParser {
             nodes,
             "Missing argument name",
             Some(TreeNode::Token(name)),
-            name.typ == TokenType::Identifier
-            && !is_keyword(&name.string)
+            name.typ == TokenType::Identifier && !is_keyword(&name.string)
         );
 
         let name = name.string;

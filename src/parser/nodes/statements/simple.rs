@@ -1,7 +1,7 @@
 use super::statement::StatementLike;
 use crate::{
     common::range::Range,
-    parser::tree::{ParseError, TreeNode, TreeNodeLike},
+    parser::tree::{TreeNode, TreeNodeLike},
 };
 
 // Semicolon delimited statement
@@ -14,9 +14,6 @@ pub struct SimpleStatement {
 impl TreeNodeLike for SimpleStatement {
     fn get_range(&self) -> Range {
         self.range
-    }
-    fn get_errors(&self) -> Vec<ParseError> {
-        self.expr.get_errors()
     }
     fn children(&self) -> Vec<&TreeNode> {
         vec![&self.expr]

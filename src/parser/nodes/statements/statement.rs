@@ -1,4 +1,5 @@
-use crate::parser::tree::{ParseError, TreeNodeLike};
+use crate::common::range::Range;
+use crate::parser::tree::{TreeNode, TreeNodeLike};
 
 use super::ret::ReturnStatement;
 use super::simple::SimpleStatement;
@@ -16,11 +17,10 @@ pub trait StatementLike {
 }
 
 impl TreeNodeLike for Statement {
-    fn get_range(&self) -> crate::common::range::Range {
+    fn get_range(&self) -> Range {
         self.to_node_like().get_range()
     }
-
-    fn get_errors(&self) -> Vec<ParseError> {
-        self.to_node_like().get_errors()
+    fn children(&self) -> Vec<&TreeNode> {
+        self.to_node_like().children()
     }
 }

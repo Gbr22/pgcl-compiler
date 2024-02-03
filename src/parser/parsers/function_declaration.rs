@@ -93,7 +93,7 @@ impl Parser for FunctionDeclarationParser {
             return_type: Box::new(typ),
             body: Box::new(body_block),
             range,
-            args: Box::new(args)
+            args: Box::new(args),
         })
     }
 }

@@ -88,7 +88,7 @@ impl TreeNodes {
         let range = node.get_range();
         let right = TreeNodes {
             vec: vec![node],
-            range
+            range,
         };
         self.append(right)
     }

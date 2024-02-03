@@ -15,6 +15,9 @@ impl TreeNodeLike for SimpleType {
     fn get_range(&self) -> Range {
         self.range
     }
+    fn children(&self) -> Vec<&crate::parser::tree::TreeNode> {
+        vec![]
+    }
 }
 
 impl TypeLike for SimpleType {

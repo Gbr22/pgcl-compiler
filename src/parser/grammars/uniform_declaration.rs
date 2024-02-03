@@ -52,7 +52,7 @@ impl GrammarLike for UniformDeclarationGrammar {
             };
 
             if can_end_uniform_search(item) {
-                return Some(index-1);
+                return Some(index - 1);
             }
         }
 

@@ -1,6 +1,6 @@
 use crate::{
     common::range::Range,
-    parser::tree::{ParseError, TreeNode, TreeNodeLike},
+    parser::tree::{TreeNode, TreeNodeLike},
 };
 
 #[derive(Debug, Clone)]
@@ -12,11 +12,6 @@ pub struct FunctionCallArgs {
 impl TreeNodeLike for FunctionCallArgs {
     fn get_range(&self) -> Range {
         self.range
-    }
-    fn get_errors(&self) -> Vec<ParseError> {
-        let errors: Vec<ParseError> = self.args.iter().flat_map(|arg| arg.get_errors()).collect();
-
-        errors
     }
     fn children(&self) -> Vec<&TreeNode> {
         self.args.iter().collect()

@@ -28,7 +28,12 @@ pub fn find_next_type_separator_comma<'a>(
     nodes: impl Iterator<Item = &'a TreeNode>,
 ) -> Option<usize> {
     find_next_match_outside_brackets(
-        vec![curly_bracket(), round_bracket(), square_bracket(), angle_bracket()],
+        vec![
+            curly_bracket(),
+            round_bracket(),
+            square_bracket(),
+            angle_bracket(),
+        ],
         is_comma,
         start_index,
         nodes,
