@@ -13,6 +13,8 @@ use crate::parser::nodes::function_declaration::FunctionDeclaration;
 use crate::parser::nodes::statements::statement::Statement;
 use crate::parser::nodes::types::typ::Type;
 use crate::parser::nodes::uniform_declaration::UniformDeclaration;
+use crate::parser::nodes::function_arg::FunctionArg;
+use crate::parser::nodes::function_args::FunctionArgs;
 
 trait_enum! {
     #[derive(Debug, Clone)]
@@ -27,7 +29,9 @@ trait_enum! {
         Statement,
         Expression,
         FunctionCallArgs,
-        FunctionCallArg
+        FunctionCallArg,
+        FunctionArg,
+        FunctionArgs
     }
 }
 

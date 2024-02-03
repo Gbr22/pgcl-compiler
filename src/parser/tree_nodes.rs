@@ -84,6 +84,14 @@ impl TreeNodes {
         self.vec.append(&mut right.vec);
         self
     }
+    pub fn push_right(self, node: TreeNode) -> TreeNodes {
+        let range = node.get_range();
+        let right = TreeNodes {
+            vec: vec![node],
+            range
+        };
+        self.append(right)
+    }
     pub fn slice(&mut self, start_inclusive: usize, end_exclusive: usize) -> TreeNodes {
         if self.vec.is_empty() {
             // There are no nodes.

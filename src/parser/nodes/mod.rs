@@ -8,3 +8,5 @@ pub mod function_declaration;
 pub mod statements;
 pub mod types;
 pub mod uniform_declaration;
+pub mod function_arg;
+pub mod function_args;

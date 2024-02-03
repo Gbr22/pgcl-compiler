@@ -1,6 +1,6 @@
 use crate::parser::nodes::comma_separator::find_next_comma_outside_brackets;
 
-use crate::parser::parsers::function_call_arg::FunctionCallArgParser;
+use crate::parser::parsers::function_arg::FunctionArgParser;
 use crate::parser::tree_nodes::TreeNodes;
 use crate::use_parser;
 use crate::{
@@ -8,10 +8,10 @@ use crate::{
     parser::{grammar::GrammarLike, tree::TreeNode},
 };
 
-pub struct FunctionCallArgGrammar {}
+pub struct FunctionArgGrammar {}
 
-impl GrammarLike for FunctionCallArgGrammar {
-    use_parser!(FunctionCallArgParser);
+impl GrammarLike for FunctionArgGrammar {
+    use_parser!(FunctionArgParser);
 
     fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         if nodes.len() == 0 {
@@ -19,7 +19,7 @@ impl GrammarLike for FunctionCallArgGrammar {
         }
 
         for (index, node) in nodes.iter().enumerate() {
-            if let TreeNode::FunctionCallArg(_) = node {
+            if let TreeNode::FunctionArg(_) = node {
                 continue;
             }
             if let TreeNode::ParseError(_) = node {

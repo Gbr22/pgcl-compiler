@@ -7,7 +7,7 @@ use crate::{
         grammars::function_declaration::{find_args_end, find_body_end, find_body_start},
         nodes::function_declaration::FunctionDeclaration,
         parse::Parser,
-        parsers::{block::BlockParser, types::typ::TypeParser},
+        parsers::{block::BlockParser, function_args::FunctionArgsParser, types::typ::TypeParser},
         tree::{ParseError, TreeNode},
         tree_nodes::TreeNodes,
     },
@@ -50,10 +50,10 @@ impl Parser for FunctionDeclarationParser {
             )
             .into();
         };
-        let _argument_nodes = nodes.slice(0, args_end_index);
+        let argument_nodes = nodes.slice(0, args_end_index);
         nodes.pop_front(); // remove closing bracket `)`
 
-        // TODO parse arguments
+        let args = FunctionArgsParser::parse(argument_nodes);
 
         pop_front_node!(
             nodes,
@@ -92,6 +92,7 @@ impl Parser for FunctionDeclarationParser {
             return_type: Box::new(typ),
             body: Box::new(body_block),
             range,
+            args: Box::new(args)
         })
     }
 }

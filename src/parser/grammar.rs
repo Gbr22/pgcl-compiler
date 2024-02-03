@@ -1,3 +1,7 @@
+use std::fmt::format;
+
+use crate::parser::tree::ParseError;
+
 use super::{tree::TreeNode, tree_nodes::TreeNodes};
 
 pub struct Grammar<'a> {
@@ -32,9 +36,20 @@ pub trait GrammarLike {
         (Some(new_node), nodes)
     }
     fn process_all(&self, nodes: TreeNodes) -> TreeNodes {
+        let range = nodes.range;
+        let max_iteration_count = nodes.len() * nodes.len();
+
         let mut processed_nodes = nodes;
 
+        let mut iteration_count = 0;
+
         while self.has_match(&processed_nodes) {
+            if iteration_count > max_iteration_count {
+                let err: TreeNode = ParseError::at(range, format!("Internal error: Max iteration count ({}) exceeded!",max_iteration_count)).into();
+                processed_nodes = processed_nodes.push_right(err);
+                break;
+            }
+            iteration_count += 1;
             let (new_node, new_nodes) = self.process_next(processed_nodes);
             processed_nodes = new_nodes;
             if let None = new_node {
