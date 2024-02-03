@@ -1,10 +1,12 @@
 use super::simple::SimpleType;
+use super::compound::CompoundType;
 use crate::parser::tree::{ParseError, TreeNodeLike};
 
 trait_enum! {
     #[derive(Debug, Clone)]
     pub enum Type: TypeLike {
-        SimpleType
+        SimpleType,
+        CompoundType
     }
 }
 

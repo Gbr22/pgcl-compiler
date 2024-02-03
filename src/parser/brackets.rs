@@ -47,3 +47,17 @@ pub fn square_bracket() -> BracketType {
         is_closing: Box::new(is_closing_bracket_square),
     }
 }
+
+// <Angle>
+pub fn is_opening_bracket_angle(node: &TreeNode) -> bool {
+    node.is_token_type(TokenType::Lt)
+}
+pub fn is_closing_bracket_angle(node: &TreeNode) -> bool {
+    node.is_token_type(TokenType::Gt)
+}
+pub fn angle_bracket() -> BracketType {
+    BracketType {
+        is_opening: Box::new(is_opening_bracket_angle),
+        is_closing: Box::new(is_closing_bracket_angle),
+    }
+}

@@ -15,6 +15,8 @@ use crate::parser::nodes::types::typ::Type;
 use crate::parser::nodes::uniform_declaration::UniformDeclaration;
 use crate::parser::nodes::function_arg::FunctionArg;
 use crate::parser::nodes::function_args::FunctionArgs;
+use crate::parser::nodes::types::type_arg::TypeArg;
+use crate::parser::nodes::types::type_args::TypeArgs;
 
 trait_enum! {
     #[derive(Debug, Clone)]
@@ -31,7 +33,9 @@ trait_enum! {
         FunctionCallArgs,
         FunctionCallArg,
         FunctionArg,
-        FunctionArgs
+        FunctionArgs,
+        TypeArg,
+        TypeArgs
     }
 }
 

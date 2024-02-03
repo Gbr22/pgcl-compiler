@@ -1,4 +1,4 @@
-use crate::parser::nodes::comma_separator::find_next_comma_outside_brackets;
+use crate::parser::nodes::comma_separator::find_next_value_separator_comma;
 
 use crate::parser::parsers::function_call_arg::FunctionCallArgParser;
 use crate::parser::tree_nodes::TreeNodes;
@@ -33,7 +33,7 @@ impl GrammarLike for FunctionCallArgGrammar {
     }
 
     fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
-        let index = find_next_comma_outside_brackets(start_index, nodes.iter());
+        let index = find_next_value_separator_comma(start_index, nodes.iter());
 
         match index {
             Some(index) => Some(index),

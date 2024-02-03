@@ -3,7 +3,7 @@ use core::slice::Iter;
 
 use super::tree::{get_range, ParseError, TreeNode};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TreeNodes {
     pub range: Range,
     vec: Vec<TreeNode>,

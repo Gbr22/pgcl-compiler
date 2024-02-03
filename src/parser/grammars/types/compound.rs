@@ -1,6 +1,8 @@
+use crate::parser::brackets::{is_closing_bracket_angle, is_opening_bracket_angle};
 use crate::parser::nodes::comma_separator::{find_next_type_separator_comma, find_next_value_separator_comma};
 
-use crate::parser::parsers::function_arg::FunctionArgParser;
+use crate::parser::parsers::types::compound::CompoundTypeParser;
+use crate::parser::parsers::types::type_arg::TypeArgParser;
 use crate::parser::tree_nodes::TreeNodes;
 use crate::use_parser;
 use crate::{
@@ -8,10 +10,10 @@ use crate::{
     parser::{grammar::GrammarLike, tree::TreeNode},
 };
 
-pub struct FunctionArgGrammar {}
+pub struct CompoundTypeGrammar {}
 
-impl GrammarLike for FunctionArgGrammar {
-    use_parser!(FunctionArgParser);
+impl GrammarLike for CompoundTypeGrammar {
+    use_parser!(CompoundTypeParser);
 
     fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         if nodes.len() == 0 {
@@ -19,26 +21,16 @@ impl GrammarLike for FunctionArgGrammar {
         }
 
         for (index, node) in nodes.iter().enumerate() {
-            if let TreeNode::FunctionArg(_) = node {
-                continue;
+            if is_opening_bracket_angle(node) && index >= 1 {
+                return Some(index-1);
             }
-            if let TreeNode::ParseError(_) = node {
-                continue;
-            }
-
-            return Some(index);
         }
 
         None
     }
 
     fn next_match_end(&self, nodes: &TreeNodes, start_index: usize) -> Option<usize> {
-        let index = find_next_type_separator_comma(start_index, nodes.iter());
-
-        match index {
-            Some(index) => Some(index),
-            None => Some(nodes.len() - 1),
-        }
+        Some(nodes.len() - 1)
     }
 
     fn allow_parallel_processing(&self) -> bool {

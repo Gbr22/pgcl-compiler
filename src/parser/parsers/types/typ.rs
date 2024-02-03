@@ -1,4 +1,8 @@
+use crate::parser::grammar::GrammarLike;
+use crate::parser::grammars::types::compound::CompoundTypeGrammar;
 use crate::parser::grammars::types::simple::SimpleTypeGrammar;
+use crate::parser::parsers::types::compound::CompoundTypeParser;
+use crate::parser::tree::ParseError;
 use crate::parser::{parse::Parser, tree::TreeNode, tree_nodes::TreeNodes};
 use crate::{process_grammars, try_nodes_into_one_with_message};
 
@@ -7,6 +11,7 @@ pub struct TypeParser {}
 impl Parser for TypeParser {
     fn parse(nodes: TreeNodes) -> TreeNode {
         let nodes = process_grammars! { nodes [
+            CompoundTypeGrammar,
             SimpleTypeGrammar
         ] };
 
