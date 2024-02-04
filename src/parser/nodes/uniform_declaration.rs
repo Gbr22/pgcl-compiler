@@ -1,7 +1,9 @@
+use std::sync::{Arc, Mutex};
+
 use crate::{
     common::range::Range,
     parser::{
-        program_tree::PtError,
+        program_tree::{program_tree::{CurrentContext, PtError, RootContext, TryIntoPt}, scope::Referable, value_declaration::ValueDeclarationReferableLike},
         tree::{TreeNode, TreeNodeLike},
     },
 };
@@ -13,18 +15,28 @@ pub struct AstUniformDeclaration {
     pub range: Range,
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct PtUniformDeclaration {
     pub range: Range,
     pub name: String,
 }
 
-impl TryFrom<AstUniformDeclaration> for PtUniformDeclaration {
-    type Error = PtError;
+impl Referable for PtUniformDeclaration {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+}
 
-    fn try_from(value: AstUniformDeclaration) -> Result<Self, Self::Error> {
-        let range = value.range;
-        let name = value.name;
+impl ValueDeclarationReferableLike for PtUniformDeclaration {}
+
+impl TryIntoPt<PtUniformDeclaration> for AstUniformDeclaration {
+    fn try_into_pt(
+        self,
+        root_context: Arc<Mutex<RootContext>>,
+        context: &CurrentContext,
+    ) -> Result<PtUniformDeclaration, PtError> {
+        let range = self.range;
+        let name = self.name;
 
         Ok(PtUniformDeclaration { range, name })
     }

@@ -1,40 +1,41 @@
-use wasm_bindgen::convert::OptionIntoWasmAbi;
-
 use crate::{
-    common::range::Range, import_resolver::ImportResolver, lexer::{token::Token, tokenize::tokenize}, parser::{
-        nodes::document::PtDocument,
+    common::range::Range,
+    import_resolver::ImportResolver,
+    lexer::{token::Token, tokenize::tokenize},
+    parser::{
         parse::parse,
-        program_tree::PtError,
+        program_tree::program_tree::{create_program_tree, ProgramTree, PtError},
         tree::{ParseError, TreeNode, TreeNodeLike},
-    }, position::{get_position, Position}
+    },
+    position::{get_position, Position},
 };
 
 pub struct AnalizeResult {
     pub tokens: Vec<Token>,
     pub ast: TreeNode,
     pub errors: Vec<crate::error::Error>,
-    pub pt: Result<PtDocument, PtError>,
+    pub pt: Result<ProgramTree, PtError>,
+}
+
+pub fn create_analizer_error(message: String) -> AnalizeResult {
+    let parse_err = ParseError::at(Range::new(0, 0), message.clone());
+    let pt_err: PtError = parse_err.clone().into();
+    let crate_err = crate::error::Error {
+        text: message,
+        start_pos: Position { row: 0, col: 0 },
+        end_pos: Position { row: 0, col: 0 },
+    };
+    return AnalizeResult {
+        ast: parse_err.into(),
+        tokens: vec![],
+        errors: vec![crate_err],
+        pt: Err(pt_err),
+    };
 }
 
 pub fn analize(import_resolver: &ImportResolver, main_uri: String) -> AnalizeResult {
     let Some(input) = import_resolver.resolve(&main_uri) else {
-        let message = format!("Could not resolve file \"{}\"",main_uri);
-        let parse_err = ParseError::at(
-            Range::new(0, 0),
-            message.clone()
-        );
-        let pt_err: PtError = parse_err.clone().into();
-        let crate_err = crate::error::Error {
-            text: message,
-            start_pos: Position { row: 0, col: 0 },
-            end_pos: Position { row: 0, col: 0 },
-        };
-        return AnalizeResult {
-            ast: parse_err.into(),
-            tokens: vec![],
-            errors: vec![crate_err],
-            pt: Err(pt_err),
-        }
+        return create_analizer_error(format!("Could not resolve file \"{}\"", main_uri));
     };
     let tokenize_result = tokenize(&input);
     let tokens = tokenize_result.tokens;
@@ -63,14 +64,7 @@ pub fn analize(import_resolver: &ImportResolver, main_uri: String) -> AnalizeRes
 
     let cloned_ast = ast.clone();
 
-    let pt: Result<PtDocument, PtError> = if let TreeNode::Document(document) = cloned_ast {
-        document.try_into()
-    } else {
-        Err(PtError {
-            range: Some(cloned_ast.get_range()),
-            message: "Expected document.".to_owned(),
-        })
-    };
+    let pt = create_program_tree(cloned_ast, main_uri);
 
     AnalizeResult {
         ast,

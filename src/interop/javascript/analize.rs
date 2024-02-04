@@ -18,4 +18,3 @@ impl AnalizeResult {
         token_vec_into_js(self.result.tokens.clone())
     }
 }
-

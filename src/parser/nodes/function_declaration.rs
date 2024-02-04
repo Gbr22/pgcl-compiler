@@ -1,7 +1,11 @@
+use std::sync::{Arc, Mutex};
+
 use crate::{
     common::range::Range,
     parser::{
-        program_tree::PtError,
+        program_tree::{
+            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, TryIntoPt}, scope::Referable, value_declaration::ValueDeclarationReferableLike
+        },
         tree::{TreeNode, TreeNodeLike},
     },
 };
@@ -15,22 +19,31 @@ pub struct AstFunctionDeclaration {
     pub body: Box<TreeNode>,
 }
 
-impl TryFrom<AstFunctionDeclaration> for PtFunctionDeclaration {
-    type Error = PtError;
-
-    fn try_from(value: AstFunctionDeclaration) -> Result<Self, Self::Error> {
-        let range = value.range;
-        let name = value.name;
+impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
+    fn try_into_pt(
+        self,
+        root_context: Arc<Mutex<RootContext>>,
+        context: &CurrentContext,
+    ) -> Result<PtFunctionDeclaration, PtError> {
+        let range = self.range;
+        let name = self.name;
 
         Ok(PtFunctionDeclaration { range, name })
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PtFunctionDeclaration {
     pub range: Range,
     pub name: String,
 }
+
+impl Referable for PtFunctionDeclaration {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+}
+impl FunctionDeclarationReferableLike for PtFunctionDeclaration {}
 
 impl TreeNodeLike for AstFunctionDeclaration {
     fn get_range(&self) -> Range {

@@ -1,8 +1,14 @@
+use std::sync::{Arc, Mutex};
+
+use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator, ParallelIterator};
+
 use crate::{
     common::range::Range,
     parser::{
-        program_tree::{try_map_into, PtError},
-        tree::{ParseError, TreeNode, TreeNodeLike},
+        program_tree::{
+            function_declaration::FunctionDeclarationReferable, program_tree::{try_map_into_pt, CurrentContext, PtError, RootContext, TryIntoPt}, scope::{DocumentScopeId, Scope, ScopeId}, value_declaration::ValueDeclarationReferable
+        },
+        tree::{TreeNode, TreeNodeLike},
     },
 };
 
@@ -24,14 +30,17 @@ pub struct PtDocument {
     pub functions: Vec<PtFunctionDeclaration>,
 }
 
-impl TryFrom<AstDocument> for PtDocument {
-    type Error = PtError;
-    fn try_from(value: AstDocument) -> Result<Self, Self::Error> {
-        let range = value.range;
+impl TryIntoPt<PtDocument> for AstDocument {
+    fn try_into_pt(
+        self,
+        root_context: Arc<Mutex<RootContext>>,
+        context: &CurrentContext,
+    ) -> Result<PtDocument, PtError> {
+        let range = self.range;
         let mut functions: Vec<AstFunctionDeclaration> = vec![];
         let mut uniforms: Vec<AstUniformDeclaration> = vec![];
 
-        for child in value.children.into_iter() {
+        for child in self.children.into_iter() {
             match child {
                 TreeNode::FunctionDeclaration(fun) => {
                     functions.push(fun);
@@ -46,11 +55,31 @@ impl TryFrom<AstDocument> for PtDocument {
             }
         }
 
-        let functions: Result<Vec<PtFunctionDeclaration>, PtError> = try_map_into(functions);
+        let functions: Result<Vec<PtFunctionDeclaration>, PtError> =
+            try_map_into_pt(functions, root_context.clone(), context);
         let functions = functions?;
 
-        let uniforms: Result<Vec<PtUniformDeclaration>, PtError> = try_map_into(uniforms);
+        let uniforms: Result<Vec<PtUniformDeclaration>, PtError> =
+            try_map_into_pt(uniforms, root_context.clone(), context);
         let uniforms = uniforms?;
+
+        let mut root = root_context.lock().unwrap();
+
+        let scope_id = ScopeId::Document(DocumentScopeId {
+            uri: context.uri.to_owned(),
+        });
+
+        let scope = Scope {
+            types: vec![],
+            values: vec![],
+            functions: functions
+                .clone()
+                .into_par_iter()
+                .map(|fun| FunctionDeclarationReferable::UserFunction(fun))
+                .collect(),
+        };
+
+        root.scopes.insert(scope_id, scope);
 
         Ok(PtDocument {
             range,
