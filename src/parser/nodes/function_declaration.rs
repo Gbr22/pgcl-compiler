@@ -1,10 +1,13 @@
 use crate::{
     common::range::Range,
-    parser::tree::{TreeNode, TreeNodeLike},
+    parser::{
+        program_tree::PtError,
+        tree::{TreeNode, TreeNodeLike},
+    },
 };
 
 #[derive(Debug, Clone)]
-pub struct FunctionDeclaration {
+pub struct AstFunctionDeclaration {
     pub range: Range,
     pub name: String,
     pub args: Box<TreeNode>,
@@ -12,9 +15,24 @@ pub struct FunctionDeclaration {
     pub body: Box<TreeNode>,
 }
 
-impl FunctionDeclaration {}
+impl TryFrom<AstFunctionDeclaration> for PtFunctionDeclaration {
+    type Error = PtError;
 
-impl TreeNodeLike for FunctionDeclaration {
+    fn try_from(value: AstFunctionDeclaration) -> Result<Self, Self::Error> {
+        let range = value.range;
+        let name = value.name;
+
+        Ok(PtFunctionDeclaration { range, name })
+    }
+}
+
+#[derive(Debug)]
+pub struct PtFunctionDeclaration {
+    pub range: Range,
+    pub name: String,
+}
+
+impl TreeNodeLike for AstFunctionDeclaration {
     fn get_range(&self) -> Range {
         self.range
     }

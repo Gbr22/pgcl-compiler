@@ -2,18 +2,18 @@ use crate::common::range::Range;
 use crate::lexer::token::Token;
 use crate::lexer::types::token_type::TokenType;
 use crate::parser::nodes::block::Block;
-use crate::parser::nodes::document::Document;
+use crate::parser::nodes::document::AstDocument as Document;
 use crate::parser::nodes::expressions::expr::Expression;
 use crate::parser::nodes::function_arg::FunctionArg;
 use crate::parser::nodes::function_args::FunctionArgs;
 use crate::parser::nodes::function_call_arg::FunctionCallArg;
 use crate::parser::nodes::function_call_args::FunctionCallArgs;
-use crate::parser::nodes::function_declaration::FunctionDeclaration;
+use crate::parser::nodes::function_declaration::AstFunctionDeclaration as FunctionDeclaration;
 use crate::parser::nodes::statements::statement::Statement;
 use crate::parser::nodes::types::typ::Type;
 use crate::parser::nodes::types::type_arg::TypeArg;
 use crate::parser::nodes::types::type_args::TypeArgs;
-use crate::parser::nodes::uniform_declaration::UniformDeclaration;
+use crate::parser::nodes::uniform_declaration::AstUniformDeclaration as UniformDeclaration;
 
 trait_enum! {
     #[derive(Debug, Clone)]
@@ -82,7 +82,7 @@ impl TreeNode {
     }
 }
 
-pub trait TreeNodeLike {
+pub trait TreeNodeLike: Sync {
     fn get_range(&self) -> Range;
     fn get_errors(&self) -> Vec<&ParseError> {
         self.descendants()

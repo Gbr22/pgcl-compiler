@@ -5,7 +5,7 @@ use crate::{
     },
     parser::{
         grammars::function_declaration::{find_args_end, find_body_end, find_body_start},
-        nodes::function_declaration::FunctionDeclaration,
+        nodes::function_declaration::AstFunctionDeclaration,
         parse::Parser,
         parsers::{block::BlockParser, function_args::FunctionArgsParser, types::typ::TypeParser},
         tree::{ParseError, TreeNode},
@@ -88,7 +88,7 @@ impl Parser for FunctionDeclarationParser {
         let type_nodes = nodes;
         let typ = TypeParser::parse(type_nodes);
 
-        TreeNode::FunctionDeclaration(FunctionDeclaration {
+        TreeNode::FunctionDeclaration(AstFunctionDeclaration {
             name,
             return_type: Box::new(typ),
             body: Box::new(body_block),

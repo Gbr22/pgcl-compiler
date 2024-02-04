@@ -1,7 +1,7 @@
 use crate::parser::grammars::function_declaration::FunctionDeclarationGrammar;
 use crate::parser::grammars::uniform_declaration::UniformDeclarationGrammar;
 use crate::parser::{
-    nodes::document::Document, parse::Parser, tree::TreeNode, tree_nodes::TreeNodes,
+    nodes::document::AstDocument, parse::Parser, tree::TreeNode, tree_nodes::TreeNodes,
 };
 use crate::process_grammars;
 pub struct DocumentParser {}
@@ -15,7 +15,7 @@ impl Parser for DocumentParser {
             FunctionDeclarationGrammar
         ] };
 
-        let document = Document {
+        let document = AstDocument {
             range,
             children: nodes.into_vec(),
         };

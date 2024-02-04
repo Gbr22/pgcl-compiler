@@ -6,5 +6,6 @@ pub mod match_brackets;
 pub mod nodes;
 pub mod parse;
 pub mod parsers;
+pub mod program_tree;
 pub mod tree;
 pub mod tree_nodes;

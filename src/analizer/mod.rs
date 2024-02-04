@@ -1,7 +1,9 @@
 use crate::{
     lexer::{token::Token, tokenize::tokenize},
     parser::{
+        nodes::document::PtDocument,
         parse::parse,
+        program_tree::PtError,
         tree::{TreeNode, TreeNodeLike},
     },
     position::get_position,
@@ -9,8 +11,9 @@ use crate::{
 
 pub struct AnalizeResult {
     pub tokens: Vec<Token>,
-    pub root: TreeNode,
+    pub ast: TreeNode,
     pub errors: Vec<crate::error::Error>,
+    pub pt: Result<PtDocument, PtError>,
 }
 
 pub fn analize(input: &str) -> AnalizeResult {
@@ -28,8 +31,8 @@ pub fn analize(input: &str) -> AnalizeResult {
             }
         })
         .collect();
-    let root = parse(&tokens);
-    let parse_errors = root.get_errors();
+    let ast = parse(&tokens);
+    let parse_errors = ast.get_errors();
     let parse_errors = parse_errors.iter().map(|e| crate::error::Error {
         text: e.text.to_owned(),
         start_pos: get_position(input, e.get_range().start_index),
@@ -39,9 +42,21 @@ pub fn analize(input: &str) -> AnalizeResult {
     errors.extend(token_errors);
     errors.extend(parse_errors);
 
+    let cloned_ast = ast.clone();
+
+    let pt: Result<PtDocument, PtError> = if let TreeNode::Document(document) = cloned_ast {
+        document.try_into()
+    } else {
+        Err(PtError {
+            range: Some(cloned_ast.get_range()),
+            message: "Expected document.".to_owned(),
+        })
+    };
+
     AnalizeResult {
-        root,
+        ast,
         tokens,
         errors,
+        pt,
     }
 }

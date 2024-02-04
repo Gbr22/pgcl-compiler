@@ -1,4 +1,4 @@
-use crate::parser::nodes::uniform_declaration::UniformDeclaration;
+use crate::parser::nodes::uniform_declaration::AstUniformDeclaration;
 use crate::parser::parse::Parser;
 use crate::parser::parsers::types::typ::TypeParser;
 use crate::pop_back_node;
@@ -62,7 +62,7 @@ impl Parser for UniformDeclarationParser {
 
         let typ = TypeParser::parse(type_nodes);
 
-        TreeNode::UniformDeclaration(UniformDeclaration {
+        TreeNode::UniformDeclaration(AstUniformDeclaration {
             name,
             range,
             typ: Box::new(typ),
