@@ -1,4 +1,4 @@
-use super::tree::ParseError;
+use super::tree::{ParseError, TreeNode};
 use crate::common::range::Range;
 use rayon::{iter::Either, prelude::*, vec::IntoIter};
 
@@ -38,4 +38,19 @@ where
     };
 
     Ok(vecs.0)
+}
+
+
+
+pub struct Scope {
+    types: Vec<()>,
+    values: Vec<()>,
+}
+
+pub struct PtContext {
+    scopes: Vec<Scope>
+}
+
+pub fn create_program_tree(node: TreeNode){
+
 }

@@ -19,9 +19,3 @@ impl AnalizeResult {
     }
 }
 
-#[wasm_bindgen]
-pub fn analize(input: &str) -> AnalizeResult {
-    let result = rust_analize(input);
-
-    AnalizeResult { result }
-}
