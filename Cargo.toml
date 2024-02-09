@@ -1,5 +1,5 @@
 [package]
-name = "paralang"
+name = "pgcl"
 version = "0.1.0"
 edition = "2021"
 
