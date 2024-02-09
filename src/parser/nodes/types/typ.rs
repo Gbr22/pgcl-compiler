@@ -48,12 +48,18 @@ impl TryIntoPt<PtType> for AstType {
 
 pub trait PtTypeLike {
     fn get_range(&self) -> Range;
+    fn to_string(&self) -> String;
 }
 
 impl PtTypeLike for PtType {
     fn get_range(&self) -> Range {
         match self {
             PtType::Simple(e) => e.get_range(),
+        }
+    }
+    fn to_string(&self) -> String {
+        match self {
+            PtType::Simple(e) => e.to_string(),
         }
     }
 }

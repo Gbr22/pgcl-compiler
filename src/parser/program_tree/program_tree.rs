@@ -13,8 +13,7 @@ use crate::{
 use rayon::{iter::Either, prelude::*, vec::IntoIter};
 
 use super::{
-    scope::{Scope, ScopeId},
-    value_declaration::ValueDeclarationReferable,
+    scope::{Scope, ScopeId}, type_declaration::{PrimitiveTypeDeclaration, TypeDeclarationReferable}, value_declaration::ValueDeclarationReferable
 };
 
 #[derive(Debug, Clone)]
@@ -78,7 +77,20 @@ pub struct CurrentContext {
 
 pub fn create_global_scope() -> Scope {
     Scope {
-        types: vec![],
+        types: vec![
+            TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
+                name: "f32".to_owned(),
+            }),
+            TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
+                name: "i32".to_owned(),
+            }),
+            TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
+                name: "u32".to_owned(),
+            }),
+            TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
+                name: "bool".to_owned(),
+            }),
+        ],
         values: vec![],
         functions: vec![],
     }

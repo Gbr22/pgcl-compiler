@@ -2,7 +2,8 @@ use super::typ::{AstTypeLike, PtTypeLike};
 use crate::common::range::Range;
 
 use crate::parser::program_tree::program_tree::TryIntoPt;
-use crate::parser::reference::Reference;
+use crate::parser::program_tree::type_declaration::TypeDeclarationReferableLike;
+use crate::parser::reference::{Reference, TypeReference};
 use crate::parser::tree::TreeNodeLike;
 
 #[derive(Debug, Clone)]
@@ -13,13 +14,19 @@ pub struct AstSimpleType {
 
 #[derive(Debug, Clone)]
 pub struct PtSimpleType {
-    pub reference: Reference,
+    pub reference: TypeReference,
     pub range: Range,
 }
 
 impl PtTypeLike for PtSimpleType {
     fn get_range(&self) -> Range {
         self.range
+    }
+    fn to_string(&self) -> String {
+        let Some(referable) = self.reference.resolve() else {
+            return format!("error<\"Could not resolve reference to type\">");
+        };
+        referable.to_string()
     }
 }
 
@@ -30,11 +37,11 @@ impl TryIntoPt<PtSimpleType> for AstSimpleType {
         context: &crate::parser::program_tree::program_tree::CurrentContext,
     ) -> Result<PtSimpleType, crate::parser::program_tree::program_tree::PtError> {
         Ok(PtSimpleType {
-            reference: Reference {
+            reference: TypeReference(Reference {
                 root: root_context.clone(),
                 scopes: context.accessible_scopes.clone(),
                 name: self.name
-            },
+            }),
             range: self.range,
         })
     }
