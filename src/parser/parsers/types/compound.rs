@@ -1,7 +1,7 @@
 use crate::lexer::types::keywords::is_keyword;
 use crate::lexer::types::token_type::TokenType;
 use crate::parser::nodes::types::compound::CompoundType;
-use crate::parser::nodes::types::typ::Type;
+use crate::parser::nodes::types::typ::AstType;
 use crate::parser::parsers::types::type_args::TypeArgsParser;
 use crate::parser::{parse::Parser, tree::TreeNode, tree_nodes::TreeNodes};
 use crate::{pop_back_node, pop_front_node};
@@ -41,6 +41,6 @@ impl Parser for CompoundTypeParser {
 
         let typ = CompoundType { name, range, args };
 
-        TreeNode::Type(Type::CompoundType(typ))
+        TreeNode::AstType(AstType::Compound(typ))
     }
 }

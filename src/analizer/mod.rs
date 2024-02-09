@@ -10,6 +10,7 @@ use crate::{
     position::{get_position, Position},
 };
 
+#[derive(Debug, Clone)]
 pub struct AnalizeResult {
     pub tokens: Vec<Token>,
     pub ast: TreeNode,

@@ -42,8 +42,15 @@ impl Range {
         }
         s
     }
-    pub fn includes(&self, other: &Range) -> bool {
+    pub fn includes(&self, other: impl Into<Range>) -> bool {
+        let other: Range = other.into();
         other.start_index >= self.start_index && other.end_index <= self.end_index
+    }
+}
+
+impl From<usize> for Range {
+    fn from(value: usize) -> Self {
+        Range { start_index: value, end_index: value }
     }
 }
 

@@ -8,6 +8,8 @@ use crate::{
     },
 };
 
+use super::types::typ::PtType;
+
 #[derive(Debug, Clone)]
 pub struct AstUniformDeclaration {
     pub name: String,
@@ -19,6 +21,7 @@ pub struct AstUniformDeclaration {
 pub struct PtUniformDeclaration {
     pub range: Range,
     pub name: String,
+    pub typ: PtType,
 }
 
 impl Referable for PtUniformDeclaration {
@@ -37,8 +40,16 @@ impl TryIntoPt<PtUniformDeclaration> for AstUniformDeclaration {
     ) -> Result<PtUniformDeclaration, PtError> {
         let range = self.range;
         let name = self.name;
+        let TreeNode::AstType(typ) = *self.typ else {
+            return Err(PtError {
+                range: Some(self.range),
+                message: format!("Expected type."),
+            });
+        };
+        
+        let typ = typ.try_into_pt(root_context, context)?;
 
-        Ok(PtUniformDeclaration { range, name })
+        Ok(PtUniformDeclaration { range, name, typ })
     }
 }
 

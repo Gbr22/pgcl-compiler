@@ -1,4 +1,4 @@
-use super::typ::TypeLike;
+use super::typ::AstTypeLike;
 use crate::common::range::Range;
 
 use crate::parser::tree::{TreeNode, TreeNodeLike};
@@ -21,7 +21,7 @@ impl TreeNodeLike for CompoundType {
     }
 }
 
-impl TypeLike for CompoundType {
+impl AstTypeLike for CompoundType {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
         Box::new(self)
     }

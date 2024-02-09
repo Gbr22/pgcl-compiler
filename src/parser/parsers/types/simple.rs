@@ -1,7 +1,7 @@
 use crate::{
     lexer::types::{keywords::is_keyword, token_type::TokenType},
     parser::{
-        nodes::types::{simple::SimpleType, typ::Type},
+        nodes::types::{simple::AstSimpleType, typ::AstType},
         parse::Parser,
         tree::{ParseError, TreeNode},
         tree_nodes::TreeNodes,
@@ -31,8 +31,8 @@ impl Parser for SimpleTypeParser {
 
         let name = token.string;
 
-        let typ = SimpleType { name, range };
+        let typ = AstSimpleType { name, range };
 
-        TreeNode::Type(Type::SimpleType(typ))
+        TreeNode::AstType(AstType::Simple(typ))
     }
 }

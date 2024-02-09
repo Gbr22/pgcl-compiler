@@ -84,7 +84,7 @@ pub fn create_global_scope() -> Scope {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProgramTree {
     pub context: Arc<Mutex<RootContext>>,
     pub main: PtDocument,

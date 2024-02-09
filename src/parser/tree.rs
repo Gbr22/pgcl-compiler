@@ -10,7 +10,7 @@ use crate::parser::nodes::function_call_arg::FunctionCallArg;
 use crate::parser::nodes::function_call_args::FunctionCallArgs;
 use crate::parser::nodes::function_declaration::AstFunctionDeclaration as FunctionDeclaration;
 use crate::parser::nodes::statements::statement::Statement;
-use crate::parser::nodes::types::typ::Type;
+use crate::parser::nodes::types::typ::AstType;
 use crate::parser::nodes::types::type_arg::TypeArg;
 use crate::parser::nodes::types::type_args::TypeArgs;
 use crate::parser::nodes::uniform_declaration::AstUniformDeclaration as UniformDeclaration;
@@ -22,7 +22,7 @@ trait_enum! {
         Document,
         UniformDeclaration,
         ParseError,
-        Type,
+        AstType,
         FunctionDeclaration,
         Block,
         Statement,

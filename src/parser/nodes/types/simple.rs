@@ -1,17 +1,46 @@
-use super::typ::TypeLike;
+use super::typ::{AstTypeLike, PtTypeLike};
 use crate::common::range::Range;
 
+use crate::parser::program_tree::program_tree::TryIntoPt;
+use crate::parser::reference::Reference;
 use crate::parser::tree::TreeNodeLike;
 
 #[derive(Debug, Clone)]
-pub struct SimpleType {
+pub struct AstSimpleType {
     pub range: Range,
     pub name: String,
 }
 
-impl SimpleType {}
+#[derive(Debug, Clone)]
+pub struct PtSimpleType {
+    pub reference: Reference,
+    pub range: Range,
+}
 
-impl TreeNodeLike for SimpleType {
+impl PtTypeLike for PtSimpleType {
+    fn get_range(&self) -> Range {
+        self.range
+    }
+}
+
+impl TryIntoPt<PtSimpleType> for AstSimpleType {
+    fn try_into_pt(
+        self,
+        root_context: std::sync::Arc<std::sync::Mutex<crate::parser::program_tree::program_tree::RootContext>>,
+        context: &crate::parser::program_tree::program_tree::CurrentContext,
+    ) -> Result<PtSimpleType, crate::parser::program_tree::program_tree::PtError> {
+        Ok(PtSimpleType {
+            reference: Reference {
+                root: root_context.clone(),
+                scopes: context.accessible_scopes.clone(),
+                name: self.name
+            },
+            range: self.range,
+        })
+    }
+}
+
+impl TreeNodeLike for AstSimpleType {
     fn get_range(&self) -> Range {
         self.range
     }
@@ -20,7 +49,7 @@ impl TreeNodeLike for SimpleType {
     }
 }
 
-impl TypeLike for SimpleType {
+impl AstTypeLike for AstSimpleType {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
         Box::new(self)
     }

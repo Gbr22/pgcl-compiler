@@ -23,7 +23,7 @@ pub struct AstDocument {
     pub children: Vec<TreeNode>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PtDocument {
     pub range: Range,
     pub uniforms: Vec<PtUniformDeclaration>,
