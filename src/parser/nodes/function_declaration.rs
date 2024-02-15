@@ -38,10 +38,7 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
                 return Err(PtError::from(err))
             },
             _ => {
-                return Err(PtError {
-                    range: Some(self.args.get_range()),
-                    message: "Expected function args.".to_owned()
-                });
+                return Err(PtError::in_at(&context.uri, self.args.get_range(), "Expected function args."));
             }
         };
 
@@ -50,10 +47,7 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
                 typ.try_into_pt(root_context.clone(), context)?
             },
             node => {
-                return Err(PtError {
-                    range: Some(node.get_range()),
-                    message: format!("Expected type.")
-                })
+                return Err(PtError::in_at(&context.uri, node.get_range(), "Expected type."));
             }
         };
 

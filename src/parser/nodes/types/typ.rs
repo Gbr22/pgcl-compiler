@@ -38,10 +38,7 @@ impl TryIntoPt<PtType> for AstType {
                 Ok(PtType::Simple(simple_type))
             }
             _ => {
-                Err(PtError {
-                    range: Some(self.get_range()),
-                    message: format!("Unknown type"),
-                })
+                Err(PtError::in_at(&context.uri, self.get_range(), "Unknown type"))
             }
         }
     }

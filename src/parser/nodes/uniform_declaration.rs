@@ -41,10 +41,7 @@ impl TryIntoPt<PtUniformDeclaration> for AstUniformDeclaration {
         let range = self.range;
         let name = self.name;
         let TreeNode::AstType(typ) = *self.typ else {
-            return Err(PtError {
-                range: Some(self.range),
-                message: format!("Expected type."),
-            });
+            return Err(PtError::in_at(&context.uri, self.range, "Expected type."));
         };
         
         let typ = typ.try_into_pt(root_context, context)?;

@@ -18,8 +18,26 @@ use super::{
 
 #[derive(Debug, Clone)]
 pub struct PtError {
+    pub uri: Option<String>,
     pub range: Option<Range>,
     pub message: String,
+}
+
+impl PtError {
+    pub fn at(range: Range, message: impl Into<String>) -> PtError {
+        PtError {
+            range: Some(range),
+            message: message.into(),
+            uri: None,
+        }
+    }
+    pub fn in_at(uri: impl Into<String>, range: Range, message: impl Into<String>) -> PtError {
+        PtError {
+            uri: Some(uri.into()),
+            range: Some(range),
+            message: message.into(),
+        }
+    }
 }
 
 impl From<ParseError> for PtError {
@@ -27,6 +45,7 @@ impl From<ParseError> for PtError {
         PtError {
             range: Some(value.range),
             message: value.text,
+            uri: None,
         }
     }
 }
@@ -113,10 +132,7 @@ pub fn create_program_tree(
     main_uri: String,
 ) -> Result<ProgramTree, PtError> {
     let TreeNode::Document(doc) = main_document else {
-        return Err(PtError {
-            range: Some(main_document.get_range()),
-            message: format!("Expected document."),
-        });
+        return Err(PtError::in_at(main_uri, main_document.get_range(), "Expected document."));
     };
 
     let mut scopes = HashMap::new();
