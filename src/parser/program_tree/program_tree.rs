@@ -70,6 +70,8 @@ pub struct RootContext {
     pub scopes: HashMap<ScopeId, Scope>,
 }
 
+pub type RootContextRef = Arc<Mutex<RootContext>>;
+
 pub struct CurrentContext {
     pub uri: String,
     pub accessible_scopes: Vec<ScopeId>,

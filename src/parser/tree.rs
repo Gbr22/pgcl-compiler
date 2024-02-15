@@ -4,7 +4,7 @@ use crate::lexer::types::token_type::TokenType;
 use crate::parser::nodes::block::Block;
 use crate::parser::nodes::document::AstDocument as Document;
 use crate::parser::nodes::expressions::expr::Expression;
-use crate::parser::nodes::function_arg::FunctionArg;
+use crate::parser::nodes::function_arg::AstFunctionArg as FunctionArg;
 use crate::parser::nodes::function_args::FunctionArgs;
 use crate::parser::nodes::function_call_arg::FunctionCallArg;
 use crate::parser::nodes::function_call_args::FunctionCallArgs;

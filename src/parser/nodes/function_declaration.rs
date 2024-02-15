@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::{string::ParseError, sync::{Arc, Mutex}};
 
 use crate::{
     common::range::Range,
@@ -9,6 +9,8 @@ use crate::{
         tree::{TreeNode, TreeNodeLike},
     },
 };
+
+use super::{function_arg::PtFunctionArg, types::typ::PtType};
 
 #[derive(Debug, Clone)]
 pub struct AstFunctionDeclaration {
@@ -28,7 +30,34 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
         let range = self.range;
         let name = self.name;
 
-        Ok(PtFunctionDeclaration { range, name })
+        let args: Vec<PtFunctionArg> = match *self.args {
+            TreeNode::FunctionArgs(args) => {
+                args.try_into_pt(root_context.clone(),context)?
+            },
+            TreeNode::ParseError(err) => {
+                return Err(PtError::from(err))
+            },
+            _ => {
+                return Err(PtError {
+                    range: Some(self.args.get_range()),
+                    message: "Expected function args.".to_owned()
+                });
+            }
+        };
+
+        let return_type = match *self.return_type {
+            TreeNode::AstType(typ) => {
+                typ.try_into_pt(root_context.clone(), context)?
+            },
+            node => {
+                return Err(PtError {
+                    range: Some(node.get_range()),
+                    message: format!("Expected type.")
+                })
+            }
+        };
+
+        Ok(PtFunctionDeclaration { range, name, args, return_type })
     }
 }
 
@@ -36,6 +65,8 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
 pub struct PtFunctionDeclaration {
     pub range: Range,
     pub name: String,
+    pub args: Vec<PtFunctionArg>,
+    pub return_type: PtType
 }
 
 impl Referable for PtFunctionDeclaration {

@@ -1,7 +1,7 @@
 use crate::{
     lexer::types::{keywords::is_keyword, token_type::TokenType},
     parser::{
-        nodes::function_arg::FunctionArg, parse::Parser, parsers::types::typ::TypeParser,
+        nodes::function_arg::AstFunctionArg, parse::Parser, parsers::types::typ::TypeParser,
         tree::TreeNode, tree_nodes::TreeNodes,
     },
     pop_front_node,
@@ -42,7 +42,7 @@ impl Parser for FunctionArgParser {
 
         let typ = TypeParser::parse(type_nodes);
 
-        let arg = FunctionArg {
+        let arg = AstFunctionArg {
             name,
             typ: Box::new(typ),
             range,
