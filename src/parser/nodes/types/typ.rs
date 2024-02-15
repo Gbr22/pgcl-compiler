@@ -2,6 +2,7 @@ use super::compound::CompoundType;
 use super::simple::{AstSimpleType, PtSimpleType};
 use crate::common::range::Range;
 use crate::parser::program_tree::program_tree::{PtError, TryIntoPt};
+use crate::parser::program_tree::type_declaration::TypeDeclarationReferable;
 use crate::parser::tree::TreeNodeLike;
 
 #[derive(Debug, Clone)]
@@ -49,6 +50,7 @@ impl TryIntoPt<PtType> for AstType {
 pub trait PtTypeLike {
     fn get_range(&self) -> Range;
     fn to_string(&self) -> String;
+    fn resolve_type(&self) -> Option<TypeDeclarationReferable>;
 }
 
 impl PtTypeLike for PtType {
@@ -60,6 +62,12 @@ impl PtTypeLike for PtType {
     fn to_string(&self) -> String {
         match self {
             PtType::Simple(e) => e.to_string(),
+        }
+    }
+
+    fn resolve_type(&self) -> Option<TypeDeclarationReferable> {
+        match self {
+            PtType::Simple(e) => e.resolve_type(),
         }
     }
 }

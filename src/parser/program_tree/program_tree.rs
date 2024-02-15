@@ -80,15 +80,19 @@ pub fn create_global_scope() -> Scope {
         types: vec![
             TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
                 name: "f32".to_owned(),
+                description: Some("32-bit floating point value".to_owned())
             }),
             TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
                 name: "i32".to_owned(),
+                description: Some("32-bit signed integer".to_owned())
             }),
             TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
                 name: "u32".to_owned(),
+                description: Some("32-bit unsigned integer".to_owned())
             }),
             TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
                 name: "bool".to_owned(),
+                description: Some("boolean (true or false) value".to_owned())
             }),
         ],
         values: vec![],

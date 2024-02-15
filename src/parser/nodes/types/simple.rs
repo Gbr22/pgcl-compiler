@@ -2,7 +2,7 @@ use super::typ::{AstTypeLike, PtTypeLike};
 use crate::common::range::Range;
 
 use crate::parser::program_tree::program_tree::TryIntoPt;
-use crate::parser::program_tree::type_declaration::TypeDeclarationReferableLike;
+use crate::parser::program_tree::type_declaration::{TypeDeclarationReferable, TypeDeclarationReferableLike};
 use crate::parser::reference::{Reference, TypeReference};
 use crate::parser::tree::TreeNodeLike;
 
@@ -27,6 +27,9 @@ impl PtTypeLike for PtSimpleType {
             return format!("error<\"Could not resolve reference to type\">");
         };
         referable.to_string()
+    }
+    fn resolve_type(&self) -> Option<TypeDeclarationReferable> {
+        self.reference.resolve()
     }
 }
 
