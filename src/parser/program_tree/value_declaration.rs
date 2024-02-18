@@ -1,4 +1,4 @@
-use crate::parser::nodes::uniform_declaration::PtUniformDeclaration as Uniform;
+use crate::parser::nodes::var_declaration::PtVarDeclaration as Uniform;
 
 use super::scope::Referable;
 

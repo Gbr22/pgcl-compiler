@@ -1,5 +1,6 @@
 use crate::parser::grammars::statements::ret::ReturnStatementGrammar;
 use crate::parser::grammars::statements::simple::SimpleStatementGrammar;
+use crate::parser::grammars::var_declaration::VarDeclarationGrammar;
 use crate::parser::{nodes::block::Block, parse::Parser, tree::TreeNode, tree_nodes::TreeNodes};
 use crate::process_grammars;
 
@@ -10,6 +11,7 @@ impl Parser for BlockParser {
         let range = nodes.range;
 
         let nodes = process_grammars! { nodes [
+            VarDeclarationGrammar,
             ReturnStatementGrammar,
             SimpleStatementGrammar
         ] };

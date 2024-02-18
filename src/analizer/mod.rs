@@ -67,6 +67,21 @@ pub fn analize(import_resolver: &ImportResolver, main_uri: String) -> AnalizeRes
 
     let pt = create_program_tree(cloned_ast, main_uri);
 
+    let pt = if let Err(err) = pt {
+        let start_index = err.range.map(|r|r.start_index).unwrap_or_default();
+        let end_index = err.range.map(|r|r.end_index).unwrap_or_default();
+
+        errors.push(crate::error::Error {
+            text: err.message.clone(),
+            start_pos: get_position(&input, start_index),
+            end_pos: get_position(&input, end_index),
+        });
+
+        Err(err)
+    } else {
+        pt
+    };
+
     AnalizeResult {
         ast,
         tokens,

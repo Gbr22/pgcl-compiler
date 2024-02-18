@@ -1,5 +1,5 @@
 use crate::parser::grammars::function_declaration::FunctionDeclarationGrammar;
-use crate::parser::grammars::uniform_declaration::UniformDeclarationGrammar;
+use crate::parser::grammars::var_declaration::VarDeclarationGrammar;
 use crate::parser::{
     nodes::document::AstDocument, parse::Parser, tree::TreeNode, tree_nodes::TreeNodes,
 };
@@ -11,7 +11,7 @@ impl Parser for DocumentParser {
         let range = nodes.range;
 
         let nodes = process_grammars! { nodes [
-            UniformDeclarationGrammar,
+            VarDeclarationGrammar,
             FunctionDeclarationGrammar
         ] };
 

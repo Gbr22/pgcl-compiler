@@ -1,18 +1,19 @@
-use crate::parser::parsers::uniform_declaration::UniformDeclarationParser;
+use crate::lexer::types::keywords::FN;
+use crate::parser::parsers::var_declaration::VarDeclarationParser;
 use crate::parser::tree_nodes::TreeNodes;
 use crate::use_parser;
 use crate::{
-    lexer::types::{keywords::UNIFORM, token_type::TokenType},
+    lexer::types::{keywords::VAR, token_type::TokenType},
     parser::{grammar::GrammarLike, parse::Parser, tree::TreeNode},
 };
 
-pub struct UniformDeclarationGrammar {}
+pub struct VarDeclarationGrammar {}
 
-fn can_end_uniform_search(node: &TreeNode) -> bool {
-    if node.is_keyword("fn") {
+fn can_end_var_search(node: &TreeNode) -> bool {
+    if node.is_keyword(FN) {
         return true;
     }
-    if node.is_keyword("uniform") {
+    if node.is_keyword(VAR) {
         return true;
     }
     if let TreeNode::Token(token) = node {
@@ -24,15 +25,15 @@ fn can_end_uniform_search(node: &TreeNode) -> bool {
     false
 }
 
-impl GrammarLike for UniformDeclarationGrammar {
-    use_parser!(UniformDeclarationParser);
+impl GrammarLike for VarDeclarationGrammar {
+    use_parser!(VarDeclarationParser);
 
     fn next_match_start(&self, nodes: &TreeNodes) -> Option<usize> {
         for (index, node) in nodes.iter().enumerate() {
             let TreeNode::Token(token) = node else {
                 continue;
             };
-            if &token.string != UNIFORM {
+            if &token.string != VAR {
                 continue;
             }
             return Some(index);
@@ -51,7 +52,7 @@ impl GrammarLike for UniformDeclarationGrammar {
                 return Some(index);
             };
 
-            if can_end_uniform_search(item) {
+            if can_end_var_search(item) {
                 return Some(index - 1);
             }
         }

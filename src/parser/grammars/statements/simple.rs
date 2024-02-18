@@ -20,6 +20,12 @@ impl GrammarLike for SimpleStatementGrammar {
             if let TreeNode::Statement(_) = node {
                 continue;
             }
+            if let TreeNode::VarDeclaration(_) = node {
+                continue;
+            }
+            if let TreeNode::ParseError(_) = node {
+                continue;
+            }
             return Some(index);
         }
 

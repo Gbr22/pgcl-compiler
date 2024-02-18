@@ -13,14 +13,14 @@ use crate::parser::nodes::statements::statement::Statement;
 use crate::parser::nodes::types::typ::AstType;
 use crate::parser::nodes::types::type_arg::TypeArg;
 use crate::parser::nodes::types::type_args::TypeArgs;
-use crate::parser::nodes::uniform_declaration::AstUniformDeclaration as UniformDeclaration;
+use crate::parser::nodes::var_declaration::AstVarDeclaration as VarDeclaration;
 
 trait_enum! {
     #[derive(Debug, Clone)]
     pub enum TreeNode: TreeNodeLike {
         Token,
         Document,
-        UniformDeclaration,
+        VarDeclaration,
         ParseError,
         AstType,
         FunctionDeclaration,

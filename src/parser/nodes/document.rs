@@ -14,7 +14,7 @@ use crate::{
 
 use super::{
     function_declaration::{AstFunctionDeclaration, PtFunctionDeclaration},
-    uniform_declaration::{AstUniformDeclaration, PtUniformDeclaration},
+    var_declaration::{AstVarDeclaration, PtVarDeclaration},
 };
 
 #[derive(Debug, Clone)]
@@ -26,7 +26,7 @@ pub struct AstDocument {
 #[derive(Debug, Clone)]
 pub struct PtDocument {
     pub range: Range,
-    pub uniforms: Vec<PtUniformDeclaration>,
+    pub vars: Vec<PtVarDeclaration>,
     pub functions: Vec<PtFunctionDeclaration>,
 }
 
@@ -38,15 +38,15 @@ impl TryIntoPt<PtDocument> for AstDocument {
     ) -> Result<PtDocument, PtError> {
         let range = self.range;
         let mut functions: Vec<AstFunctionDeclaration> = vec![];
-        let mut uniforms: Vec<AstUniformDeclaration> = vec![];
+        let mut vars: Vec<AstVarDeclaration> = vec![];
 
         for child in self.children.into_iter() {
             match child {
                 TreeNode::FunctionDeclaration(fun) => {
                     functions.push(fun);
                 }
-                TreeNode::UniformDeclaration(uni) => {
-                    uniforms.push(uni);
+                TreeNode::VarDeclaration(uni) => {
+                    vars.push(uni);
                 }
                 TreeNode::ParseError(err) => {
                     return Err(err.into());
@@ -59,9 +59,9 @@ impl TryIntoPt<PtDocument> for AstDocument {
             try_map_into_pt(functions, root_context.clone(), context);
         let functions = functions?;
 
-        let uniforms: Result<Vec<PtUniformDeclaration>, PtError> =
-            try_map_into_pt(uniforms, root_context.clone(), context);
-        let uniforms = uniforms?;
+        let vars: Result<Vec<PtVarDeclaration>, PtError> =
+            try_map_into_pt(vars, root_context.clone(), context);
+        let vars = vars?;
 
         let mut root = root_context.lock().unwrap();
 
@@ -84,7 +84,7 @@ impl TryIntoPt<PtDocument> for AstDocument {
         Ok(PtDocument {
             range,
             functions,
-            uniforms,
+            vars,
         })
     }
 }
