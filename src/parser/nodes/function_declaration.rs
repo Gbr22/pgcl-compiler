@@ -4,7 +4,7 @@ use crate::{
     common::range::Range,
     parser::{
         program_tree::{
-            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, scope::Referable, value_declaration::ValueDeclarationReferableLike
+            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, scope::{FunctionScopeId, Referable, Scope, ScopeId}, value_declaration::ValueDeclarationReferableLike
         },
         tree::{TreeNode, TreeNodeLike},
     },
@@ -29,10 +29,17 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
     ) -> Result<PtFunctionDeclaration, PtError> {
         let range = self.range;
         let name = self.name;
+        
+
+        let mut root = root_context.lock().unwrap();
+        let scope_id = ScopeId::Function(FunctionScopeId::new(&context.uri, &name.value));
+        let scope = Scope::new();
+        root.scopes.insert(scope_id.clone(), scope);
+        let context = context.to_owned().extend(scope_id.clone());
 
         let args: Vec<PtFunctionArg> = match *self.args {
             TreeNode::FunctionArgs(args) => {
-                args.try_into_pt(root_context.clone(),context)?
+                args.try_into_pt(root_context.clone(),&context)?
             },
             TreeNode::ParseError(err) => {
                 return Err(PtError::from(err))
@@ -44,12 +51,17 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
 
         let return_type = match *self.return_type {
             TreeNode::AstType(typ) => {
-                typ.try_into_pt(root_context.clone(), context)?
+                typ.try_into_pt(root_context.clone(), &context)?
             },
             node => {
                 return Err(PtError::in_at(&context.uri, node.get_range(), "Expected type."));
             }
         };
+
+        let scope = Scope::new();
+
+        let mut root = root_context.lock().unwrap();
+        root.scopes.insert(scope_id, scope);
 
         Ok(PtFunctionDeclaration { range, name, args, return_type })
     }

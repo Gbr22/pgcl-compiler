@@ -11,6 +11,15 @@ pub struct FunctionScopeId {
     name: String,
 }
 
+impl FunctionScopeId {
+    pub fn new(uri: impl Into<String>, name: impl Into<String>) -> FunctionScopeId {
+        FunctionScopeId {
+            uri: uri.into(),
+            name: name.into(),
+        }
+    }
+}
+
 #[derive(Eq, Hash, PartialEq, Debug, Clone)]
 pub enum ScopeId {
     Global,
@@ -23,6 +32,16 @@ pub struct Scope {
     pub types: Vec<TypeDeclarationReferable>,
     pub values: Vec<ValueDeclarationReferable>,
     pub functions: Vec<FunctionDeclarationReferable>,
+}
+
+impl Scope {
+    pub fn new() -> Scope {
+        Scope {
+            types: vec![],
+            values: vec![],
+            functions: vec![],
+        }
+    }
 }
 
 pub trait Referable {

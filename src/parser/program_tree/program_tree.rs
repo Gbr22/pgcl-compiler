@@ -90,9 +90,18 @@ pub struct RootContext {
 
 pub type RootContextMutRef = Arc<Mutex<RootContext>>;
 
+#[derive(Debug, Clone)]
 pub struct CurrentContext {
     pub uri: String,
     pub accessible_scopes: Vec<ScopeId>,
+}
+
+impl CurrentContext {
+    pub fn extend(mut self, new_scope: ScopeId) -> Self {
+        self.accessible_scopes.push(new_scope);
+
+        self
+    }
 }
 
 pub fn create_global_scope() -> Scope {

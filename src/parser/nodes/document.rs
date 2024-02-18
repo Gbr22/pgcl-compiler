@@ -40,6 +40,16 @@ impl TryIntoPt<PtDocument> for AstDocument {
         let mut functions: Vec<AstFunctionDeclaration> = vec![];
         let mut vars: Vec<AstVarDeclaration> = vec![];
 
+        let mut root = root_context.lock().unwrap();
+
+        let scope_id = ScopeId::Document(DocumentScopeId {
+            uri: context.uri.clone(),
+        });
+
+        let scope = Scope::new();
+        root.scopes.insert(scope_id.clone(), scope);
+        let context = context.to_owned().extend(scope_id);
+
         for child in self.children.into_iter() {
             match child {
                 TreeNode::FunctionDeclaration(fun) => {
@@ -56,30 +66,12 @@ impl TryIntoPt<PtDocument> for AstDocument {
         }
 
         let functions: Result<Vec<PtFunctionDeclaration>, PtError> =
-            try_map_into_pt(functions, root_context.clone(), context);
+            try_map_into_pt(functions, root_context.clone(), &context);
         let functions = functions?;
 
         let vars: Result<Vec<PtVarDeclaration>, PtError> =
-            try_map_into_pt(vars, root_context.clone(), context);
+            try_map_into_pt(vars, root_context.clone(), &context);
         let vars = vars?;
-
-        let mut root = root_context.lock().unwrap();
-
-        let scope_id = ScopeId::Document(DocumentScopeId {
-            uri: context.uri.to_owned(),
-        });
-
-        let scope = Scope {
-            types: vec![],
-            values: vec![],
-            functions: functions
-                .clone()
-                .into_par_iter()
-                .map(|fun| FunctionDeclarationReferable::UserFunction(fun))
-                .collect(),
-        };
-
-        root.scopes.insert(scope_id, scope);
 
         Ok(PtDocument {
             range,
