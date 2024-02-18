@@ -1,4 +1,4 @@
-use std::{string::ParseError, sync::{Arc, Mutex}};
+use std::sync::{Arc, Mutex};
 
 use crate::{
     common::range::Range,
@@ -10,12 +10,12 @@ use crate::{
     },
 };
 
-use super::{function_arg::PtFunctionArg, types::typ::PtType};
+use super::{function_arg::PtFunctionArg, tagged_string::TaggedString, types::typ::PtType};
 
 #[derive(Debug, Clone)]
 pub struct AstFunctionDeclaration {
     pub range: Range,
-    pub name: String,
+    pub name: TaggedString,
     pub args: Box<TreeNode>,
     pub return_type: Box<TreeNode>,
     pub body: Box<TreeNode>,
@@ -58,14 +58,14 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
 #[derive(Debug, Clone)]
 pub struct PtFunctionDeclaration {
     pub range: Range,
-    pub name: String,
+    pub name: TaggedString,
     pub args: Vec<PtFunctionArg>,
     pub return_type: PtType
 }
 
 impl Referable for PtFunctionDeclaration {
     fn get_name(&self) -> &str {
-        &self.name
+        &self.name.value
     }
 }
 impl FunctionDeclarationReferableLike for PtFunctionDeclaration {}

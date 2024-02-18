@@ -5,7 +5,7 @@ use crate::{
     },
     parser::{
         grammars::function_declaration::{find_args_end, find_body_end, find_body_start},
-        nodes::function_declaration::AstFunctionDeclaration,
+        nodes::{function_declaration::AstFunctionDeclaration, tagged_string::TaggedString},
         parse::Parser,
         parsers::{block::BlockParser, function_args::FunctionArgsParser, types::typ::TypeParser},
         tree::{ParseError, TreeNode},
@@ -34,7 +34,7 @@ impl Parser for FunctionDeclarationParser {
             name_node.typ == TokenType::Identifier && !is_keyword(&name_node.string)
         );
 
-        let name = name_node.string;
+        let name: TaggedString = name_node.into();
 
         pop_front_node!(
             nodes,
