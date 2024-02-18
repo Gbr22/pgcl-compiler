@@ -4,7 +4,7 @@ use crate::{
     common::range::Range,
     parser::{
         program_tree::{
-            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, TryIntoPt}, scope::Referable, value_declaration::ValueDeclarationReferableLike
+            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, scope::Referable, value_declaration::ValueDeclarationReferableLike
         },
         tree::{TreeNode, TreeNodeLike},
     },
@@ -24,7 +24,7 @@ pub struct AstFunctionDeclaration {
 impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
     fn try_into_pt(
         self,
-        root_context: Arc<Mutex<RootContext>>,
+        root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<PtFunctionDeclaration, PtError> {
         let range = self.range;

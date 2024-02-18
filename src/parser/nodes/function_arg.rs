@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::common::range::Range;
-use crate::parser::program_tree::program_tree::{CurrentContext, PtError, RootContext, TryIntoPt};
+use crate::parser::program_tree::program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt};
 use crate::parser::tree::{TreeNode, TreeNodeLike};
 
 use super::function_declaration::{AstFunctionDeclaration, PtFunctionDeclaration};
@@ -33,7 +33,7 @@ pub struct PtFunctionArg {
 impl TryIntoPt<PtFunctionArg> for AstFunctionArg {
     fn try_into_pt(
         self,
-        root_context: Arc<Mutex<RootContext>>,
+        root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<PtFunctionArg, PtError> {
         let range = self.range;

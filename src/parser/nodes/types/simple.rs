@@ -1,47 +1,43 @@
 use super::typ::{AstTypeLike, PtTypeLike};
 use crate::common::range::Range;
 
-use crate::parser::program_tree::program_tree::TryIntoPt;
+use crate::parser::program_tree::program_tree::{RootContext, TryIntoPt};
 use crate::parser::program_tree::type_declaration::{TypeDeclarationReferable, TypeDeclarationReferableLike};
 use crate::parser::reference::{Reference, TypeReference};
 use crate::parser::tree::TreeNodeLike;
 
 #[derive(Debug, Clone)]
-pub struct AstSimpleType {
+pub struct AstSimpleTypeExpression {
     pub range: Range,
     pub name: String,
 }
 
 #[derive(Debug, Clone)]
-pub struct PtSimpleType {
+pub struct PtSimpleTypeExpression {
     pub reference: TypeReference,
     pub range: Range,
 }
 
-impl PtTypeLike for PtSimpleType {
-    fn get_range(&self) -> Range {
-        self.range
-    }
-    fn to_string(&self) -> String {
-        let Some(referable) = self.reference.resolve() else {
+impl PtTypeLike for PtSimpleTypeExpression {
+    fn to_string(&self, root: &RootContext) -> String {
+        let Some(referable) = self.reference.resolve(root) else {
             return format!("error<\"Could not resolve reference to type\">");
         };
         referable.to_string()
     }
-    fn resolve_type(&self) -> Option<TypeDeclarationReferable> {
-        self.reference.resolve()
+    fn resolve_type(&self, root: &RootContext) -> Option<TypeDeclarationReferable> {
+        self.reference.resolve(root)
     }
 }
 
-impl TryIntoPt<PtSimpleType> for AstSimpleType {
+impl TryIntoPt<PtSimpleTypeExpression> for AstSimpleTypeExpression {
     fn try_into_pt(
         self,
         root_context: std::sync::Arc<std::sync::Mutex<crate::parser::program_tree::program_tree::RootContext>>,
         context: &crate::parser::program_tree::program_tree::CurrentContext,
-    ) -> Result<PtSimpleType, crate::parser::program_tree::program_tree::PtError> {
-        Ok(PtSimpleType {
+    ) -> Result<PtSimpleTypeExpression, crate::parser::program_tree::program_tree::PtError> {
+        Ok(PtSimpleTypeExpression {
             reference: TypeReference(Reference {
-                root: root_context.clone(),
                 scopes: context.accessible_scopes.clone(),
                 name: self.name
             }),
@@ -50,7 +46,7 @@ impl TryIntoPt<PtSimpleType> for AstSimpleType {
     }
 }
 
-impl TreeNodeLike for AstSimpleType {
+impl TreeNodeLike for AstSimpleTypeExpression {
     fn get_range(&self) -> Range {
         self.range
     }
@@ -59,7 +55,7 @@ impl TreeNodeLike for AstSimpleType {
     }
 }
 
-impl AstTypeLike for AstSimpleType {
+impl AstTypeLike for AstSimpleTypeExpression {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
         Box::new(self)
     }

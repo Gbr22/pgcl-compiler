@@ -4,7 +4,6 @@ use super::program_tree::{program_tree::RootContext, scope::{Referable, ScopeId}
 
 #[derive(Debug, Clone)]
 pub struct Reference {
-    pub root: Arc<Mutex<RootContext>>,
     pub scopes: Vec<ScopeId>,
     pub name: String
 }
@@ -13,9 +12,8 @@ pub struct Reference {
 pub struct TypeReference(pub Reference);
 
 impl TypeReference {
-    pub fn resolve(&self) -> Option<TypeDeclarationReferable> {
+    pub fn resolve(&self, root: &RootContext) -> Option<TypeDeclarationReferable> {
         let r = &self.0;
-        let root = r.root.lock().unwrap();
         for id in r.scopes.iter().rev() {
             let Some(scope) = root.scopes.get(id) else {
                 continue;

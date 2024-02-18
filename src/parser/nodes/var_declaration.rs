@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::{
     common::range::Range, lexer::types::address_spaces::FUNCTION, parser::{
-        program_tree::{program_tree::{CurrentContext, PtError, RootContext, TryIntoPt}, scope::{Referable, ScopeId}, value_declaration::ValueDeclarationReferableLike},
+        program_tree::{program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, scope::{Referable, ScopeId}, value_declaration::ValueDeclarationReferableLike},
         tree::{TreeNode, TreeNodeLike},
     }
 };
@@ -37,7 +37,7 @@ impl ValueDeclarationReferableLike for PtVarDeclaration {}
 impl TryIntoPt<PtVarDeclaration> for AstVarDeclaration {
     fn try_into_pt(
         self,
-        root_context: Arc<Mutex<RootContext>>,
+        root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<PtVarDeclaration, PtError> {
         let range = self.range;

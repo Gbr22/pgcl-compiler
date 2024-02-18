@@ -6,7 +6,7 @@ use crate::{
     common::range::Range,
     parser::{
         program_tree::{
-            function_declaration::FunctionDeclarationReferable, program_tree::{try_map_into_pt, CurrentContext, PtError, RootContext, TryIntoPt}, scope::{DocumentScopeId, Scope, ScopeId}, value_declaration::ValueDeclarationReferable
+            function_declaration::FunctionDeclarationReferable, program_tree::{try_map_into_pt, CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, scope::{DocumentScopeId, Scope, ScopeId}, value_declaration::ValueDeclarationReferable
         },
         tree::{TreeNode, TreeNodeLike},
     },
@@ -33,7 +33,7 @@ pub struct PtDocument {
 impl TryIntoPt<PtDocument> for AstDocument {
     fn try_into_pt(
         self,
-        root_context: Arc<Mutex<RootContext>>,
+        root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<PtDocument, PtError> {
         let range = self.range;

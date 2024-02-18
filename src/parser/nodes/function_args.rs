@@ -1,6 +1,6 @@
 use crate::{
     common::range::Range,
-    parser::{program_tree::program_tree::{CurrentContext, PtError, RootContextRef, TryIntoPt}, tree::{TreeNode, TreeNodeLike}},
+    parser::{program_tree::program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt}, tree::{TreeNode, TreeNodeLike}},
 };
 
 use super::function_arg::PtFunctionArg;
@@ -23,7 +23,7 @@ impl TreeNodeLike for FunctionArgs {
 impl TryIntoPt<Vec<PtFunctionArg>> for FunctionArgs {
     fn try_into_pt(
         self,
-        root_context: RootContextRef,
+        root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<Vec<PtFunctionArg>, PtError> {
         let mut vec: Vec<PtFunctionArg> = vec![];

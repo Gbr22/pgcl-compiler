@@ -1,13 +1,14 @@
 use super::compound::CompoundType;
-use super::simple::{AstSimpleType, PtSimpleType};
+use super::internal::PtInternalTypeExpression;
+use super::simple::{AstSimpleTypeExpression, PtSimpleTypeExpression};
 use crate::common::range::Range;
-use crate::parser::program_tree::program_tree::{PtError, TryIntoPt};
+use crate::parser::program_tree::program_tree::{PtError, RootContext, TryIntoPt};
 use crate::parser::program_tree::type_declaration::TypeDeclarationReferable;
 use crate::parser::tree::TreeNodeLike;
 
 #[derive(Debug, Clone)]
 pub enum AstType {
-    Simple(AstSimpleType),
+    Simple(AstSimpleTypeExpression),
     Compound(CompoundType),
 }
 
@@ -22,7 +23,8 @@ impl AstTypeLike for AstType {
 
 #[derive(Debug, Clone)]
 pub enum PtType {
-    Simple(PtSimpleType)
+    Simple(PtSimpleTypeExpression),
+    Internal(PtInternalTypeExpression)
 }
 
 impl TryIntoPt<PtType> for AstType {
@@ -45,26 +47,22 @@ impl TryIntoPt<PtType> for AstType {
 }
 
 pub trait PtTypeLike {
-    fn get_range(&self) -> Range;
-    fn to_string(&self) -> String;
-    fn resolve_type(&self) -> Option<TypeDeclarationReferable>;
+    fn to_string(&self, root: &RootContext) -> String;
+    fn resolve_type(&self, root: &RootContext) -> Option<TypeDeclarationReferable>;
 }
 
 impl PtTypeLike for PtType {
-    fn get_range(&self) -> Range {
+    fn to_string(&self, root: &RootContext) -> String {
         match self {
-            PtType::Simple(e) => e.get_range(),
-        }
-    }
-    fn to_string(&self) -> String {
-        match self {
-            PtType::Simple(e) => e.to_string(),
+            PtType::Simple(e) => e.to_string(root),
+            PtType::Internal(e) => e.to_string(root),
         }
     }
 
-    fn resolve_type(&self) -> Option<TypeDeclarationReferable> {
+    fn resolve_type(&self, root: &RootContext) -> Option<TypeDeclarationReferable> {
         match self {
-            PtType::Simple(e) => e.resolve_type(),
+            PtType::Simple(e) => e.resolve_type(root),
+            PtType::Internal(e) => e.resolve_type(root),
         }
     }
 }

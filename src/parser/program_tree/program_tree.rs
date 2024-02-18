@@ -6,14 +6,13 @@ use std::{
 use crate::{
     common::range::Range,
     parser::{
-        nodes::document::PtDocument,
-        tree::{ParseError, TreeNode},
+        nodes::{document::PtDocument, types::{internal::{global_type_ref, PtInternalTypeExpression}, simple::PtSimpleTypeExpression, typ::PtType}}, reference::{Reference, TypeReference}, tree::{ParseError, TreeNode}
     },
 };
 use rayon::{iter::Either, prelude::*, vec::IntoIter};
 
 use super::{
-    scope::{Scope, ScopeId}, type_declaration::{PrimitiveTypeDeclaration, TypeDeclarationReferable}, value_declaration::ValueDeclarationReferable
+    function_declaration::FunctionDeclarationReferable, native_function::{NativeFunction, NativeFunctionArg}, scope::{Scope, ScopeId}, type_declaration::{PrimitiveTypeDeclaration, TypeDeclarationReferable}, value_declaration::ValueDeclarationReferable
 };
 
 #[derive(Debug, Clone)]
@@ -53,14 +52,14 @@ impl From<ParseError> for PtError {
 pub trait TryIntoPt<Final> {
     fn try_into_pt(
         self,
-        root_context: Arc<Mutex<RootContext>>,
+        root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<Final, PtError>;
 }
 
 pub fn try_map_into_pt<Source, Destination>(
     vec: Vec<Source>,
-    root_context: Arc<Mutex<RootContext>>,
+    root_context: RootContextMutRef,
     context: &CurrentContext,
 ) -> Result<Vec<Destination>, PtError>
 where
@@ -89,7 +88,7 @@ pub struct RootContext {
     pub scopes: HashMap<ScopeId, Scope>,
 }
 
-pub type RootContextRef = Arc<Mutex<RootContext>>;
+pub type RootContextMutRef = Arc<Mutex<RootContext>>;
 
 pub struct CurrentContext {
     pub uri: String,
@@ -117,13 +116,21 @@ pub fn create_global_scope() -> Scope {
             }),
         ],
         values: vec![],
-        functions: vec![],
+        functions: vec![
+            FunctionDeclarationReferable::NativeFunction(NativeFunction {
+                name: "cos".to_owned(),
+                return_type: global_type_ref("f32").into(),
+                args: vec![
+                    NativeFunctionArg::new("value", "f32")
+                ],
+            })
+        ],
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct ProgramTree {
-    pub context: Arc<Mutex<RootContext>>,
+    pub context: RootContextMutRef,
     pub main: PtDocument,
 }
 
