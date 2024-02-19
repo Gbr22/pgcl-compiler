@@ -10,7 +10,7 @@ use crate::{
     },
 };
 
-use super::{function_arg::PtFunctionArg, tagged_string::TaggedString, types::typ::PtType};
+use super::{block::PtBlock, function_arg::PtFunctionArg, tagged_string::TaggedString, types::typ::PtType};
 
 #[derive(Debug, Clone)]
 pub struct AstFunctionDeclaration {
@@ -58,7 +58,16 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
             }
         };
 
-        Ok(PtFunctionDeclaration { range, name, args, return_type })
+        let body = match *self.body {
+            TreeNode::Block(body) => {
+                body.try_into_pt(root_context.clone(), &context)?
+            },
+            node => {
+                return Err(PtError::in_at(&context.uri, node.get_range(), "Expected block."));
+            }
+        };
+
+        Ok(PtFunctionDeclaration { range, name, args, return_type, body })
     }
 }
 
@@ -67,7 +76,8 @@ pub struct PtFunctionDeclaration {
     pub range: Range,
     pub name: TaggedString,
     pub args: Vec<PtFunctionArg>,
-    pub return_type: PtType
+    pub return_type: PtType,
+    pub body: PtBlock
 }
 
 impl Referable for PtFunctionDeclaration {

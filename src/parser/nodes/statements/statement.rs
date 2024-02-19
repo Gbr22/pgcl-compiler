@@ -1,13 +1,14 @@
 use crate::common::range::Range;
+use crate::parser::nodes::var_declaration::PtVarDeclaration;
 use crate::parser::tree::{TreeNode, TreeNodeLike};
 
 use super::ret::ReturnStatement;
-use super::simple::SimpleStatement;
+use super::simple::ExpressionStatement;
 
 trait_enum! {
     #[derive(Debug, Clone)]
     pub enum Statement: StatementLike {
-        SimpleStatement,
+        ExpressionStatement,
         ReturnStatement
     }
 }
@@ -23,4 +24,11 @@ impl TreeNodeLike for Statement {
     fn children(&self) -> Vec<&TreeNode> {
         self.to_node_like().children()
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum PtStatement {
+    Expression,
+    Return,
+    VarDeclaration(PtVarDeclaration)
 }

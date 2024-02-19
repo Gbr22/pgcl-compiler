@@ -6,12 +6,12 @@ use crate::{
 
 // Semicolon delimited statement
 #[derive(Debug, Clone)]
-pub struct SimpleStatement {
+pub struct ExpressionStatement {
     pub range: Range,
     pub expr: Box<TreeNode>,
 }
 
-impl TreeNodeLike for SimpleStatement {
+impl TreeNodeLike for ExpressionStatement {
     fn get_range(&self) -> Range {
         self.range
     }
@@ -20,7 +20,7 @@ impl TreeNodeLike for SimpleStatement {
     }
 }
 
-impl StatementLike for SimpleStatement {
+impl StatementLike for ExpressionStatement {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
         Box::new(self)
     }

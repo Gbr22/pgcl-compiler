@@ -2,7 +2,7 @@ use std::ops::Add;
 
 use serde_derive::Serialize;
 
-#[derive(Debug, Clone, Copy, Serialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Eq, Hash, PartialEq)]
 pub struct Range {
     pub start_index: usize,
     pub end_index: usize,

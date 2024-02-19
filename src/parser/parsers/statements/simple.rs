@@ -1,7 +1,7 @@
 use crate::{
     lexer::types::token_type::TokenType,
     parser::{
-        nodes::statements::{simple::SimpleStatement, statement::Statement},
+        nodes::statements::{simple::ExpressionStatement, statement::Statement},
         parse::Parser,
         parsers::expressions::expr::ExpressionParser,
         tree::TreeNode,
@@ -25,11 +25,11 @@ impl Parser for SimpleStatementParser {
 
         let expr = ExpressionParser::parse(nodes);
 
-        let statement = SimpleStatement {
+        let statement = ExpressionStatement {
             range,
             expr: Box::new(expr),
         };
 
-        TreeNode::Statement(Statement::SimpleStatement(statement))
+        TreeNode::Statement(Statement::ExpressionStatement(statement))
     }
 }
