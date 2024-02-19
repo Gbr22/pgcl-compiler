@@ -4,7 +4,7 @@ use crate::{
     common::range::Range,
     parser::{
         program_tree::{
-            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, scope::{FunctionScopeId, Referable, Scope, ScopeId}, value_declaration::ValueDeclarationReferableLike
+            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt}, scope::{FunctionScopeId, Referable, Scope, ScopeId}, value_declaration::ValueDeclarationReferableLike
         },
         tree::{TreeNode, TreeNodeLike},
     },
@@ -21,21 +21,21 @@ pub struct AstFunctionDeclaration {
     pub body: Box<TreeNode>,
 }
 
+
 impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
     fn try_into_pt(
         self,
-        root_context: RootContextMutRef,
+        mut root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<PtFunctionDeclaration, PtError> {
         let range = self.range;
         let name = self.name;
         
-
-        let mut root = root_context.lock().unwrap();
         let scope_id = ScopeId::Function(FunctionScopeId::new(&context.uri, &name.value));
         let scope = Scope::new();
-        root.scopes.insert(scope_id.clone(), scope);
         let context = context.to_owned().extend(scope_id.clone());
+        
+        root_context.insert_scope(scope_id, scope)?;
 
         let args: Vec<PtFunctionArg> = match *self.args {
             TreeNode::FunctionArgs(args) => {
@@ -57,11 +57,6 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
                 return Err(PtError::in_at(&context.uri, node.get_range(), "Expected type."));
             }
         };
-
-        let scope = Scope::new();
-
-        let mut root = root_context.lock().unwrap();
-        root.scopes.insert(scope_id, scope);
 
         Ok(PtFunctionDeclaration { range, name, args, return_type })
     }

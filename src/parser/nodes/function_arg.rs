@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::common::range::Range;
-use crate::parser::program_tree::program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt};
+use crate::parser::program_tree::program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt};
 use crate::parser::tree::{TreeNode, TreeNodeLike};
 
 use super::function_declaration::{AstFunctionDeclaration, PtFunctionDeclaration};

@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::{
     common::range::Range, lexer::types::address_spaces::FUNCTION, parser::{
-        program_tree::{program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, scope::{Referable, ScopeId}, value_declaration::ValueDeclarationReferableLike},
+        program_tree::{program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt}, scope::{Referable, ScopeId}, value_declaration::ValueDeclarationReferableLike},
         tree::{TreeNode, TreeNodeLike},
     }
 };

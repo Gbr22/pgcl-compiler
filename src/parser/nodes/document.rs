@@ -6,7 +6,7 @@ use crate::{
     common::range::Range,
     parser::{
         program_tree::{
-            function_declaration::FunctionDeclarationReferable, program_tree::{try_map_into_pt, CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, scope::{DocumentScopeId, Scope, ScopeId}, value_declaration::ValueDeclarationReferable
+            function_declaration::FunctionDeclarationReferable, program_tree::{try_map_into_pt, CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt}, scope::{DocumentScopeId, Scope, ScopeId}, value_declaration::ValueDeclarationReferable
         },
         tree::{TreeNode, TreeNodeLike},
     },
@@ -33,22 +33,22 @@ pub struct PtDocument {
 impl TryIntoPt<PtDocument> for AstDocument {
     fn try_into_pt(
         self,
-        root_context: RootContextMutRef,
+        mut root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<PtDocument, PtError> {
         let range = self.range;
         let mut functions: Vec<AstFunctionDeclaration> = vec![];
         let mut vars: Vec<AstVarDeclaration> = vec![];
 
-        let mut root = root_context.lock().unwrap();
-
+        
         let scope_id = ScopeId::Document(DocumentScopeId {
             uri: context.uri.clone(),
         });
-
+        
         let scope = Scope::new();
-        root.scopes.insert(scope_id.clone(), scope);
-        let context = context.to_owned().extend(scope_id);
+        let context = context.to_owned().extend(scope_id.clone());
+
+        root_context.insert_scope(scope_id, scope)?;
 
         for child in self.children.into_iter() {
             match child {

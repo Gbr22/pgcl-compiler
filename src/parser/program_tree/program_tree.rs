@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, MutexGuard, PoisonError},
 };
 
 use crate::{
@@ -35,6 +35,13 @@ impl PtError {
             uri: Some(uri.into()),
             range: Some(range),
             message: message.into(),
+        }
+    }
+    pub fn message(message: impl Into<String>) -> PtError {
+        PtError {
+            uri: None,
+            range: None,
+            message: message.into()
         }
     }
 }
@@ -88,7 +95,29 @@ pub struct RootContext {
     pub scopes: HashMap<ScopeId, Scope>,
 }
 
-pub type RootContextMutRef = Arc<Mutex<RootContext>>;
+pub type RootContextMutRefType = Arc<Mutex<RootContext>>;
+
+#[derive(Debug, Clone)]
+pub struct RootContextMutRef(RootContextMutRefType);
+
+impl RootContextMutRef {
+    pub fn insert_scope(&mut self,scope_id: ScopeId, scope: Scope) -> Result<(),PtError> {
+        let mut root = self.0.lock().map_err(|e|{
+            PtError::message(format!("Encountered poisoned mutex while trying to insert scope: {:?}",scope_id))
+        })?;
+        root.scopes.insert(scope_id.clone(), scope);
+
+        Ok(())
+    }
+}
+
+pub type RootContextMutexPoisonedError<'a> = PoisonError<MutexGuard<'a, RootContext>>;
+
+impl Into<PtError> for RootContextMutexPoisonedError<'_> {
+    fn into(self) -> PtError {
+        PtError { uri: None, range: None, message: "Mutex poisoned".to_owned() }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct CurrentContext {
@@ -139,7 +168,7 @@ pub fn create_global_scope() -> Scope {
 
 #[derive(Debug, Clone)]
 pub struct ProgramTree {
-    pub context: RootContextMutRef,
+    pub context: RootContextMutRefType,
     pub main: PtDocument,
 }
 
@@ -161,7 +190,7 @@ pub fn create_program_tree(
         accessible_scopes: vec![ScopeId::Global],
     };
 
-    let main: PtDocument = doc.try_into_pt(root_context.clone(), &current_context)?;
+    let main: PtDocument = doc.try_into_pt(RootContextMutRef(root_context.clone()), &current_context)?;
 
     Ok(ProgramTree {
         context: root_context,

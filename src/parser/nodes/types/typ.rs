@@ -2,7 +2,7 @@ use super::compound::CompoundType;
 use super::internal::PtInternalTypeExpression;
 use super::simple::{AstSimpleTypeExpression, PtSimpleTypeExpression};
 use crate::common::range::Range;
-use crate::parser::program_tree::program_tree::{PtError, RootContext, TryIntoPt};
+use crate::parser::program_tree::program_tree::{PtError, RootContext, RootContextMutRef, TryIntoPt};
 use crate::parser::program_tree::type_declaration::TypeDeclarationReferable;
 use crate::parser::tree::TreeNodeLike;
 
@@ -30,7 +30,7 @@ pub enum PtType {
 impl TryIntoPt<PtType> for AstType {
     fn try_into_pt(
         self,
-        root_context: std::sync::Arc<std::sync::Mutex<crate::parser::program_tree::program_tree::RootContext>>,
+        root_context: RootContextMutRef,
         context: &crate::parser::program_tree::program_tree::CurrentContext,
     ) -> Result<PtType, crate::parser::program_tree::program_tree::PtError> {
         match self {

@@ -1,7 +1,7 @@
 use super::typ::{AstTypeLike, PtTypeLike};
 use crate::common::range::Range;
 
-use crate::parser::program_tree::program_tree::{RootContext, TryIntoPt};
+use crate::parser::program_tree::program_tree::{RootContext, RootContextMutRef, TryIntoPt};
 use crate::parser::program_tree::type_declaration::{TypeDeclarationReferable, TypeDeclarationReferableLike};
 use crate::parser::reference::{Reference, TypeReference};
 use crate::parser::tree::TreeNodeLike;
@@ -33,7 +33,7 @@ impl PtTypeLike for PtSimpleTypeExpression {
 impl TryIntoPt<PtSimpleTypeExpression> for AstSimpleTypeExpression {
     fn try_into_pt(
         self,
-        root_context: std::sync::Arc<std::sync::Mutex<crate::parser::program_tree::program_tree::RootContext>>,
+        root_context: RootContextMutRef,
         context: &crate::parser::program_tree::program_tree::CurrentContext,
     ) -> Result<PtSimpleTypeExpression, crate::parser::program_tree::program_tree::PtError> {
         Ok(PtSimpleTypeExpression {
