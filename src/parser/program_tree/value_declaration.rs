@@ -1,13 +1,26 @@
-use crate::parser::nodes::var_declaration::PtVarDeclaration as Uniform;
+use crate::parser::nodes::var_declaration::PtVarDeclaration;
 
-use super::scope::Referable;
+use super::{native_const::NativeConst, scope::Referable};
 
-trait_enum! {
-    #[derive(Debug, Clone)]
-    pub enum ValueDeclarationReferable: ValueDeclarationReferableLike {
-        Uniform
+#[derive(Debug, Clone)]
+pub enum ValueDeclarationReferable {
+    Var(PtVarDeclaration),
+    NativeConst(NativeConst)
+}
+
+impl Referable for ValueDeclarationReferable {
+    fn get_name(&self) -> &str {
+        match self {
+            ValueDeclarationReferable::Var(v) => v.get_name(),
+            ValueDeclarationReferable::NativeConst(n) => n.get_name(),
+        }
     }
 }
+
+impl ValueDeclarationReferableLike for ValueDeclarationReferable {
+
+}
+
 
 pub trait ValueDeclarationReferableLike: Referable {
     

@@ -12,7 +12,7 @@ use crate::{
 use rayon::{iter::Either, prelude::*, vec::IntoIter};
 
 use super::{
-    function_declaration::FunctionDeclarationReferable, native_function::{NativeFunction, NativeFunctionArg}, scope::{Scope, ScopeId}, type_declaration::{PrimitiveTypeDeclaration, TypeDeclarationReferable}, value_declaration::ValueDeclarationReferable
+    function_declaration::FunctionDeclarationReferable, native_const::NativeConst, native_function::{NativeFunction, NativeFunctionArg}, scope::{Scope, ScopeId}, type_declaration::{PrimitiveTypeDeclaration, TypeDeclarationReferable}, value::Value, value_declaration::ValueDeclarationReferable
 };
 
 #[derive(Debug, Clone)]
@@ -153,7 +153,10 @@ pub fn create_global_scope() -> Scope {
                 description: Some("boolean (true or false) value".to_owned())
             }),
         ],
-        values: vec![],
+        values: vec![
+            NativeConst::new("true", Value::Bool(true)).into(),
+            NativeConst::new("false", Value::Bool(false)).into(),
+        ],
         functions: vec![
             FunctionDeclarationReferable::NativeFunction(NativeFunction {
                 name: "cos".to_owned(),

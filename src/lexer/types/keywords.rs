@@ -10,7 +10,6 @@ pub static DIAGNOSTIC: &str = "diagnostic";
 pub static DISCARD: &str = "discard";
 pub static ELSE: &str = "else";
 pub static ENABLE: &str = "enable";
-pub static FALSE: &str = "false";
 pub static FN: &str = "fn";
 pub static FOR: &str = "for";
 pub static IF: &str = "if";
@@ -21,12 +20,11 @@ pub static REQUIRES: &str = "requires";
 pub static RETURN: &str = "return";
 pub static STRUCT: &str = "struct";
 pub static SWITCH: &str = "switch";
-pub static TRUE: &str = "true";
 pub static VAR: &str = "var";
 pub static WHILE: &str = "while";
 
 pub fn get_keywords() -> Vec<&'static str> {
-    vec![ALIAS, BREAK, CASE, CONST, CONST_ASSERT, CONTINUE, CONTINUING, DEFAULT, DIAGNOSTIC, DISCARD, ELSE, ENABLE, FALSE, FN, FOR, IF, LET, LOOP, OVERRIDE, REQUIRES, RETURN, STRUCT, SWITCH, TRUE, VAR, WHILE]
+    vec![ALIAS, BREAK, CASE, CONST, CONST_ASSERT, CONTINUE, CONTINUING, DEFAULT, DIAGNOSTIC, DISCARD, ELSE, ENABLE, FN, FOR, IF, LET, LOOP, OVERRIDE, REQUIRES, RETURN, STRUCT, SWITCH, VAR, WHILE]
 }
 pub fn is_keyword(str: &str) -> bool {
     get_keywords().contains(&str)
