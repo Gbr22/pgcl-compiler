@@ -17,16 +17,15 @@ impl GrammarLike for SimpleStatementGrammar {
             return None;
         }
         for (index, node) in nodes.iter().enumerate() {
-            if let TreeNode::Statement(_) = node {
-                continue;
-            }
-            if let TreeNode::VarDeclaration(_) = node {
-                continue;
-            }
-            if let TreeNode::ParseError(_) = node {
-                continue;
-            }
-            return Some(index);
+            match node {
+                TreeNode::VarDeclaration(_) => { continue; }
+                TreeNode::Statement(_) => { continue; }
+                TreeNode::ParseError(_) => { continue; }
+                TreeNode::Block(_) => { continue; }
+                _ => {
+                    return Some(index);
+                }
+            };
         }
 
         None

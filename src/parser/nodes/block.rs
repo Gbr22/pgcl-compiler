@@ -1,11 +1,9 @@
-use std::env::var;
-
 use crate::{
     common::range::Range,
     parser::{program_tree::{program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt}, scope::{BlockScopedId, Scope, ScopeId, VarScopeId}}, tree::{TreeNode, TreeNodeLike}},
 };
 
-use super::statements::statement::PtStatement;
+use super::var_declaration::PtVarDeclaration;
 
 #[derive(Debug, Clone)]
 pub struct Block {
@@ -22,6 +20,14 @@ impl TreeNodeLike for Block {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum PtBlockChild {
+    Expression,
+    Return,
+    VarDeclaration(PtVarDeclaration),
+    Block(PtBlock)
+}
+
 impl TryIntoPt<PtBlock> for Block {
     fn try_into_pt(
         self,
@@ -35,7 +41,7 @@ impl TryIntoPt<PtBlock> for Block {
         let mut context = context.to_owned().extend(scope_id.clone());
         root_context.insert_scope(scope_id, scope)?;
 
-        let mut statements: Vec<PtStatement> = vec![];
+        let mut statements: Vec<PtBlockChild> = vec![];
         for child in self.children {
             match child {
                 TreeNode::ParseError(e) => {
@@ -45,11 +51,17 @@ impl TryIntoPt<PtBlock> for Block {
                     let pt = var_declaration.try_into_pt(root_context.clone(), &context)?;
                     let new_scope = ScopeId::Var(VarScopeId::new(&context.uri, pt.name.clone(), pt.range));
                     context = context.extend(new_scope);
-                    statements.push(PtStatement::VarDeclaration(pt));
+                    statements.push(PtBlockChild::VarDeclaration(pt));
                 },
                 TreeNode::Statement(_) => {
                     // TODO
                 },
+                TreeNode::Block(block) => {
+                    let pt = block.try_into_pt(root_context.clone(), &context)?;
+                    let new_scope = ScopeId::Block(BlockScopedId::new(&context.uri, pt.range));
+                    context = context.extend(new_scope);
+                    statements.push(PtBlockChild::Block(pt));
+                }
                 _ => {
                     return Err(PtError::in_at(&context.uri, range, "Unexpected item."))
                 }
@@ -66,5 +78,5 @@ impl TryIntoPt<PtBlock> for Block {
 #[derive(Debug, Clone)]
 pub struct PtBlock {
     pub range: Range,
-    pub statements: Vec<PtStatement>
+    pub statements: Vec<PtBlockChild>
 }

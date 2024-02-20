@@ -7,7 +7,7 @@ use crate::{
         grammars::function_declaration::{find_args_end, find_body_end, find_body_start},
         nodes::{function_declaration::AstFunctionDeclaration, tagged_string::TaggedString},
         parse::Parser,
-        parsers::{block::BlockParser, function_args::FunctionArgsParser, types::typ::TypeParser},
+        parsers::{block::BlockParser, block_content::BlockContentParser, function_args::FunctionArgsParser, types::typ::TypeParser},
         tree::{ParseError, TreeNode},
         tree_nodes::TreeNodes,
     },
@@ -83,7 +83,7 @@ impl Parser for FunctionDeclarationParser {
         let mut body_nodes = nodes.slice(body_start_index, body_end_index);
         body_nodes.pop_front(); // skip opening curly `{`
 
-        let body_block = BlockParser::parse(body_nodes);
+        let body_block = BlockContentParser::parse(body_nodes);
 
         let type_nodes = nodes;
         let typ = TypeParser::parse(type_nodes);
