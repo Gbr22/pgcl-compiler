@@ -1,11 +1,12 @@
-use crate::parser::nodes::{types::typ::PtType, var_declaration::PtVarDeclaration};
+use crate::parser::nodes::{function_arg::PtFunctionArg, types::typ::PtType, var_declaration::PtVarDeclaration};
 
 use super::{native_const::NativeConst, scope::Referable};
 
 #[derive(Debug, Clone)]
 pub enum ValueDeclarationReferable {
     Var(PtVarDeclaration),
-    NativeConst(NativeConst)
+    NativeConst(NativeConst),
+    FunctionArg(PtFunctionArg)
 }
 
 impl Referable for ValueDeclarationReferable {
@@ -13,6 +14,7 @@ impl Referable for ValueDeclarationReferable {
         match self {
             ValueDeclarationReferable::Var(v) => v.get_name(),
             ValueDeclarationReferable::NativeConst(n) => n.get_name(),
+            ValueDeclarationReferable::FunctionArg(arg) => arg.get_name()
         }
     }
 }
@@ -22,6 +24,7 @@ impl ValueDeclarationReferableLike for ValueDeclarationReferable {
         match self {
             ValueDeclarationReferable::Var(v) => v.get_type(),
             ValueDeclarationReferable::NativeConst(nc) => nc.get_type(),
+            ValueDeclarationReferable::FunctionArg(arg) => arg.get_type(),
         }
     }
 }

@@ -2,6 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use crate::common::range::Range;
 use crate::parser::program_tree::program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt};
+use crate::parser::program_tree::scope::Referable;
+use crate::parser::program_tree::value_declaration::{ValueDeclarationReferable, ValueDeclarationReferableLike};
 use crate::parser::tree::{TreeNode, TreeNodeLike};
 
 use super::function_declaration::{AstFunctionDeclaration, PtFunctionDeclaration};
@@ -28,6 +30,18 @@ pub struct PtFunctionArg {
     pub range: Range,
     pub name: String,
     pub typ: PtType
+}
+
+impl ValueDeclarationReferableLike for PtFunctionArg {
+    fn get_type(&self) -> PtType {
+        self.typ.clone()
+    }
+}
+
+impl Referable for PtFunctionArg {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
 }
 
 impl TryIntoPt<PtFunctionArg> for AstFunctionArg {

@@ -4,7 +4,7 @@ use crate::{
     common::range::Range,
     parser::{
         program_tree::{
-            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt}, scope::{FunctionScopeId, Referable, Scope, ScopeId}, value_declaration::ValueDeclarationReferableLike
+            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt}, scope::{FunctionScopeId, Referable, Scope, ScopeId}, value_declaration::{ValueDeclarationReferable, ValueDeclarationReferableLike}
         },
         tree::{TreeNode, TreeNodeLike},
     },
@@ -32,10 +32,8 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
         let name = self.name;
         
         let scope_id = ScopeId::Function(FunctionScopeId::new(&context.uri, &name.value));
-        let scope = Scope::new();
+        let mut scope = Scope::new();
         let context = context.to_owned().extend(scope_id.clone());
-        
-        root_context.insert_scope(scope_id, scope)?;
 
         let args: Vec<PtFunctionArg> = match *self.args {
             TreeNode::FunctionArgs(args) => {
@@ -48,6 +46,12 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
                 return Err(PtError::in_at(&context.uri, self.args.get_range(), "Expected function args."));
             }
         };
+        
+        for arg in args.iter() {
+            scope.values.push(ValueDeclarationReferable::FunctionArg(arg.clone()));
+        }
+
+        root_context.insert_scope(scope_id, scope)?;
 
         let return_type = match *self.return_type {
             TreeNode::AstType(typ) => {
