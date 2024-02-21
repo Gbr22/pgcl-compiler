@@ -1,6 +1,7 @@
 use super::function_call::FunctionCall;
-use super::value_access::ValueAccess;
+use super::value_access::{PtValueAccess, ValueAccess};
 
+use crate::parser::program_tree::program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt};
 use crate::parser::tree::TreeNodeLike;
 
 trait_enum! {
@@ -25,3 +26,25 @@ impl TreeNodeLike for Expression {
 }
 
 impl Expression {}
+
+#[derive(Debug, Clone)]
+pub enum PtExpression {
+    ValueAccess(PtValueAccess)
+}
+
+impl TryIntoPt<PtExpression> for Expression {
+    fn try_into_pt(
+        self,
+        root_context: RootContextMutRef,
+        context: &CurrentContext,
+    ) -> Result<PtExpression, PtError> {
+        match self {
+            Expression::ValueAccess(v) => {
+                Ok(PtExpression::ValueAccess(v.try_into_pt(root_context, context)?))
+            },
+            Expression::FunctionCall(f) => {
+                return Err(PtError::in_at(&context.uri, f.range, format!("TODO: Function call")));
+            }
+        }
+    }
+}

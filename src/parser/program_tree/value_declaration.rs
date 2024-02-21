@@ -1,4 +1,4 @@
-use crate::parser::nodes::var_declaration::PtVarDeclaration;
+use crate::parser::nodes::{types::typ::PtType, var_declaration::PtVarDeclaration};
 
 use super::{native_const::NativeConst, scope::Referable};
 
@@ -18,10 +18,15 @@ impl Referable for ValueDeclarationReferable {
 }
 
 impl ValueDeclarationReferableLike for ValueDeclarationReferable {
-
+    fn get_type(&self) -> PtType {
+        match self {
+            ValueDeclarationReferable::Var(v) => v.get_type(),
+            ValueDeclarationReferable::NativeConst(nc) => nc.get_type(),
+        }
+    }
 }
 
 
 pub trait ValueDeclarationReferableLike: Referable {
-    
+    fn get_type(&self) -> PtType;
 }

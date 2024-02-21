@@ -32,7 +32,11 @@ impl Referable for PtVarDeclaration {
     }
 }
 
-impl ValueDeclarationReferableLike for PtVarDeclaration {}
+impl ValueDeclarationReferableLike for PtVarDeclaration {
+    fn get_type(&self) -> PtType {
+        self.typ.clone()
+    }
+}
 
 impl TryIntoPt<PtVarDeclaration> for AstVarDeclaration {
     fn try_into_pt(

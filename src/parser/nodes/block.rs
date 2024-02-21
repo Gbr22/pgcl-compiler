@@ -3,7 +3,7 @@ use crate::{
     parser::{program_tree::{program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt}, scope::{BlockScopedId, Scope, ScopeId, VarScopeId}}, tree::{TreeNode, TreeNodeLike}},
 };
 
-use super::var_declaration::PtVarDeclaration;
+use super::{expressions::expr::PtExpression, statements::{simple::PtExpressionStatement, statement::PtStatement}, var_declaration::PtVarDeclaration};
 
 #[derive(Debug, Clone)]
 pub struct Block {
@@ -22,8 +22,7 @@ impl TreeNodeLike for Block {
 
 #[derive(Debug, Clone)]
 pub enum PtBlockChild {
-    Expression,
-    Return,
+    Statement(PtStatement),
     VarDeclaration(PtVarDeclaration),
     Block(PtBlock)
 }
@@ -53,8 +52,9 @@ impl TryIntoPt<PtBlock> for Block {
                     context = context.extend(new_scope);
                     statements.push(PtBlockChild::VarDeclaration(pt));
                 },
-                TreeNode::Statement(_) => {
-                    // TODO
+                TreeNode::Statement(statement) => {
+                    let pt = statement.try_into_pt(root_context.clone(), &context)?;
+                    statements.push(PtBlockChild::Statement(pt));
                 },
                 TreeNode::Block(block) => {
                     let pt = block.try_into_pt(root_context.clone(), &context)?;

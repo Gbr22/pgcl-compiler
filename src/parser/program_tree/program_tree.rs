@@ -156,6 +156,7 @@ pub fn create_global_scope() -> Scope {
         values: vec![
             NativeConst::new("true", Value::Bool(true)).into(),
             NativeConst::new("false", Value::Bool(false)).into(),
+            NativeConst::new("pi", Value::F32(std::f32::consts::PI)).into(),
         ],
         functions: vec![
             FunctionDeclarationReferable::NativeFunction(NativeFunction {

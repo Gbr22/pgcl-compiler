@@ -30,5 +30,7 @@ impl Referable for NativeConst {
 }
 
 impl ValueDeclarationReferableLike for NativeConst {
-
+    fn get_type(&self) -> PtType {
+        self.value.get_type()
+    }
 }
