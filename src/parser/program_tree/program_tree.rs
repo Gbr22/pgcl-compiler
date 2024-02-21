@@ -6,13 +6,19 @@ use std::{
 use crate::{
     common::range::Range,
     parser::{
-        nodes::{document::PtDocument, types::{internal::{global_type_ref, PtInternalTypeExpression}, simple::PtSimpleTypeExpression, typ::PtType}}, reference::{Reference, TypeReference}, tree::{ParseError, TreeNode}
+        nodes::{document::PtDocument, types::internal::global_type_ref},
+        tree::{ParseError, TreeNode},
     },
 };
 use rayon::{iter::Either, prelude::*, vec::IntoIter};
 
 use super::{
-    function_declaration::FunctionDeclarationReferable, native_const::NativeConst, native_function::{NativeFunction, NativeFunctionArg}, scope::{Scope, ScopeId}, type_declaration::{PrimitiveTypeDeclaration, TypeDeclarationReferable}, value::Value, value_declaration::ValueDeclarationReferable
+    function_declaration::FunctionDeclarationReferable,
+    native_const::NativeConst,
+    native_function::{NativeFunction, NativeFunctionArg},
+    scope::{Scope, ScopeId},
+    type_declaration::{PrimitiveTypeDeclaration, TypeDeclarationReferable},
+    value::Value,
 };
 
 #[derive(Debug, Clone)]
@@ -41,7 +47,7 @@ impl PtError {
         PtError {
             uri: None,
             range: None,
-            message: message.into()
+            message: message.into(),
         }
     }
 }
@@ -75,7 +81,7 @@ where
 {
     let iter: IntoIter<Source> = vec.into_par_iter();
     let vecs: (Vec<Destination>, Vec<PtError>) = iter.partition_map(|fun: Source| {
-        let result: Result<Destination, PtError> = fun.try_into_pt(root_context.clone(), &context);
+        let result: Result<Destination, PtError> = fun.try_into_pt(root_context.clone(), context);
 
         match result {
             Ok(ok) => Either::Left(ok),
@@ -101,9 +107,12 @@ pub type RootContextMutRefType = Arc<Mutex<RootContext>>;
 pub struct RootContextMutRef(RootContextMutRefType);
 
 impl RootContextMutRef {
-    pub fn insert_scope(&mut self,scope_id: ScopeId, scope: Scope) -> Result<(),PtError> {
-        let mut root = self.0.lock().map_err(|e|{
-            PtError::message(format!("Encountered poisoned mutex while trying to insert scope: {:?}",scope_id))
+    pub fn insert_scope(&mut self, scope_id: ScopeId, scope: Scope) -> Result<(), PtError> {
+        let mut root = self.0.lock().map_err(|_e| {
+            PtError::message(format!(
+                "Encountered poisoned mutex while trying to insert scope: {:?}",
+                scope_id
+            ))
         })?;
         root.scopes.insert(scope_id.clone(), scope);
 
@@ -113,9 +122,13 @@ impl RootContextMutRef {
 
 pub type RootContextMutexPoisonedError<'a> = PoisonError<MutexGuard<'a, RootContext>>;
 
-impl Into<PtError> for RootContextMutexPoisonedError<'_> {
-    fn into(self) -> PtError {
-        PtError { uri: None, range: None, message: "Mutex poisoned".to_owned() }
+impl From<RootContextMutexPoisonedError<'_>> for PtError {
+    fn from(_val: RootContextMutexPoisonedError<'_>) -> Self {
+        PtError {
+            uri: None,
+            range: None,
+            message: "Mutex poisoned".to_owned(),
+        }
     }
 }
 
@@ -138,19 +151,19 @@ pub fn create_global_scope() -> Scope {
         types: vec![
             TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
                 name: "f32".to_owned(),
-                description: Some("32-bit floating point value".to_owned())
+                description: Some("32-bit floating point value".to_owned()),
             }),
             TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
                 name: "i32".to_owned(),
-                description: Some("32-bit signed integer".to_owned())
+                description: Some("32-bit signed integer".to_owned()),
             }),
             TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
                 name: "u32".to_owned(),
-                description: Some("32-bit unsigned integer".to_owned())
+                description: Some("32-bit unsigned integer".to_owned()),
             }),
             TypeDeclarationReferable::Primitive(PrimitiveTypeDeclaration {
                 name: "bool".to_owned(),
-                description: Some("boolean (true or false) value".to_owned())
+                description: Some("boolean (true or false) value".to_owned()),
             }),
         ],
         values: vec![
@@ -158,15 +171,13 @@ pub fn create_global_scope() -> Scope {
             NativeConst::new("false", Value::Bool(false)).into(),
             NativeConst::new("pi", Value::F32(std::f32::consts::PI)).into(),
         ],
-        functions: vec![
-            FunctionDeclarationReferable::NativeFunction(NativeFunction {
+        functions: vec![FunctionDeclarationReferable::NativeFunction(
+            NativeFunction {
                 name: "cos".to_owned(),
                 return_type: global_type_ref("f32").into(),
-                args: vec![
-                    NativeFunctionArg::new("value", "f32")
-                ],
-            })
-        ],
+                args: vec![NativeFunctionArg::new("value", "f32")],
+            },
+        )],
     }
 }
 
@@ -181,7 +192,11 @@ pub fn create_program_tree(
     main_uri: String,
 ) -> Result<ProgramTree, PtError> {
     let TreeNode::Document(doc) = main_document else {
-        return Err(PtError::in_at(main_uri, main_document.get_range(), "Expected document."));
+        return Err(PtError::in_at(
+            main_uri,
+            main_document.get_range(),
+            "Expected document.",
+        ));
     };
 
     let mut scopes = HashMap::new();
@@ -194,7 +209,8 @@ pub fn create_program_tree(
         accessible_scopes: vec![ScopeId::Global],
     };
 
-    let main: PtDocument = doc.try_into_pt(RootContextMutRef(root_context.clone()), &current_context)?;
+    let main: PtDocument =
+        doc.try_into_pt(RootContextMutRef(root_context.clone()), &current_context)?;
 
     Ok(ProgramTree {
         context: root_context,

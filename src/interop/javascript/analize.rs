@@ -1,6 +1,5 @@
 use wasm_bindgen::prelude::*;
 
-use crate::analizer::analize as rust_analize;
 use crate::analizer::AnalizeResult as RustAnalizeResult;
 
 use super::tokenize::token_vec_into_js;

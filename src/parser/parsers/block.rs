@@ -1,17 +1,14 @@
 use crate::parser::brackets::{is_closing_bracket_curly, is_opening_bracket_curly};
-use crate::parser::grammars::block::BlockGrammar;
-use crate::parser::grammars::statements::ret::ReturnStatementGrammar;
-use crate::parser::grammars::statements::simple::SimpleStatementGrammar;
-use crate::parser::grammars::var_declaration::VarDeclarationGrammar;
+
 use crate::parser::parsers::block_content::BlockContentParser;
-use crate::parser::{nodes::block::Block, parse::Parser, tree::TreeNode, tree_nodes::TreeNodes};
-use crate::{pop_back_node, pop_front_node, process_grammars};
+use crate::parser::{parse::Parser, tree::TreeNode, tree_nodes::TreeNodes};
+use crate::{pop_back_node, pop_front_node};
 
 pub struct BlockParser {}
 
 impl Parser for BlockParser {
     fn parse(mut nodes: TreeNodes) -> TreeNode {
-        let range = nodes.range;
+        let _range = nodes.range;
 
         pop_front_node!(
             nodes,
@@ -27,8 +24,6 @@ impl Parser for BlockParser {
             is_closing_bracket_curly(&node)
         );
 
-        let block = BlockContentParser::parse(nodes);
-
-        block
+        BlockContentParser::parse(nodes)
     }
 }

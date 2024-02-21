@@ -1,12 +1,11 @@
-use std::sync::{Arc, Mutex};
-
 use crate::common::range::Range;
-use crate::parser::program_tree::program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt};
+use crate::parser::program_tree::program_tree::{
+    CurrentContext, PtError, RootContextMutRef, TryIntoPt,
+};
 use crate::parser::program_tree::scope::Referable;
-use crate::parser::program_tree::value_declaration::{ValueDeclarationReferable, ValueDeclarationReferableLike};
+use crate::parser::program_tree::value_declaration::ValueDeclarationReferableLike;
 use crate::parser::tree::{TreeNode, TreeNodeLike};
 
-use super::function_declaration::{AstFunctionDeclaration, PtFunctionDeclaration};
 use super::types::typ::PtType;
 
 #[derive(Debug, Clone)]
@@ -29,7 +28,7 @@ impl TreeNodeLike for AstFunctionArg {
 pub struct PtFunctionArg {
     pub range: Range,
     pub name: String,
-    pub typ: PtType
+    pub typ: PtType,
 }
 
 impl ValueDeclarationReferableLike for PtFunctionArg {
@@ -55,7 +54,7 @@ impl TryIntoPt<PtFunctionArg> for AstFunctionArg {
         let TreeNode::AstType(typ) = *self.typ else {
             return Err(PtError::in_at(&context.uri, self.range, "Expected type."));
         };
-        
+
         let typ = typ.try_into_pt(root_context, context)?;
 
         Ok(PtFunctionArg { range, name, typ })

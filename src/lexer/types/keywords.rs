@@ -24,7 +24,32 @@ pub static VAR: &str = "var";
 pub static WHILE: &str = "while";
 
 pub fn get_keywords() -> Vec<&'static str> {
-    vec![ALIAS, BREAK, CASE, CONST, CONST_ASSERT, CONTINUE, CONTINUING, DEFAULT, DIAGNOSTIC, DISCARD, ELSE, ENABLE, FN, FOR, IF, LET, LOOP, OVERRIDE, REQUIRES, RETURN, STRUCT, SWITCH, VAR, WHILE]
+    vec![
+        ALIAS,
+        BREAK,
+        CASE,
+        CONST,
+        CONST_ASSERT,
+        CONTINUE,
+        CONTINUING,
+        DEFAULT,
+        DIAGNOSTIC,
+        DISCARD,
+        ELSE,
+        ENABLE,
+        FN,
+        FOR,
+        IF,
+        LET,
+        LOOP,
+        OVERRIDE,
+        REQUIRES,
+        RETURN,
+        STRUCT,
+        SWITCH,
+        VAR,
+        WHILE,
+    ]
 }
 pub fn is_keyword(str: &str) -> bool {
     get_keywords().contains(&str)

@@ -1,5 +1,7 @@
 use crate::common::range::Range;
-use crate::parser::program_tree::program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt};
+use crate::parser::program_tree::program_tree::{
+    CurrentContext, PtError, RootContextMutRef, TryIntoPt,
+};
 use crate::parser::tree::{TreeNode, TreeNodeLike};
 
 use super::ret::{PtReturnStatement, ReturnStatement};
@@ -29,7 +31,7 @@ impl TreeNodeLike for Statement {
 #[derive(Debug, Clone)]
 pub enum PtStatement {
     Expression(PtExpressionStatement),
-    Return(PtReturnStatement)
+    Return(PtReturnStatement),
 }
 
 impl TryIntoPt<PtStatement> for Statement {
@@ -39,8 +41,12 @@ impl TryIntoPt<PtStatement> for Statement {
         context: &CurrentContext,
     ) -> Result<PtStatement, PtError> {
         match self {
-            Statement::ExpressionStatement(e) => Ok(PtStatement::Expression(e.try_into_pt(root_context, context)?)),
-            Statement::ReturnStatement(r) => Ok(PtStatement::Return(r.try_into_pt(root_context, context)?)),
+            Statement::ExpressionStatement(e) => Ok(PtStatement::Expression(
+                e.try_into_pt(root_context, context)?,
+            )),
+            Statement::ReturnStatement(r) => {
+                Ok(PtStatement::Return(r.try_into_pt(root_context, context)?))
+            }
         }
     }
 }

@@ -74,7 +74,7 @@ impl Parser for VarDeclarationParser {
 
             let name: TaggedString = name.into();
 
-            (name,Some(token.into()))
+            (name, Some(token.into()))
         } else {
             let TreeNode::Token(name) = lt_or_name else {
                 return ParseError::at(lt_or_name.get_range(), name_error).into();
@@ -85,7 +85,7 @@ impl Parser for VarDeclarationParser {
 
             let name: TaggedString = name.into();
 
-            (name,None)
+            (name, None)
         };
 
         let name = name.value;

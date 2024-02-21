@@ -7,6 +7,6 @@ pub mod nodes;
 pub mod parse;
 pub mod parsers;
 pub mod program_tree;
+pub mod reference;
 pub mod tree;
 pub mod tree_nodes;
-pub mod reference;

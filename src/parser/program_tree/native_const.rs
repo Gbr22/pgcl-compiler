@@ -1,11 +1,15 @@
-use crate::parser::nodes::types::{internal::global_type_ref, typ::PtType};
+use crate::parser::nodes::types::typ::PtType;
 
-use super::{scope::Referable, value::Value, value_declaration::{ValueDeclarationReferable, ValueDeclarationReferableLike}};
+use super::{
+    scope::Referable,
+    value::Value,
+    value_declaration::{ValueDeclarationReferable, ValueDeclarationReferableLike},
+};
 
 #[derive(Debug, Clone)]
 pub struct NativeConst {
     pub name: String,
-    pub value: Value
+    pub value: Value,
 }
 
 impl NativeConst {
@@ -17,9 +21,9 @@ impl NativeConst {
     }
 }
 
-impl Into<ValueDeclarationReferable> for NativeConst {
-    fn into(self) -> ValueDeclarationReferable {
-        ValueDeclarationReferable::NativeConst(self)
+impl From<NativeConst> for ValueDeclarationReferable {
+    fn from(val: NativeConst) -> Self {
+        ValueDeclarationReferable::NativeConst(val)
     }
 }
 

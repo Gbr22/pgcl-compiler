@@ -26,12 +26,12 @@ pub fn create_analizer_error(message: String) -> AnalizeResult {
         start_pos: Position { row: 0, col: 0 },
         end_pos: Position { row: 0, col: 0 },
     };
-    return AnalizeResult {
+    AnalizeResult {
         ast: parse_err.into(),
         tokens: vec![],
         errors: vec![crate_err],
         pt: Err(pt_err),
-    };
+    }
 }
 
 pub fn analize(import_resolver: &ImportResolver, main_uri: String) -> AnalizeResult {
@@ -68,8 +68,8 @@ pub fn analize(import_resolver: &ImportResolver, main_uri: String) -> AnalizeRes
     let pt = create_program_tree(cloned_ast, main_uri);
 
     let pt = if let Err(err) = pt {
-        let start_index = err.range.map(|r|r.start_index).unwrap_or_default();
-        let end_index = err.range.map(|r|r.end_index).unwrap_or_default();
+        let start_index = err.range.map(|r| r.start_index).unwrap_or_default();
+        let end_index = err.range.map(|r| r.end_index).unwrap_or_default();
 
         errors.push(crate::error::Error {
             text: err.message.clone(),

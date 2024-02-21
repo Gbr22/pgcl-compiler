@@ -2,7 +2,7 @@ use crate::parser::program_tree::scope::Referable;
 
 #[derive(Debug, Clone)]
 pub enum TypeDeclarationReferable {
-    Primitive(PrimitiveTypeDeclaration)
+    Primitive(PrimitiveTypeDeclaration),
 }
 
 pub trait TypeDeclarationReferableLike: Referable {
@@ -32,7 +32,6 @@ impl TypeDeclarationReferableLike for TypeDeclarationReferable {
             T::Primitive(e) => e.get_description(),
         }
     }
-    
 }
 
 #[derive(Debug, Clone)]
@@ -48,7 +47,7 @@ impl Referable for PrimitiveTypeDeclaration {
 }
 impl TypeDeclarationReferableLike for PrimitiveTypeDeclaration {
     fn to_string(&self) -> String {
-        format!("{}",&self.name)
+        self.name.to_string()
     }
     fn get_description(&self) -> Option<String> {
         self.description.clone()

@@ -1,16 +1,19 @@
-use std::sync::{Arc, Mutex};
-
 use crate::{
     common::range::Range,
     parser::{
         program_tree::{
-            function_declaration::FunctionDeclarationReferableLike, program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt}, scope::{FunctionScopeId, Referable, Scope, ScopeId}, value_declaration::{ValueDeclarationReferable, ValueDeclarationReferableLike}
+            function_declaration::FunctionDeclarationReferableLike,
+            program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt},
+            scope::{FunctionScopeId, Referable, Scope, ScopeId},
+            value_declaration::ValueDeclarationReferable,
         },
         tree::{TreeNode, TreeNodeLike},
     },
 };
 
-use super::{block::PtBlock, function_arg::PtFunctionArg, tagged_string::TaggedString, types::typ::PtType};
+use super::{
+    block::PtBlock, function_arg::PtFunctionArg, tagged_string::TaggedString, types::typ::PtType,
+};
 
 #[derive(Debug, Clone)]
 pub struct AstFunctionDeclaration {
@@ -21,7 +24,6 @@ pub struct AstFunctionDeclaration {
     pub body: Box<TreeNode>,
 }
 
-
 impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
     fn try_into_pt(
         self,
@@ -30,48 +32,60 @@ impl TryIntoPt<PtFunctionDeclaration> for AstFunctionDeclaration {
     ) -> Result<PtFunctionDeclaration, PtError> {
         let range = self.range;
         let name = self.name;
-        
+
         let scope_id = ScopeId::Function(FunctionScopeId::new(&context.uri, &name.value));
         let mut scope = Scope::new();
         let context = context.to_owned().extend(scope_id.clone());
 
         let args: Vec<PtFunctionArg> = match *self.args {
-            TreeNode::FunctionArgs(args) => {
-                args.try_into_pt(root_context.clone(),&context)?
-            },
-            TreeNode::ParseError(err) => {
-                return Err(PtError::from(err))
-            },
+            TreeNode::FunctionArgs(args) => args.try_into_pt(root_context.clone(), &context)?,
+            TreeNode::ParseError(err) => return Err(PtError::from(err)),
             _ => {
-                return Err(PtError::in_at(&context.uri, self.args.get_range(), "Expected function args."));
+                return Err(PtError::in_at(
+                    &context.uri,
+                    self.args.get_range(),
+                    "Expected function args.",
+                ));
             }
         };
-        
+
         for arg in args.iter() {
-            scope.values.push(ValueDeclarationReferable::FunctionArg(arg.clone()));
+            scope
+                .values
+                .push(ValueDeclarationReferable::FunctionArg(arg.clone()));
         }
 
         root_context.insert_scope(scope_id, scope)?;
 
         let return_type = match *self.return_type {
-            TreeNode::AstType(typ) => {
-                typ.try_into_pt(root_context.clone(), &context)?
-            },
+            TreeNode::AstType(typ) => typ.try_into_pt(root_context.clone(), &context)?,
             node => {
-                return Err(PtError::in_at(&context.uri, node.get_range(), "Expected type."));
+                return Err(PtError::in_at(
+                    &context.uri,
+                    node.get_range(),
+                    "Expected type.",
+                ));
             }
         };
 
         let body = match *self.body {
-            TreeNode::Block(body) => {
-                body.try_into_pt(root_context.clone(), &context)?
-            },
+            TreeNode::Block(body) => body.try_into_pt(root_context.clone(), &context)?,
             node => {
-                return Err(PtError::in_at(&context.uri, node.get_range(), "Expected block."));
+                return Err(PtError::in_at(
+                    &context.uri,
+                    node.get_range(),
+                    "Expected block.",
+                ));
             }
         };
 
-        Ok(PtFunctionDeclaration { range, name, args, return_type, body })
+        Ok(PtFunctionDeclaration {
+            range,
+            name,
+            args,
+            return_type,
+            body,
+        })
     }
 }
 
@@ -81,7 +95,7 @@ pub struct PtFunctionDeclaration {
     pub name: TaggedString,
     pub args: Vec<PtFunctionArg>,
     pub return_type: PtType,
-    pub body: PtBlock
+    pub body: PtBlock,
 }
 
 impl Referable for PtFunctionDeclaration {

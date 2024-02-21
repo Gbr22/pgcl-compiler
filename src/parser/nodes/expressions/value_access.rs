@@ -1,4 +1,14 @@
-use crate::{common::range::Range, parser::{program_tree::{program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt}, value_declaration::ValueDeclarationReferable}, reference::{Reference, ValueReference}, tree::TreeNodeLike}};
+use crate::{
+    common::range::Range,
+    parser::{
+        program_tree::{
+            program_tree::{CurrentContext, PtError, RootContext, RootContextMutRef, TryIntoPt},
+            value_declaration::ValueDeclarationReferable,
+        },
+        reference::{Reference, ValueReference},
+        tree::TreeNodeLike,
+    },
+};
 
 use super::expr::ExpressionLike;
 
@@ -27,7 +37,7 @@ impl ExpressionLike for ValueAccess {
 pub struct PtValueAccess {
     pub name: String,
     pub range: Range,
-    pub reference: ValueReference
+    pub reference: ValueReference,
 }
 
 impl PtValueAccess {
@@ -39,14 +49,17 @@ impl PtValueAccess {
 impl TryIntoPt<PtValueAccess> for ValueAccess {
     fn try_into_pt(
         self,
-        root_context: RootContextMutRef,
+        _root_context: RootContextMutRef,
         context: &CurrentContext,
     ) -> Result<PtValueAccess, PtError> {
         let range = self.range;
 
         Ok(PtValueAccess {
             range,
-            reference: ValueReference(Reference::new(&self.name, context.accessible_scopes.clone())),
+            reference: ValueReference(Reference::new(
+                &self.name,
+                context.accessible_scopes.clone(),
+            )),
             name: self.name,
         })
     }

@@ -11,6 +11,4 @@ trait_enum! {
     }
 }
 
-pub trait FunctionDeclarationReferableLike: Referable {
-    
-}
+pub trait FunctionDeclarationReferableLike: Referable {}

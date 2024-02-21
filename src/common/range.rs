@@ -50,7 +50,10 @@ impl Range {
 
 impl From<usize> for Range {
     fn from(value: usize) -> Self {
-        Range { start_index: value, end_index: value }
+        Range {
+            start_index: value,
+            end_index: value,
+        }
     }
 }
 

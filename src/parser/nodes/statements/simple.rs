@@ -1,7 +1,11 @@
 use super::statement::StatementLike;
 use crate::{
     common::range::Range,
-    parser::{nodes::expressions::expr::PtExpression, program_tree::program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt}, tree::{TreeNode, TreeNodeLike}},
+    parser::{
+        nodes::expressions::expr::PtExpression,
+        program_tree::program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt},
+        tree::{TreeNode, TreeNodeLike},
+    },
 };
 
 // Semicolon delimited statement
@@ -29,7 +33,7 @@ impl StatementLike for ExpressionStatement {
 #[derive(Debug, Clone)]
 pub struct PtExpressionStatement {
     pub range: Range,
-    pub expr: PtExpression
+    pub expr: PtExpression,
 }
 
 impl TryIntoPt<PtExpressionStatement> for ExpressionStatement {
@@ -41,16 +45,15 @@ impl TryIntoPt<PtExpressionStatement> for ExpressionStatement {
         let range = self.range;
 
         match *self.expr {
-            TreeNode::Expression(e)=>{
+            TreeNode::Expression(e) => {
                 let expr = e.try_into_pt(root_context, context)?;
-                Ok(PtExpressionStatement {
-                    range,
-                    expr,
-                })
+                Ok(PtExpressionStatement { range, expr })
             }
-            _ => {
-                return Err(PtError::in_at(&context.uri, range, format!("Expected expression.")))
-            }
+            _ => Err(PtError::in_at(
+                &context.uri,
+                range,
+                "Expected expression.".to_string(),
+            )),
         }
     }
 }

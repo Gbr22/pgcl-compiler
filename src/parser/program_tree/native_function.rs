@@ -6,7 +6,7 @@ use super::{function_declaration::FunctionDeclarationReferableLike, scope::Refer
 pub struct NativeFunction {
     pub name: String,
     pub args: Vec<NativeFunctionArg>,
-    pub return_type: PtType
+    pub return_type: PtType,
 }
 
 impl Referable for NativeFunction {
@@ -15,14 +15,12 @@ impl Referable for NativeFunction {
     }
 }
 
-impl FunctionDeclarationReferableLike for NativeFunction {
-    
-}
+impl FunctionDeclarationReferableLike for NativeFunction {}
 
 #[derive(Debug, Clone)]
 pub struct NativeFunctionArg {
     pub name: String,
-    pub typ: PtType
+    pub typ: PtType,
 }
 
 impl NativeFunctionArg {

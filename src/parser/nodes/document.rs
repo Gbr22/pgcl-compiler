@@ -1,12 +1,13 @@
-use std::sync::{Arc, Mutex};
-
-use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::ParallelIterator;
 
 use crate::{
     common::range::Range,
     parser::{
         program_tree::{
-            function_declaration::FunctionDeclarationReferable, program_tree::{try_map_into_pt, CurrentContext, PtError, RootContext, RootContextMutRef, RootContextMutRefType, TryIntoPt}, scope::{DocumentScopeId, Scope, ScopeId}, value_declaration::ValueDeclarationReferable
+            program_tree::{
+                try_map_into_pt, CurrentContext, PtError, RootContextMutRef, TryIntoPt,
+            },
+            scope::{DocumentScopeId, Scope, ScopeId},
         },
         tree::{TreeNode, TreeNodeLike},
     },
@@ -40,11 +41,10 @@ impl TryIntoPt<PtDocument> for AstDocument {
         let mut functions: Vec<AstFunctionDeclaration> = vec![];
         let mut vars: Vec<AstVarDeclaration> = vec![];
 
-        
         let scope_id = ScopeId::Document(DocumentScopeId {
             uri: context.uri.clone(),
         });
-        
+
         let scope = Scope::new();
         let context = context.to_owned().extend(scope_id.clone());
 

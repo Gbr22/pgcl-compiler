@@ -2,7 +2,9 @@ use super::typ::{AstTypeLike, PtTypeLike};
 use crate::common::range::Range;
 
 use crate::parser::program_tree::program_tree::{RootContext, RootContextMutRef, TryIntoPt};
-use crate::parser::program_tree::type_declaration::{TypeDeclarationReferable, TypeDeclarationReferableLike};
+use crate::parser::program_tree::type_declaration::{
+    TypeDeclarationReferable, TypeDeclarationReferableLike,
+};
 use crate::parser::reference::{Reference, TypeReference};
 use crate::parser::tree::TreeNodeLike;
 
@@ -21,7 +23,7 @@ pub struct PtSimpleTypeExpression {
 impl PtTypeLike for PtSimpleTypeExpression {
     fn to_string(&self, root: &RootContext) -> String {
         let Some(referable) = self.reference.resolve(root) else {
-            return format!("error<\"Could not resolve reference to type\">");
+            return "error<\"Could not resolve reference to type\">".to_string();
         };
         referable.to_string()
     }
@@ -33,13 +35,13 @@ impl PtTypeLike for PtSimpleTypeExpression {
 impl TryIntoPt<PtSimpleTypeExpression> for AstSimpleTypeExpression {
     fn try_into_pt(
         self,
-        root_context: RootContextMutRef,
+        _root_context: RootContextMutRef,
         context: &crate::parser::program_tree::program_tree::CurrentContext,
     ) -> Result<PtSimpleTypeExpression, crate::parser::program_tree::program_tree::PtError> {
         Ok(PtSimpleTypeExpression {
             reference: TypeReference(Reference {
                 scopes: context.accessible_scopes.clone(),
-                name: self.name
+                name: self.name,
             }),
             range: self.range,
         })

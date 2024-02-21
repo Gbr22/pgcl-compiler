@@ -1,3 +1,4 @@
+pub mod address_spaces;
 pub mod brackets;
 pub mod comments;
 pub mod definitions;
@@ -6,4 +7,3 @@ pub mod keywords;
 pub mod operators;
 pub mod token_type;
 pub mod whitespace;
-pub mod address_spaces;

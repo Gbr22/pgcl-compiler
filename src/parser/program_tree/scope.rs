@@ -1,6 +1,9 @@
 use crate::common::range::Range;
 
-use super::{function_declaration::FunctionDeclarationReferable, type_declaration::TypeDeclarationReferable, value_declaration::ValueDeclarationReferable};
+use super::{
+    function_declaration::FunctionDeclarationReferable, type_declaration::TypeDeclarationReferable,
+    value_declaration::ValueDeclarationReferable,
+};
 
 #[derive(Eq, Hash, PartialEq, Debug, Clone)]
 pub struct DocumentScopeId {
@@ -10,14 +13,14 @@ pub struct DocumentScopeId {
 #[derive(Eq, Hash, PartialEq, Debug, Clone)]
 pub struct BlockScopedId {
     uri: String,
-    range: Range
+    range: Range,
 }
 
 impl BlockScopedId {
     pub fn new(uri: impl Into<String>, range: Range) -> BlockScopedId {
         BlockScopedId {
             uri: uri.into(),
-            range
+            range,
         }
     }
 }
@@ -46,7 +49,11 @@ pub struct VarScopeId {
 
 impl VarScopeId {
     pub fn new(uri: impl Into<String>, name: impl Into<String>, range: Range) -> VarScopeId {
-        VarScopeId { uri: uri.into(), name: name.into(), range }
+        VarScopeId {
+            uri: uri.into(),
+            name: name.into(),
+            range,
+        }
     }
 }
 
@@ -56,7 +63,7 @@ pub enum ScopeId {
     Function(FunctionScopeId),
     Document(DocumentScopeId),
     Block(BlockScopedId),
-    Var(VarScopeId)
+    Var(VarScopeId),
 }
 
 #[derive(Debug, Clone)]
@@ -64,6 +71,12 @@ pub struct Scope {
     pub types: Vec<TypeDeclarationReferable>,
     pub values: Vec<ValueDeclarationReferable>,
     pub functions: Vec<FunctionDeclarationReferable>,
+}
+
+impl Default for Scope {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Scope {

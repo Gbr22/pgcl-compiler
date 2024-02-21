@@ -7,7 +7,10 @@ use crate::{
         grammars::function_declaration::{find_args_end, find_body_end, find_body_start},
         nodes::{function_declaration::AstFunctionDeclaration, tagged_string::TaggedString},
         parse::Parser,
-        parsers::{block::BlockParser, block_content::BlockContentParser, function_args::FunctionArgsParser, types::typ::TypeParser},
+        parsers::{
+            block_content::BlockContentParser, function_args::FunctionArgsParser,
+            types::typ::TypeParser,
+        },
         tree::{ParseError, TreeNode},
         tree_nodes::TreeNodes,
     },

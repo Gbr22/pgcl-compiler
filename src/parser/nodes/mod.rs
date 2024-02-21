@@ -8,6 +8,6 @@ pub mod function_call_arg;
 pub mod function_call_args;
 pub mod function_declaration;
 pub mod statements;
+pub mod tagged_string;
 pub mod types;
 pub mod var_declaration;
-pub mod tagged_string;

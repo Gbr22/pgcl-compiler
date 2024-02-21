@@ -4,7 +4,7 @@ use crate::parser::nodes::types::{internal::global_type_ref, typ::PtType};
 pub enum Value {
     F32(f32),
     I32(i32),
-    Bool(bool)
+    Bool(bool),
 }
 
 impl Value {
@@ -18,12 +18,10 @@ impl Value {
         global_type_ref(str).into()
     }
     pub fn string_value(&self) -> String {
-        let str = match self {
-            Value::F32(f) => format!("{}",f),
-            Value::I32(i) => format!("{}",i),
-            Value::Bool(b) => format!("{}",b),
-        };
-
-        str
+        match self {
+            Value::F32(f) => format!("{}", f),
+            Value::I32(i) => format!("{}", i),
+            Value::Bool(b) => format!("{}", b),
+        }
     }
 }

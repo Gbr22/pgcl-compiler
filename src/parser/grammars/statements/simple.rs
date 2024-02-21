@@ -18,10 +18,18 @@ impl GrammarLike for SimpleStatementGrammar {
         }
         for (index, node) in nodes.iter().enumerate() {
             match node {
-                TreeNode::VarDeclaration(_) => { continue; }
-                TreeNode::Statement(_) => { continue; }
-                TreeNode::ParseError(_) => { continue; }
-                TreeNode::Block(_) => { continue; }
+                TreeNode::VarDeclaration(_) => {
+                    continue;
+                }
+                TreeNode::Statement(_) => {
+                    continue;
+                }
+                TreeNode::ParseError(_) => {
+                    continue;
+                }
+                TreeNode::Block(_) => {
+                    continue;
+                }
                 _ => {
                     return Some(index);
                 }

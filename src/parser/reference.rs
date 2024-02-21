@@ -1,16 +1,22 @@
-use std::{cell::Ref, sync::{Arc, Mutex}};
-
-use super::program_tree::{program_tree::RootContext, scope::{Referable, ScopeId}, type_declaration::TypeDeclarationReferable, value_declaration::ValueDeclarationReferable};
+use super::program_tree::{
+    program_tree::RootContext,
+    scope::{Referable, ScopeId},
+    type_declaration::TypeDeclarationReferable,
+    value_declaration::ValueDeclarationReferable,
+};
 
 #[derive(Debug, Clone)]
 pub struct Reference {
     pub scopes: Vec<ScopeId>,
-    pub name: String
+    pub name: String,
 }
 
 impl Reference {
     pub fn new(name: impl Into<String>, scopes: Vec<ScopeId>) -> Reference {
-        Reference { scopes, name: name.into() }
+        Reference {
+            scopes,
+            name: name.into(),
+        }
     }
 }
 
@@ -29,7 +35,7 @@ impl TypeReference {
                     return Some(t.clone());
                 }
             }
-        };
+        }
 
         None
     }
@@ -50,7 +56,7 @@ impl ValueReference {
                     return Some(t.clone());
                 }
             }
-        };
+        }
 
         None
     }

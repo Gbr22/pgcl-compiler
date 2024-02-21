@@ -2,7 +2,9 @@ use super::compound::CompoundType;
 use super::internal::PtInternalTypeExpression;
 use super::simple::{AstSimpleTypeExpression, PtSimpleTypeExpression};
 use crate::common::range::Range;
-use crate::parser::program_tree::program_tree::{PtError, RootContext, RootContextMutRef, TryIntoPt};
+use crate::parser::program_tree::program_tree::{
+    PtError, RootContext, RootContextMutRef, TryIntoPt,
+};
 use crate::parser::program_tree::type_declaration::TypeDeclarationReferable;
 use crate::parser::tree::TreeNodeLike;
 
@@ -24,7 +26,7 @@ impl AstTypeLike for AstType {
 #[derive(Debug, Clone)]
 pub enum PtType {
     Simple(PtSimpleTypeExpression),
-    Internal(PtInternalTypeExpression)
+    Internal(PtInternalTypeExpression),
 }
 
 impl TryIntoPt<PtType> for AstType {
@@ -39,9 +41,11 @@ impl TryIntoPt<PtType> for AstType {
 
                 Ok(PtType::Simple(simple_type))
             }
-            _ => {
-                Err(PtError::in_at(&context.uri, self.get_range(), "Unknown type"))
-            }
+            _ => Err(PtError::in_at(
+                &context.uri,
+                self.get_range(),
+                "Unknown type",
+            )),
         }
     }
 }
