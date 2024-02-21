@@ -1,6 +1,6 @@
 use crate::{
     common::range::Range,
-    parser::{program_tree::{program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt}, scope::{BlockScopedId, Scope, ScopeId, VarScopeId}}, tree::{TreeNode, TreeNodeLike}},
+    parser::{program_tree::{program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt}, scope::{BlockScopedId, Scope, ScopeId, VarScopeId}, value_declaration::ValueDeclarationReferable}, tree::{TreeNode, TreeNodeLike}},
 };
 
 use super::{expressions::expr::PtExpression, statements::{simple::PtExpressionStatement, statement::PtStatement}, var_declaration::PtVarDeclaration};
@@ -47,10 +47,13 @@ impl TryIntoPt<PtBlock> for Block {
                     return Err(e.into())
                 },
                 TreeNode::VarDeclaration(var_declaration) => {
-                    let pt = var_declaration.try_into_pt(root_context.clone(), &context)?;
-                    let new_scope = ScopeId::Var(VarScopeId::new(&context.uri, pt.name.clone(), pt.range));
-                    context = context.extend(new_scope);
-                    statements.push(PtBlockChild::VarDeclaration(pt));
+                    let pt_var = var_declaration.try_into_pt(root_context.clone(), &context)?;
+                    let scope_id = ScopeId::Var(VarScopeId::new(&context.uri, pt_var.name.clone(), pt_var.range));
+                    let mut scope = Scope::new();
+                    scope.values.push(ValueDeclarationReferable::Var(pt_var.clone()));
+                    root_context.insert_scope(scope_id.clone(), scope)?;
+                    context = context.extend(scope_id);
+                    statements.push(PtBlockChild::VarDeclaration(pt_var));
                 },
                 TreeNode::Statement(statement) => {
                     let pt = statement.try_into_pt(root_context.clone(), &context)?;
