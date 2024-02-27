@@ -6,7 +6,13 @@ use std::{
 use crate::{
     common::range::Range,
     parser::{
-        nodes::{document::PtDocument, types::simple::global_type_ref},
+        nodes::{
+            document::PtDocument,
+            types::{
+                simple::global_type_ref,
+                typ::{PtConcreteTypeExpression, PtTypeExpression},
+            },
+        },
         tree::{ParseError, TreeNode},
     },
 };
@@ -17,7 +23,9 @@ use super::{
     native_const::NativeConst,
     native_function::{NativeFunction, NativeFunctionArg},
     scope::{Scope, ScopeId},
-    type_declaration::{PrimitiveTypeDeclaration, TypeDeclarationReferable},
+    type_declaration::{
+        GenericTypeDeclaration, PrimitiveTypeDeclaration, TypeDeclarationReferable,
+    },
     value::Value,
 };
 
@@ -174,8 +182,14 @@ pub fn create_global_scope() -> Scope {
         functions: vec![FunctionDeclarationReferable::NativeFunction(
             NativeFunction {
                 name: "cos".to_owned(),
-                return_type: global_type_ref("f32").into(),
-                args: vec![NativeFunctionArg::new("value", "f32")],
+                return_type: global_type_ref("T").into(),
+                args: vec![NativeFunctionArg::new("value", "T")],
+                generics: vec![GenericTypeDeclaration {
+                    name: format!("T"),
+                    constraint: PtTypeExpression::from(PtConcreteTypeExpression::from(
+                        global_type_ref("f32"),
+                    )),
+                }],
             },
         )],
     }

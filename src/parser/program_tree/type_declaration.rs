@@ -1,4 +1,4 @@
-use crate::parser::program_tree::scope::Referable;
+use crate::parser::{nodes::types::typ::PtTypeExpression, program_tree::scope::Referable};
 
 #[derive(Debug, Clone)]
 pub enum TypeDeclarationReferable {
@@ -51,5 +51,26 @@ impl TypeDeclarationReferableLike for PrimitiveTypeDeclaration {
     }
     fn get_description(&self) -> Option<String> {
         self.description.clone()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GenericTypeDeclaration {
+    pub name: String,
+    pub constraint: PtTypeExpression,
+}
+
+impl Referable for GenericTypeDeclaration {
+    fn get_name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl TypeDeclarationReferableLike for GenericTypeDeclaration {
+    fn to_string(&self) -> String {
+        self.name.to_string()
+    }
+    fn get_description(&self) -> Option<String> {
+        None
     }
 }

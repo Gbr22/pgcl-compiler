@@ -3,10 +3,14 @@ use crate::parser::nodes::types::{
     typ::{PtConcreteTypeExpression, PtTypeExpression},
 };
 
-use super::{function_declaration::FunctionDeclarationReferableLike, scope::Referable};
+use super::{
+    function_declaration::FunctionDeclarationReferableLike, scope::Referable,
+    type_declaration::GenericTypeDeclaration,
+};
 
 #[derive(Debug, Clone)]
 pub struct NativeFunction {
+    pub generics: Vec<GenericTypeDeclaration>,
     pub name: String,
     pub args: Vec<NativeFunctionArg>,
     pub return_type: PtConcreteTypeExpression,
