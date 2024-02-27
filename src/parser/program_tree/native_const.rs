@@ -21,12 +21,6 @@ impl NativeConst {
     }
 }
 
-impl From<NativeConst> for ValueDeclarationReferable {
-    fn from(val: NativeConst) -> Self {
-        ValueDeclarationReferable::NativeConst(val)
-    }
-}
-
 impl Referable for NativeConst {
     fn get_name(&self) -> &str {
         &self.name

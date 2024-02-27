@@ -26,12 +26,6 @@ impl PtTypeLike for PtInternalTypeExpression {
     }
 }
 
-impl From<PtInternalTypeExpression> for PtType {
-    fn from(val: PtInternalTypeExpression) -> Self {
-        PtType::Internal(val)
-    }
-}
-
 pub fn global_type_ref(name: impl Into<String>) -> PtInternalTypeExpression {
     PtInternalTypeExpression {
         reference: TypeReference(Reference {

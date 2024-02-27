@@ -7,23 +7,17 @@ use crate::parser::program_tree::program_tree::{
 };
 use crate::parser::program_tree::type_declaration::TypeDeclarationReferable;
 use crate::parser::tree::TreeNodeLike;
+use enum_dispatch::enum_dispatch;
 
 #[derive(Debug, Clone)]
+#[enum_dispatch]
 pub enum AstType {
     Simple(AstSimpleTypeExpression),
     Compound(CompoundType),
 }
 
-impl AstTypeLike for AstType {
-    fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
-        match self {
-            AstType::Simple(e) => e.to_node_like(),
-            AstType::Compound(e) => e.to_node_like(),
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
+#[enum_dispatch]
 pub enum PtType {
     Simple(PtSimpleTypeExpression),
     Internal(PtInternalTypeExpression),
@@ -50,27 +44,13 @@ impl TryIntoPt<PtType> for AstType {
     }
 }
 
+#[enum_dispatch(PtType)]
 pub trait PtTypeLike {
     fn to_string(&self, root: &RootContext) -> String;
     fn resolve_type(&self, root: &RootContext) -> Option<TypeDeclarationReferable>;
 }
 
-impl PtTypeLike for PtType {
-    fn to_string(&self, root: &RootContext) -> String {
-        match self {
-            PtType::Simple(e) => e.to_string(root),
-            PtType::Internal(e) => e.to_string(root),
-        }
-    }
-
-    fn resolve_type(&self, root: &RootContext) -> Option<TypeDeclarationReferable> {
-        match self {
-            PtType::Simple(e) => e.resolve_type(root),
-            PtType::Internal(e) => e.resolve_type(root),
-        }
-    }
-}
-
+#[enum_dispatch(AstType)]
 pub trait AstTypeLike {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike>;
 }
