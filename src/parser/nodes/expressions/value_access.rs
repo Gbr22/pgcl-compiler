@@ -13,12 +13,12 @@ use crate::{
 use super::expr::ExpressionLike;
 
 #[derive(Debug, Clone)]
-pub struct ValueAccess {
+pub struct AstValueAccess {
     pub name: String,
     pub range: Range,
 }
 
-impl TreeNodeLike for ValueAccess {
+impl TreeNodeLike for AstValueAccess {
     fn get_range(&self) -> Range {
         self.range
     }
@@ -27,7 +27,7 @@ impl TreeNodeLike for ValueAccess {
     }
 }
 
-impl ExpressionLike for ValueAccess {
+impl ExpressionLike for AstValueAccess {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike> {
         Box::new(self)
     }
@@ -46,7 +46,7 @@ impl PtValueAccess {
     }
 }
 
-impl TryIntoPt<PtValueAccess> for ValueAccess {
+impl TryIntoPt<PtValueAccess> for AstValueAccess {
     fn try_into_pt(
         self,
         _root_context: RootContextMutRef,

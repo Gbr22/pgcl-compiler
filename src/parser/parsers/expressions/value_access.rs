@@ -1,7 +1,7 @@
 use crate::{
     lexer::types::token_type::TokenType,
     parser::{
-        nodes::expressions::{expr::Expression, value_access::ValueAccess},
+        nodes::expressions::{expr::Expression, value_access::AstValueAccess},
         parse::Parser,
         tree::{ParseError, TreeNode},
         tree_nodes::TreeNodes,
@@ -26,7 +26,7 @@ impl Parser for ValueAccessParser {
         }
         let name = name.string.to_owned();
 
-        let value_access = ValueAccess { name, range };
+        let value_access = AstValueAccess { name, range };
         TreeNode::Expression(Expression::ValueAccess(value_access))
     }
 }

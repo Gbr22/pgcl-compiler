@@ -1,19 +1,21 @@
-use super::function_call::FunctionCall;
-use super::value_access::{PtValueAccess, ValueAccess};
+use enum_dispatch::enum_dispatch;
+
+use super::function_call::{AstFunctionCall, PtFunctionCall};
+use super::value_access::{AstValueAccess, PtValueAccess};
 
 use crate::parser::program_tree::program_tree::{
     CurrentContext, PtError, RootContextMutRef, TryIntoPt,
 };
 use crate::parser::tree::TreeNodeLike;
 
-trait_enum! {
-    #[derive(Debug, Clone)]
-    pub enum Expression: ExpressionLike {
-        ValueAccess,
-        FunctionCall
-    }
+#[derive(Debug, Clone)]
+#[enum_dispatch]
+pub enum Expression {
+    ValueAccess(AstValueAccess),
+    FunctionCall(AstFunctionCall),
 }
 
+#[enum_dispatch(Expression)]
 pub trait ExpressionLike {
     fn to_node_like(&self) -> Box<&dyn TreeNodeLike>;
 }
@@ -32,6 +34,7 @@ impl Expression {}
 #[derive(Debug, Clone)]
 pub enum PtExpression {
     ValueAccess(PtValueAccess),
+    FunctionCall(PtFunctionCall),
 }
 
 impl TryIntoPt<PtExpression> for Expression {
@@ -44,10 +47,8 @@ impl TryIntoPt<PtExpression> for Expression {
             Expression::ValueAccess(v) => Ok(PtExpression::ValueAccess(
                 v.try_into_pt(root_context, context)?,
             )),
-            Expression::FunctionCall(f) => Err(PtError::in_at(
-                &context.uri,
-                f.range,
-                "TODO: Function call".to_string(),
+            Expression::FunctionCall(f) => Ok(PtExpression::FunctionCall(
+                f.try_into_pt(root_context, context)?,
             )),
         }
     }
