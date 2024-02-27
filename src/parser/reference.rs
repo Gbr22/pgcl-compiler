@@ -1,4 +1,5 @@
 use super::program_tree::{
+    function_declaration::FunctionDeclarationReferable,
     program_tree::RootContext,
     scope::{Referable, ScopeId},
     type_declaration::TypeDeclarationReferable,
@@ -52,6 +53,27 @@ impl ValueReference {
                 continue;
             };
             for t in scope.values.iter() {
+                if t.get_name() == r.name {
+                    return Some(t.clone());
+                }
+            }
+        }
+
+        None
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct FunctionReference(pub Reference);
+
+impl FunctionReference {
+    pub fn resolve(&self, root: &RootContext) -> Option<FunctionDeclarationReferable> {
+        let r = &self.0;
+        for id in r.scopes.iter().rev() {
+            let Some(scope) = root.scopes.get(id) else {
+                continue;
+            };
+            for t in scope.functions.iter() {
                 if t.get_name() == r.name {
                     return Some(t.clone());
                 }

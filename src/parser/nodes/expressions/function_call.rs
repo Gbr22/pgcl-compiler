@@ -2,6 +2,7 @@ use crate::{
     common::range::Range,
     parser::{
         program_tree::program_tree::{CurrentContext, PtError, RootContextMutRef, TryIntoPt},
+        reference::{FunctionReference, Reference},
         tree::{TreeNode, TreeNodeLike},
     },
 };
@@ -34,6 +35,7 @@ impl ExpressionLike for AstFunctionCall {
 
 #[derive(Debug, Clone)]
 pub struct PtFunctionCall {
+    pub reference: FunctionReference,
     pub name: String,
     pub name_range: Range,
     pub range: Range,
@@ -61,11 +63,14 @@ impl TryIntoPt<PtFunctionCall> for AstFunctionCall {
             }
         };
 
+        let reference = FunctionReference(Reference::new(&name, context.accessible_scopes.clone()));
+
         Ok(PtFunctionCall {
             name,
             name_range,
             range,
             args,
+            reference,
         })
     }
 }
