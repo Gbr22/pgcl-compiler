@@ -12,7 +12,8 @@ use crate::{
 };
 
 use super::{
-    block::PtBlock, function_arg::PtFunctionArg, tagged_string::TaggedString, types::typ::PtType,
+    block::PtBlock, function_arg::PtFunctionArg, tagged_string::TaggedString,
+    types::typ::PtTypeExpression,
 };
 
 #[derive(Debug, Clone)]
@@ -94,7 +95,7 @@ pub struct PtFunctionDeclaration {
     pub range: Range,
     pub name: TaggedString,
     pub args: Vec<PtFunctionArg>,
-    pub return_type: PtType,
+    pub return_type: PtTypeExpression,
     pub body: PtBlock,
 }
 

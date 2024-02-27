@@ -6,7 +6,7 @@ use std::{
 use crate::{
     common::range::Range,
     parser::{
-        nodes::{document::PtDocument, types::internal::global_type_ref},
+        nodes::{document::PtDocument, types::simple::global_type_ref},
         tree::{ParseError, TreeNode},
     },
 };

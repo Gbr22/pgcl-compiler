@@ -1,4 +1,7 @@
-use crate::parser::nodes::types::{internal::global_type_ref, typ::PtType};
+use crate::parser::nodes::types::{
+    simple::global_type_ref,
+    typ::{PtConcreteTypeExpression, PtTypeExpression},
+};
 
 #[derive(Debug, Clone)]
 pub enum Value {
@@ -8,14 +11,16 @@ pub enum Value {
 }
 
 impl Value {
-    pub fn get_type(&self) -> PtType {
+    pub fn get_type(&self) -> PtTypeExpression {
         let str = match self {
             Value::F32(_) => "f32",
             Value::I32(_) => "i32",
             Value::Bool(_) => "bool",
         };
 
-        global_type_ref(str).into()
+        let conrete: PtConcreteTypeExpression = global_type_ref(str).into();
+
+        conrete.into()
     }
     pub fn string_value(&self) -> String {
         match self {

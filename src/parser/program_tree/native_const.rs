@@ -1,4 +1,4 @@
-use crate::parser::nodes::types::typ::PtType;
+use crate::parser::nodes::types::typ::PtTypeExpression;
 
 use super::{
     scope::Referable,
@@ -28,7 +28,7 @@ impl Referable for NativeConst {
 }
 
 impl ValueDeclarationReferableLike for NativeConst {
-    fn get_type(&self) -> PtType {
+    fn get_type(&self) -> PtTypeExpression {
         self.value.get_type()
     }
 }

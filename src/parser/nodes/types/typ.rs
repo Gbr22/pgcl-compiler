@@ -1,5 +1,4 @@
 use super::compound::CompoundType;
-use super::internal::PtInternalTypeExpression;
 use super::simple::{AstSimpleTypeExpression, PtSimpleTypeExpression};
 use crate::common::range::Range;
 use crate::parser::program_tree::program_tree::{
@@ -18,22 +17,58 @@ pub enum AstType {
 
 #[derive(Debug, Clone)]
 #[enum_dispatch]
-pub enum PtType {
+pub enum PtConcreteTypeExpression {
     Simple(PtSimpleTypeExpression),
-    Internal(PtInternalTypeExpression),
+    //TODO: Compound(PtCompoundTypeExpression)
 }
 
-impl TryIntoPt<PtType> for AstType {
+impl PtTypeExpressionLike for PtConcreteTypeExpression {
+    fn to_string(&self, root: &RootContext) -> String {
+        match self {
+            PtConcreteTypeExpression::Simple(s) => s.to_string(root),
+        }
+    }
+    fn get_description(&self, root: &RootContext) -> Option<String> {
+        match self {
+            PtConcreteTypeExpression::Simple(s) => s.get_description(root),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+#[enum_dispatch]
+pub enum PtTypeExpression {
+    Conrete(PtConcreteTypeExpression),
+    Union(UnionTypeExpression),
+}
+
+#[derive(Debug, Clone)]
+pub struct UnionTypeExpression {
+    pub items: Vec<PtTypeExpression>,
+}
+
+impl PtTypeExpressionLike for UnionTypeExpression {
+    fn to_string(&self, root: &RootContext) -> String {
+        format!("TODO | TODO")
+    }
+    fn get_description(&self, root: &RootContext) -> Option<String> {
+        None
+    }
+}
+
+impl TryIntoPt<PtTypeExpression> for AstType {
     fn try_into_pt(
         self,
         root_context: RootContextMutRef,
         context: &crate::parser::program_tree::program_tree::CurrentContext,
-    ) -> Result<PtType, crate::parser::program_tree::program_tree::PtError> {
+    ) -> Result<PtTypeExpression, crate::parser::program_tree::program_tree::PtError> {
         match self {
             AstType::Simple(st) => {
                 let simple_type = st.try_into_pt(root_context, context)?;
 
-                Ok(PtType::Simple(simple_type))
+                Ok(PtTypeExpression::Conrete(PtConcreteTypeExpression::Simple(
+                    simple_type,
+                )))
             }
             _ => Err(PtError::in_at(
                 &context.uri,
@@ -44,9 +79,14 @@ impl TryIntoPt<PtType> for AstType {
     }
 }
 
-#[enum_dispatch(PtType)]
-pub trait PtTypeLike {
+#[enum_dispatch(PtTypeExpression)]
+pub trait PtTypeExpressionLike {
     fn to_string(&self, root: &RootContext) -> String;
+    fn get_description(&self, root: &RootContext) -> Option<String>;
+}
+
+#[enum_dispatch(PtConcreteTypeExpression)]
+pub trait PtConcreteTypeExpressionLike {
     fn resolve_type(&self, root: &RootContext) -> Option<TypeDeclarationReferable>;
 }
 

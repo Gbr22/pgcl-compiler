@@ -1,4 +1,7 @@
-use crate::parser::nodes::types::{internal::global_type_ref, typ::PtType};
+use crate::parser::nodes::types::{
+    simple::global_type_ref,
+    typ::{PtConcreteTypeExpression, PtTypeExpression},
+};
 
 use super::{function_declaration::FunctionDeclarationReferableLike, scope::Referable};
 
@@ -6,7 +9,7 @@ use super::{function_declaration::FunctionDeclarationReferableLike, scope::Refer
 pub struct NativeFunction {
     pub name: String,
     pub args: Vec<NativeFunctionArg>,
-    pub return_type: PtType,
+    pub return_type: PtConcreteTypeExpression,
 }
 
 impl Referable for NativeFunction {
@@ -20,7 +23,7 @@ impl FunctionDeclarationReferableLike for NativeFunction {}
 #[derive(Debug, Clone)]
 pub struct NativeFunctionArg {
     pub name: String,
-    pub typ: PtType,
+    pub typ: PtConcreteTypeExpression,
 }
 
 impl NativeFunctionArg {

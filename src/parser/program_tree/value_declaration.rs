@@ -1,7 +1,7 @@
 use enum_dispatch::enum_dispatch;
 
 use crate::parser::nodes::{
-    function_arg::PtFunctionArg, types::typ::PtType, var_declaration::PtVarDeclaration,
+    function_arg::PtFunctionArg, types::typ::PtTypeExpression, var_declaration::PtVarDeclaration,
 };
 
 use super::{native_const::NativeConst, scope::Referable};
@@ -26,5 +26,5 @@ impl Referable for ValueDeclarationReferable {
 
 #[enum_dispatch(ValueDeclarationReferable)]
 pub trait ValueDeclarationReferableLike: Referable {
-    fn get_type(&self) -> PtType;
+    fn get_type(&self) -> PtTypeExpression;
 }

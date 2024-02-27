@@ -11,7 +11,7 @@ use crate::{
     },
 };
 
-use super::{tagged_string::TaggedString, types::typ::PtType};
+use super::{tagged_string::TaggedString, types::typ::PtTypeExpression};
 
 #[derive(Debug, Clone)]
 pub struct AstVarDeclaration {
@@ -25,7 +25,7 @@ pub struct AstVarDeclaration {
 pub struct PtVarDeclaration {
     pub range: Range,
     pub name: String,
-    pub typ: PtType,
+    pub typ: PtTypeExpression,
     pub address_space: String,
     pub address_space_range: Option<Range>,
 }
@@ -37,7 +37,7 @@ impl Referable for PtVarDeclaration {
 }
 
 impl ValueDeclarationReferableLike for PtVarDeclaration {
-    fn get_type(&self) -> PtType {
+    fn get_type(&self) -> PtTypeExpression {
         self.typ.clone()
     }
 }

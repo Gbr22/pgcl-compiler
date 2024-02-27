@@ -6,7 +6,7 @@ use crate::parser::program_tree::scope::Referable;
 use crate::parser::program_tree::value_declaration::ValueDeclarationReferableLike;
 use crate::parser::tree::{TreeNode, TreeNodeLike};
 
-use super::types::typ::PtType;
+use super::types::typ::PtTypeExpression;
 
 #[derive(Debug, Clone)]
 pub struct AstFunctionArg {
@@ -28,11 +28,11 @@ impl TreeNodeLike for AstFunctionArg {
 pub struct PtFunctionArg {
     pub range: Range,
     pub name: String,
-    pub typ: PtType,
+    pub typ: PtTypeExpression,
 }
 
 impl ValueDeclarationReferableLike for PtFunctionArg {
-    fn get_type(&self) -> PtType {
+    fn get_type(&self) -> PtTypeExpression {
         self.typ.clone()
     }
 }
